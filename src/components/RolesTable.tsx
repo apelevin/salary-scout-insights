@@ -21,10 +21,10 @@ const RolesTable = ({
   isLoading = false,
   employees = []
 }: RolesTableProps) => {
-  // Get unique role names and sort them in descending alphabetical order
-  const uniqueRoles = [...new Set(rolesData.map((role) => cleanRoleName(role.roleName)))]
-    .filter(Boolean)
-    .sort((a, b) => b.localeCompare(a));
+  // Helper functions first
+  const cleanRoleName = (roleName: string): string => {
+    return roleName.replace(/["']/g, '').trim();
+  };
 
   const formatSalary = (salary: number): string => {
     return new Intl.NumberFormat("ru-RU", {
@@ -34,9 +34,10 @@ const RolesTable = ({
     }).format(salary);
   };
 
-  const cleanRoleName = (roleName: string): string => {
-    return roleName.replace(/["']/g, '').trim();
-  };
+  // Get unique role names and sort them in descending alphabetical order
+  const uniqueRoles = [...new Set(rolesData.map((role) => cleanRoleName(role.roleName)))]
+    .filter(Boolean)
+    .sort((a, b) => b.localeCompare(a));
 
   // Function to find all salaries associated with a role
   const findSalariesForRole = (roleName: string): number[] => {
