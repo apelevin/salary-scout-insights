@@ -103,18 +103,18 @@ const Index = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 py-8">
+    <div className="min-h-screen bg-background py-8">
       <div className="container mx-auto px-4">
         <header className="mb-8">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-3">
               <BarChart className="h-8 w-8 text-blue-600" />
-              <h1 className="text-2xl font-bold text-gray-900">
+              <h1 className="text-2xl font-bold text-foreground">
                 Salary Scout Insights
               </h1>
             </div>
           </div>
-          <p className="mt-2 text-gray-600">
+          <p className="mt-2 text-muted-foreground">
             Анализ зарплат сотрудников компании
           </p>
         </header>
@@ -125,7 +125,7 @@ const Index = () => {
               <CardContent className="p-6">
                 <div className="flex items-center space-x-2 mb-4">
                   <FileType className="h-5 w-5 text-blue-500" />
-                  <h2 className="text-xl font-semibold">Загрузка данных</h2>
+                  <h2 className="text-xl font-semibold text-foreground">Загрузка данных</h2>
                 </div>
                 <FileUpload onFilesUploaded={handleFilesUploaded} maxFiles={3} />
                 <div className="mt-6">
@@ -144,22 +144,22 @@ const Index = () => {
               <CardContent className="p-6">
                 <div className="flex items-center space-x-2 mb-4">
                   <FileText className="h-5 w-5 text-blue-500" />
-                  <h2 className="text-xl font-semibold">Инструкция</h2>
+                  <h2 className="text-xl font-semibold text-foreground">Инструкция</h2>
                 </div>
-                <div className="space-y-3 text-sm">
-                  <p className="text-gray-600">
+                <div className="space-y-3 text-sm text-muted-foreground">
+                  <p>
                     1. Загрузите до 3 файлов в формате CSV с данными о сотрудниках и ролях.
                   </p>
-                  <p className="text-gray-600">
+                  <p>
                     2. CSV файлы сотрудников должны содержать колонки "name" (имя) и "salary" (зарплата).
                   </p>
-                  <p className="text-gray-600">
+                  <p>
                     3. CSV файлы ролей должны содержать колонки "участник роли" и "название роли".
                   </p>
-                  <p className="text-gray-600">
+                  <p>
                     4. Нажмите "Обработать данные" для анализа загруженных файлов.
                   </p>
-                  <p className="text-gray-600">
+                  <p>
                     5. Вы можете редактировать стандартные оклады для ролей на соответствующей вкладке.
                   </p>
                 </div>
@@ -172,7 +172,7 @@ const Index = () => {
               <CardContent className="p-6">
                 <div className="flex items-center space-x-2 mb-4">
                   <BarChart className="h-5 w-5 text-blue-500" />
-                  <h2 className="text-xl font-semibold">Данные</h2>
+                  <h2 className="text-xl font-semibold text-foreground">Данные</h2>
                 </div>
                 <Tabs 
                   value={activeTab} 
