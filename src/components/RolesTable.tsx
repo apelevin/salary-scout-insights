@@ -15,8 +15,16 @@ interface RolesTableProps {
 }
 
 const RolesTable = ({ rolesData = [], isLoading = false }: RolesTableProps) => {
+  // Clean up role names by removing quotes and special characters
+  const cleanRoleName = (roleName: string) => {
+    return roleName
+      .replace(/['"]/g, '') // Remove quotes
+      .replace(/[^\w\s\-]/g, '') // Remove special characters except spaces, letters, numbers, and hyphens
+      .trim();
+  };
+
   // Get unique role names and sort them in ascending alphabetical order
-  const uniqueRoles = [...new Set(rolesData.map((role) => role.roleName))]
+  const uniqueRoles = [...new Set(rolesData.map((role) => cleanRoleName(role.roleName)))]
     .filter(Boolean)
     .sort((a, b) => a.localeCompare(b));
 
