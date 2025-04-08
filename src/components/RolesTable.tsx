@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import {
   Table,
@@ -40,7 +39,6 @@ const RolesTable = ({
 }: RolesTableProps) => {
   const [roles, setRoles] = useState<RoleWithSalaries[]>([]);
 
-  // Helper functions first
   const cleanRoleName = (roleName: string): string => {
     return roleName.replace(/["']/g, '').trim();
   };
@@ -53,29 +51,25 @@ const RolesTable = ({
     }).format(salary);
   };
 
-  // Calculate standard salary based on min and max values
   const calculateStandardSalary = (min: number, max: number): number => {
     if (min === max) {
       return max;
     }
-    return min + (max - min) * 0.7;
+    return min + (max - min) * 0.5;
   };
 
-  // Function to find all salaries associated with a role
   const findSalariesForRole = (roleName: string): number[] => {
     if (!roleName || !rolesData.length || !employees.length) return [];
     
     const salaries: number[] = [];
     const normalizedRoleName = roleName.toLowerCase();
     
-    // Find all employees who have this role
     rolesData.forEach(entry => {
       if (!entry.participantName || !entry.roleName) return;
       
       const cleanedRoleName = cleanRoleName(entry.roleName).toLowerCase();
       
       if (cleanedRoleName === normalizedRoleName) {
-        // Find this participant in employees list
         const participantNameParts = entry.participantName
           .replace(/["']/g, '')
           .trim()
@@ -107,14 +101,11 @@ const RolesTable = ({
     return salaries;
   };
 
-  // Initialize and update roles data
   useEffect(() => {
-    // Get unique role names and sort them in descending alphabetical order
     const uniqueRoles = [...new Set(rolesData.map((role) => cleanRoleName(role.roleName)))]
       .filter(Boolean)
       .sort((a, b) => b.localeCompare(a));
 
-    // Create roles array with salary data
     const rolesWithSalaries = uniqueRoles.map(role => {
       const salaries = findSalariesForRole(role);
       const minSalary = salaries.length ? Math.min(...salaries) : 0;
@@ -135,7 +126,6 @@ const RolesTable = ({
     setRoles(rolesWithSalaries);
   }, [rolesData, employees]);
 
-  // Handle edit mode for a role
   const handleEditClick = (index: number) => {
     setRoles(prevRoles => 
       prevRoles.map((role, i) => 
@@ -146,7 +136,6 @@ const RolesTable = ({
     );
   };
 
-  // Handle standard salary change
   const handleStandardSalaryChange = (index: number, value: string) => {
     setRoles(prevRoles => 
       prevRoles.map((role, i) => 
@@ -155,7 +144,6 @@ const RolesTable = ({
     );
   };
 
-  // Save edited standard salary
   const handleSaveClick = (index: number) => {
     setRoles(prevRoles => {
       const updatedRoles = [...prevRoles];
@@ -172,14 +160,12 @@ const RolesTable = ({
         return prevRoles;
       }
       
-      // Update the role's standard salary
       updatedRoles[index] = { 
         ...role, 
         standardSalary: newValue, 
         isEditing: false 
       };
       
-      // Call parent callback if provided
       if (onStandardSalaryChange) {
         onStandardSalaryChange(role.roleName, newValue);
       }
@@ -193,7 +179,6 @@ const RolesTable = ({
     });
   };
 
-  // Cancel editing
   const handleCancelClick = (index: number) => {
     setRoles(prevRoles => 
       prevRoles.map((role, i) => 
