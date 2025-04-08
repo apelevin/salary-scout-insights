@@ -41,6 +41,10 @@ const EmployeeTable = ({ employees, isLoading = false }: EmployeeTableProps) => 
       maximumFractionDigits: 0,
     }).format(salary);
   };
+  
+  const formatName = (name: string): string => {
+    return name.trim() === "" ? "Без имени" : name;
+  };
 
   if (isLoading) {
     return (
@@ -87,7 +91,7 @@ const EmployeeTable = ({ employees, isLoading = false }: EmployeeTableProps) => 
             {filteredEmployees.length > 0 ? (
               filteredEmployees.map((employee, index) => (
                 <TableRow key={employee.id || index}>
-                  <TableCell className="font-medium">{employee.name}</TableCell>
+                  <TableCell className="font-medium">{formatName(employee.name)}</TableCell>
                   <TableCell>{formatSalary(employee.salary)}</TableCell>
                 </TableRow>
               ))
