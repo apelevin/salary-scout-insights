@@ -13,15 +13,25 @@ const Dashboard = ({ employees, isLoading }: DashboardProps) => {
   const getEmployeeStats = () => {
     if (!employees.length) return { aboveStandard: 0, belowStandard: 0 };
 
-    return employees.reduce(
+    // Отфильтровываем только сотрудников, у которых есть стандартная зарплата
+    const employeesWithStandardSalary = employees.filter(
+      (employee) => employee.standardSalary !== undefined && employee.standardSalary > 0
+    );
+
+    console.log(`Сотрудников со стандартной зарплатой: ${employeesWithStandardSalary.length}`);
+    
+    if (employeesWithStandardSalary.length === 0) {
+      return { aboveStandard: 0, belowStandard: 0 };
+    }
+
+    return employeesWithStandardSalary.reduce(
       (acc, employee) => {
-        // Учитываем только сотрудников, у которых есть стандартная зарплата
-        if (employee.standardSalary && employee.standardSalary > 0) {
-          if (employee.salary > employee.standardSalary) {
-            acc.aboveStandard += 1;
-          } else if (employee.salary < employee.standardSalary) {
-            acc.belowStandard += 1;
-          }
+        if (employee.salary > employee.standardSalary!) {
+          acc.aboveStandard += 1;
+          console.log(`Сотрудник ${employee.name} имеет зарплату выше стандартной: ${employee.salary} > ${employee.standardSalary}`);
+        } else if (employee.salary < employee.standardSalary!) {
+          acc.belowStandard += 1;
+          console.log(`Сотрудник ${employee.name} имеет зарплату ниже стандартной: ${employee.salary} < ${employee.standardSalary}`);
         }
         return acc;
       },
