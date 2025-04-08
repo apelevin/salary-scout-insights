@@ -152,7 +152,7 @@ const EmployeeTable = ({
     if (min === max) {
       return max;
     }
-    return min + (max - min) * 0.7;
+    return min + (max - min) * 0.5;
   };
 
   const findRolesWithFTEForEmployee = (lastName: string, firstName: string): Map<string, number> => {
@@ -323,10 +323,9 @@ const EmployeeTable = ({
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead className="w-1/6">Имя сотрудника</TableHead>
-              <TableHead className="w-1/6">Зарплата</TableHead>
-              <TableHead className="w-1/6">Стандартная зарплата</TableHead>
-              <TableHead className="w-1/2">Роли и нормализованный FTE</TableHead>
+              <TableHead className="w-1/3">Имя сотрудника</TableHead>
+              <TableHead className="w-1/3">Зарплата</TableHead>
+              <TableHead className="w-1/3">Стандартная зарплата</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -349,34 +348,11 @@ const EmployeeTable = ({
                       <span className="text-gray-400">—</span>
                     )}
                   </TableCell>
-                  <TableCell>
-                    {employee.roles.length > 0 ? (
-                      <ul className="list-disc list-inside space-y-1">
-                        {employee.roles.map((role, roleIndex) => (
-                          <li key={roleIndex} className="text-sm">
-                            {role} <span className="text-gray-500 ml-2">FTE: {formatRoleFTE(employee, role)}</span>
-                          </li>
-                        ))}
-                      </ul>
-                    ) : (
-                      <span className="text-gray-400 text-sm">Нет ролей</span>
-                    )}
-                    {employee.normalizedRolesFTE.size > 0 && (
-                      <div className="text-xs text-gray-400 mt-2">
-                        {employee.totalFTE === 1 
-                          ? "Суммарный FTE: 1,00 (нормализация не требуется)" 
-                          : employee.totalFTE > 1 
-                            ? `Суммарный FTE до нормализации: ${formatFTE(employee.totalFTE)} (пропорционально уменьшен)`
-                            : `Суммарный FTE до нормализации: ${formatFTE(employee.totalFTE)} (пропорционально увеличен)`
-                        }
-                      </div>
-                    )}
-                  </TableCell>
                 </TableRow>
               ))
             ) : (
               <TableRow>
-                <TableCell colSpan={4} className="text-center h-32">
+                <TableCell colSpan={3} className="text-center h-32">
                   Сотрудники не найдены
                 </TableCell>
               </TableRow>
