@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import {
   Table,
@@ -286,6 +287,32 @@ const EmployeeTable = ({
     return fte.toLocaleString('ru-RU', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
   };
 
+  // Calculate salary difference and determine style based on whether it's positive or negative
+  const getSalaryDifference = (standardSalary: number | undefined, actualSalary: number): { text: string, className: string } => {
+    if (!standardSalary || standardSalary === 0) {
+      return { text: '—', className: 'text-gray-400' };
+    }
+    
+    const difference = standardSalary - actualSalary;
+    
+    if (difference > 0) {
+      return { 
+        text: `+${formatSalary(difference)}`, 
+        className: 'text-green-600 font-medium' 
+      };
+    } else if (difference < 0) {
+      return { 
+        text: formatSalary(difference), 
+        className: 'text-red-600 font-medium' 
+      };
+    } else {
+      return { 
+        text: '0 ₽', 
+        className: 'text-gray-500' 
+      };
+    }
+  };
+
   if (isLoading) {
     return (
       <div className="w-full h-60 flex items-center justify-center">
@@ -323,9 +350,10 @@ const EmployeeTable = ({
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead className="w-1/3">Имя сотрудника</TableHead>
-              <TableHead className="w-1/3">Зарплата</TableHead>
-              <TableHead className="w-1/3">Стандартная зарплата</TableHead>
+              <TableHead className="w-1/4">Имя сотрудника</TableHead>
+              <TableHead className="w-1/4">Зарплата</TableHead>
+              <TableHead className="w-1/4">Стандартная зарплата</TableHead>
+              <TableHead className="w-1/4">Разница</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -348,11 +376,20 @@ const EmployeeTable = ({
                       <span className="text-gray-400">—</span>
                     )}
                   </TableCell>
+                  <TableCell>
+                    {employee.standardSalary && employee.standardSalary > 0 ? (
+                      <span className={getSalaryDifference(employee.standardSalary, employee.salary).className}>
+                        {getSalaryDifference(employee.standardSalary, employee.salary).text}
+                      </span>
+                    ) : (
+                      <span className="text-gray-400">—</span>
+                    )}
+                  </TableCell>
                 </TableRow>
               ))
             ) : (
               <TableRow>
-                <TableCell colSpan={3} className="text-center h-32">
+                <TableCell colSpan={4} className="text-center h-32">
                   Сотрудники не найдены
                 </TableCell>
               </TableRow>
