@@ -15,10 +15,10 @@ interface RolesTableProps {
 }
 
 const RolesTable = ({ rolesData = [], isLoading = false }: RolesTableProps) => {
-  // Get unique role names and sort them in ascending alphabetical order
+  // Get unique role names and sort them in descending alphabetical order
   const uniqueRoles = [...new Set(rolesData.map((role) => role.roleName))]
     .filter(Boolean)
-    .sort((a, b) => a.localeCompare(b));
+    .sort((a, b) => b.localeCompare(a));
 
   if (isLoading) {
     return (
