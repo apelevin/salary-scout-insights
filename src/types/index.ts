@@ -5,8 +5,6 @@ export interface Employee {
   salary: number;
   position?: string;
   department?: string;
-  standardSalary?: number;
-  roles?: string[];
   [key: string]: any;
 }
 

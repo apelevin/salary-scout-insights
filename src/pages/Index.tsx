@@ -1,8 +1,8 @@
+
 import { useState } from "react";
 import FileUpload from "@/components/FileUpload";
 import EmployeeTable from "@/components/EmployeeTable";
 import RolesTable from "@/components/RolesTable";
-import Dashboard from "@/components/Dashboard";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -174,15 +174,6 @@ const Index = () => {
                   <BarChart className="h-5 w-5 text-blue-500" />
                   <h2 className="text-xl font-semibold">Данные</h2>
                 </div>
-                
-                {employees.length > 0 && (
-                  <Dashboard 
-                    employees={employees} 
-                    isLoading={isProcessing} 
-                    customStandardSalaries={customStandardSalaries}
-                  />
-                )}
-                
                 <Tabs 
                   value={activeTab} 
                   onValueChange={setActiveTab}
