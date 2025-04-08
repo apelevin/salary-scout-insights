@@ -1,0 +1,16 @@
+
+export interface Employee {
+  id?: string;
+  name: string;
+  salary: number;
+  position?: string;
+  department?: string;
+  [key: string]: any;
+}
+
+export interface UploadedFile {
+  id: string;
+  name: string;
+  content: string;
+  parsed: boolean;
+}
