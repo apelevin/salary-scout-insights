@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import {
   Table,
@@ -8,12 +9,12 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Input } from "@/components/ui/input";
-import { Employee } from "@/types";
+import { Employee, RoleData } from "@/types";
 import { Search } from "lucide-react";
 
 interface EmployeeTableProps {
   employees: Employee[];
-  rolesData?: { participantName: string; roleName: string }[];
+  rolesData?: RoleData[];
   isLoading?: boolean;
 }
 
@@ -76,7 +77,7 @@ const EmployeeTable = ({
         participantNameParts.some(part => part === normalizedFirstName)
       ) {
         if (!roles.includes(entry.roleName)) {
-          roles.push(entry.roleName);
+          roles.push(cleanRoleName(entry.roleName));
         }
       }
     });
@@ -106,6 +107,10 @@ const EmployeeTable = ({
     }
     
     return cleanName;
+  };
+
+  const cleanRoleName = (roleName: string): string => {
+    return roleName.replace(/["']/g, '').trim();
   };
 
   if (isLoading) {
@@ -145,8 +150,9 @@ const EmployeeTable = ({
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead className="w-1/2">Имя сотрудника</TableHead>
-              <TableHead>Зарплата</TableHead>
+              <TableHead className="w-1/3">Имя сотрудника</TableHead>
+              <TableHead className="w-1/3">Зарплата</TableHead>
+              <TableHead className="w-1/3">Роли</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -155,11 +161,22 @@ const EmployeeTable = ({
                 <TableRow key={employee.id || index}>
                   <TableCell className="font-medium">{formatName(employee.name)}</TableCell>
                   <TableCell>{formatSalary(employee.salary)}</TableCell>
+                  <TableCell>
+                    {employee.roles.length > 0 ? (
+                      <ul className="list-disc list-inside space-y-1">
+                        {employee.roles.map((role, roleIndex) => (
+                          <li key={roleIndex} className="text-sm">{role}</li>
+                        ))}
+                      </ul>
+                    ) : (
+                      <span className="text-gray-400 text-sm">Нет ролей</span>
+                    )}
+                  </TableCell>
                 </TableRow>
               ))
             ) : (
               <TableRow>
-                <TableCell colSpan={2} className="text-center h-32">
+                <TableCell colSpan={3} className="text-center h-32">
                   Сотрудники не найдены
                 </TableCell>
               </TableRow>
