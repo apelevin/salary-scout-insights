@@ -10,6 +10,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Employee, RoleData } from "@/types";
 import { Search } from "lucide-react";
+import EmployeeInfoSidebar from "./EmployeeInfoSidebar";
 
 interface EmployeeTableProps {
   employees: Employee[];
@@ -34,6 +35,8 @@ const EmployeeTable = ({
   const [searchTerm, setSearchTerm] = useState("");
   const [filteredEmployees, setFilteredEmployees] = useState<EmployeeWithRoles[]>([]);
   const [employeesWithRoles, setEmployeesWithRoles] = useState<EmployeeWithRoles[]>([]);
+  const [selectedEmployee, setSelectedEmployee] = useState<EmployeeWithRoles | null>(null);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
 
   useEffect(() => {
     const withRoles = employees.map(emp => {
@@ -71,6 +74,15 @@ const EmployeeTable = ({
       );
     }
   }, [employees, searchTerm, rolesData, customStandardSalaries]);
+
+  const handleEmployeeClick = (employee: EmployeeWithRoles) => {
+    setSelectedEmployee(employee);
+    setSidebarOpen(true);
+  };
+
+  const closeSidebar = () => {
+    setSidebarOpen(false);
+  };
 
   const calculateStandardSalary = (normalizedRolesFTE: Map<string, number>): number => {
     let totalStandardSalary = 0;
@@ -321,7 +333,14 @@ const EmployeeTable = ({
             {filteredEmployees.length > 0 ? (
               filteredEmployees.map((employee, index) => (
                 <TableRow key={employee.id || index}>
-                  <TableCell className="font-medium">{formatName(employee.name)}</TableCell>
+                  <TableCell className="font-medium">
+                    <button 
+                      className="text-blue-600 hover:text-blue-800 hover:underline text-left"
+                      onClick={() => handleEmployeeClick(employee)}
+                    >
+                      {formatName(employee.name)}
+                    </button>
+                  </TableCell>
                   <TableCell>{formatSalary(employee.salary)}</TableCell>
                   <TableCell>
                     {employee.standardSalary && employee.standardSalary > 0 ? (
@@ -368,6 +387,12 @@ const EmployeeTable = ({
       <div className="text-sm text-gray-500 mt-3">
         Всего сотрудников: {filteredEmployees.length}
       </div>
+
+      <EmployeeInfoSidebar 
+        employee={selectedEmployee} 
+        open={sidebarOpen} 
+        onClose={closeSidebar} 
+      />
     </div>
   );
 };

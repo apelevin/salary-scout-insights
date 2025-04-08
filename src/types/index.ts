@@ -8,6 +8,13 @@ export interface Employee {
   [key: string]: any;
 }
 
+export interface EmployeeWithRoles extends Employee {
+  roles: string[];
+  totalFTE: number;
+  normalizedRolesFTE: Map<string, number>;
+  standardSalary?: number;
+}
+
 export interface UploadedFile {
   id: string;
   name: string;
