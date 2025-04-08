@@ -6,19 +6,25 @@ import { TrendingDown, TrendingUp } from "lucide-react";
 interface DashboardProps {
   employees: Employee[];
   isLoading: boolean;
+  customStandardSalaries?: Map<string, number>;
 }
 
-const Dashboard = ({ employees, isLoading }: DashboardProps) => {
+const Dashboard = ({ employees, isLoading, customStandardSalaries = new Map() }: DashboardProps) => {
   // Подсчет сотрудников с зарплатой выше или ниже стандартной
   const getEmployeeStats = () => {
     if (!employees.length) return { aboveStandard: 0, belowStandard: 0 };
 
     // Отфильтровываем только сотрудников, у которых есть стандартная зарплата
     const employeesWithStandardSalary = employees.filter(
-      (employee) => employee.standardSalary !== undefined && employee.standardSalary > 0
+      (employee) => {
+        // Учитываем как значение из employee.standardSalary, так и возможные 
+        // настроенные стандартные оклады для ролей
+        return (employee.standardSalary !== undefined && employee.standardSalary > 0) ||
+               (employee.roles && employee.roles.some(role => customStandardSalaries.has(role) && customStandardSalaries.get(role)! > 0));
+      }
     );
 
-    console.log(`Сотрудников со стандартной зарплатой: ${employeesWithStandardSalary.length}`);
+    console.log(`Сотрудников с возможной стандартной зарплатой: ${employeesWithStandardSalary.length}`);
     
     if (employeesWithStandardSalary.length === 0) {
       return { aboveStandard: 0, belowStandard: 0 };
@@ -26,12 +32,28 @@ const Dashboard = ({ employees, isLoading }: DashboardProps) => {
 
     return employeesWithStandardSalary.reduce(
       (acc, employee) => {
-        if (employee.salary > employee.standardSalary!) {
-          acc.aboveStandard += 1;
-          console.log(`Сотрудник ${employee.name} имеет зарплату выше стандартной: ${employee.salary} > ${employee.standardSalary}`);
-        } else if (employee.salary < employee.standardSalary!) {
-          acc.belowStandard += 1;
-          console.log(`Сотрудник ${employee.name} имеет зарплату ниже стандартной: ${employee.salary} < ${employee.standardSalary}`);
+        // Определяем стандартную зарплату - берем либо уже рассчитанное значение, 
+        // либо вычисляем на основе ролей и customStandardSalaries
+        let standardSalary = employee.standardSalary;
+        
+        // Если стандартной зарплаты нет, но есть роли, пытаемся рассчитать
+        if ((!standardSalary || standardSalary <= 0) && employee.roles) {
+          standardSalary = 0;
+          employee.roles.forEach(role => {
+            if (customStandardSalaries.has(role)) {
+              standardSalary! += customStandardSalaries.get(role)!;
+            }
+          });
+        }
+        
+        if (standardSalary && standardSalary > 0) {
+          if (employee.salary > standardSalary) {
+            acc.aboveStandard += 1;
+            console.log(`Сотрудник ${employee.name} имеет зарплату выше стандартной: ${employee.salary} > ${standardSalary}`);
+          } else if (employee.salary < standardSalary) {
+            acc.belowStandard += 1;
+            console.log(`Сотрудник ${employee.name} имеет зарплату ниже стандартной: ${employee.salary} < ${standardSalary}`);
+          }
         }
         return acc;
       },

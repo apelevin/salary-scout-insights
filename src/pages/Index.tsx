@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import FileUpload from "@/components/FileUpload";
 import EmployeeTable from "@/components/EmployeeTable";
@@ -176,11 +175,11 @@ const Index = () => {
                   <h2 className="text-xl font-semibold">Данные</h2>
                 </div>
                 
-                {/* Добавляем дашборд */}
                 {employees.length > 0 && (
                   <Dashboard 
                     employees={employees} 
                     isLoading={isProcessing} 
+                    customStandardSalaries={customStandardSalaries}
                   />
                 )}
                 
