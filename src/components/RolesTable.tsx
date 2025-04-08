@@ -1,3 +1,4 @@
+
 import {
   Table,
   TableBody,
@@ -84,11 +85,6 @@ const RolesTable = ({
     return salaries;
   };
 
-  // Function to calculate the 80% of (min + max) value
-  const calculateAdjustedValue = (min: number, max: number): number => {
-    return (min + max) * 0.8;
-  };
-
   if (isLoading) {
     return (
       <div className="w-full h-60 flex items-center justify-center">
@@ -115,10 +111,9 @@ const RolesTable = ({
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead className="w-1/5">Название роли</TableHead>
-              <TableHead className="w-1/5">Мин. зарплата</TableHead>
-              <TableHead className="w-1/5">Макс. зарплата</TableHead>
-              <TableHead className="w-2/5">80% от суммы (мин. + макс.)</TableHead>
+              <TableHead className="w-1/2">Название роли</TableHead>
+              <TableHead className="w-1/4">Мин. зарплата</TableHead>
+              <TableHead className="w-1/4">Макс. зарплата</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -126,7 +121,6 @@ const RolesTable = ({
               const salaries = findSalariesForRole(role);
               const minSalary = salaries.length ? Math.min(...salaries) : 0;
               const maxSalary = salaries.length ? Math.max(...salaries) : 0;
-              const adjustedValue = calculateAdjustedValue(minSalary, maxSalary);
               
               return (
                 <TableRow key={index}>
@@ -141,13 +135,6 @@ const RolesTable = ({
                   <TableCell>
                     {salaries.length ? (
                       formatSalary(maxSalary)
-                    ) : (
-                      <span className="text-gray-400">—</span>
-                    )}
-                  </TableCell>
-                  <TableCell className="font-medium">
-                    {salaries.length ? (
-                      formatSalary(adjustedValue)
                     ) : (
                       <span className="text-gray-400">—</span>
                     )}
