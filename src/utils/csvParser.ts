@@ -1,3 +1,4 @@
+
 import { Employee } from "@/types";
 
 // Список возможных названий для колонки с именем
@@ -223,14 +224,17 @@ export const parseRolesCSV = (csvContent: string): { participantName: string; ro
         
         // Add FTE if column exists and has a valid value
         if (fteColumnIndex !== -1 && values[fteColumnIndex]) {
-          // Parse FTE value, replacing comma with dot for proper parsing
-          const fteString = values[fteColumnIndex].replace(',', '.');
-          const fteValue = parseFloat(fteString);
-          
-          console.log(`FTE value for ${participantName}:`, values[fteColumnIndex], "->", fteValue);
+          // Fix FTE parsing by properly handling comma as decimal separator
+          const fteString = values[fteColumnIndex].trim();
+          // Convert comma to dot for proper parsing
+          const normalizedFte = fteString.replace(',', '.');
+          const fteValue = parseFloat(normalizedFte);
           
           if (!isNaN(fteValue)) {
             role.fte = fteValue;
+            console.log(`Parsed FTE for ${participantName}: ${fteString} -> ${fteValue}`);
+          } else {
+            console.warn(`Invalid FTE value for ${participantName}: ${fteString}`);
           }
         }
         

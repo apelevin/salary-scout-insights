@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import {
   Table,
@@ -108,7 +107,9 @@ const EmployeeTable = ({
         participantNameParts.some(part => part === normalizedLastName) && 
         participantNameParts.some(part => part === normalizedFirstName)
       ) {
-        totalFTE += entry.fte !== undefined ? parseFloat(String(entry.fte).replace(',', '.')) : 0;
+        if (entry.fte !== undefined) {
+          totalFTE += entry.fte;
+        }
       }
     });
     
@@ -144,7 +145,6 @@ const EmployeeTable = ({
   };
 
   const formatFTE = (fte: number): string => {
-    // Using Russian locale for formatting with comma as decimal separator
     return fte.toLocaleString('ru-RU', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
   };
 
