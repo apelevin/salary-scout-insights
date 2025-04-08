@@ -56,7 +56,7 @@ export const parseCSV = (csvContent: string): Employee[] => {
     const headers = lines[0].split(delimiter).map(header => header.trim().toLowerCase());
     console.log("Обнаруженные заголовки:", headers);
     
-    // Поиск индексов колонок имени и зарплаты
+    // Поиск индексов колонки имени и зарплаты
     let nameColumnIndex = -1;
     let salaryColumnIndex = -1;
 
@@ -136,7 +136,7 @@ export const parseCSV = (csvContent: string): Employee[] => {
 // Parse roles from a CSV file
 export const parseRolesCSV = (csvContent: string): { participantName: string; roleName: string; fte?: number }[] => {
   try {
-    // Normalize line endings and separators
+    // Нормализуем символы конца строки и разделители
     const normalizedContent = csvContent
       .replace(/\r\n|\r/g, '\n')
       .trim();
@@ -148,7 +148,7 @@ export const parseRolesCSV = (csvContent: string): { participantName: string; ro
       return [];
     }
 
-    // Support different delimiters (comma, semicolon, tab)
+    // Поддержка разных разделителей (запятая, точка с запятой, табуляция)
     let delimiter = ',';
     const firstLine = lines[0];
     if (firstLine.includes(';') && !firstLine.includes(',')) {
@@ -224,7 +224,11 @@ export const parseRolesCSV = (csvContent: string): { participantName: string; ro
         // Add FTE if column exists and has a valid value
         if (fteColumnIndex !== -1 && values[fteColumnIndex]) {
           // Parse FTE value, replacing comma with dot for proper parsing
-          const fteValue = parseFloat(values[fteColumnIndex].replace(',', '.'));
+          const fteString = values[fteColumnIndex].replace(',', '.');
+          const fteValue = parseFloat(fteString);
+          
+          console.log(`FTE value for ${participantName}:`, values[fteColumnIndex], "->", fteValue);
+          
           if (!isNaN(fteValue)) {
             role.fte = fteValue;
           }
