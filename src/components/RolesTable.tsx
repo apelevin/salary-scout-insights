@@ -8,17 +8,81 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { RoleData } from "@/types";
+import { Employee } from "@/types";
 
 interface RolesTableProps {
   rolesData: RoleData[];
   isLoading?: boolean;
+  employees?: Employee[];
 }
 
-const RolesTable = ({ rolesData = [], isLoading = false }: RolesTableProps) => {
+const RolesTable = ({ 
+  rolesData = [], 
+  isLoading = false,
+  employees = []
+}: RolesTableProps) => {
   // Get unique role names and sort them in descending alphabetical order
-  const uniqueRoles = [...new Set(rolesData.map((role) => role.roleName))]
+  const uniqueRoles = [...new Set(rolesData.map((role) => cleanRoleName(role.roleName)))]
     .filter(Boolean)
     .sort((a, b) => b.localeCompare(a));
+
+  const formatSalary = (salary: number): string => {
+    return new Intl.NumberFormat("ru-RU", {
+      style: "currency",
+      currency: "RUB",
+      maximumFractionDigits: 0,
+    }).format(salary);
+  };
+
+  const cleanRoleName = (roleName: string): string => {
+    return roleName.replace(/["']/g, '').trim();
+  };
+
+  // Function to find all salaries associated with a role
+  const findSalariesForRole = (roleName: string): number[] => {
+    if (!roleName || !rolesData.length || !employees.length) return [];
+    
+    const salaries: number[] = [];
+    const normalizedRoleName = roleName.toLowerCase();
+    
+    // Find all employees who have this role
+    rolesData.forEach(entry => {
+      if (!entry.participantName || !entry.roleName) return;
+      
+      const cleanedRoleName = cleanRoleName(entry.roleName).toLowerCase();
+      
+      if (cleanedRoleName === normalizedRoleName) {
+        // Find this participant in employees list
+        const participantNameParts = entry.participantName
+          .replace(/["']/g, '')
+          .trim()
+          .split(/\s+/)
+          .map(part => part.toLowerCase());
+        
+        if (participantNameParts.length < 2) return;
+          
+        const lastName = participantNameParts[0];
+        const firstName = participantNameParts[1];
+        
+        employees.forEach(emp => {
+          const empNameParts = emp.name
+            .replace(/["']/g, '')
+            .trim()
+            .split(/\s+/)
+            .map(part => part.toLowerCase());
+          
+          if (
+            empNameParts.some(part => part === lastName) && 
+            empNameParts.some(part => part === firstName)
+          ) {
+            salaries.push(emp.salary);
+          }
+        });
+      }
+    });
+    
+    return salaries;
+  };
 
   if (isLoading) {
     return (
@@ -46,15 +110,37 @@ const RolesTable = ({ rolesData = [], isLoading = false }: RolesTableProps) => {
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead className="w-full">Название роли</TableHead>
+              <TableHead className="w-1/2">Название роли</TableHead>
+              <TableHead className="w-1/4">Мин. зарплата</TableHead>
+              <TableHead className="w-1/4">Макс. зарплата</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
-            {uniqueRoles.map((role, index) => (
-              <TableRow key={index}>
-                <TableCell className="font-medium">{role}</TableCell>
-              </TableRow>
-            ))}
+            {uniqueRoles.map((role, index) => {
+              const salaries = findSalariesForRole(role);
+              const minSalary = salaries.length ? Math.min(...salaries) : 0;
+              const maxSalary = salaries.length ? Math.max(...salaries) : 0;
+              
+              return (
+                <TableRow key={index}>
+                  <TableCell className="font-medium">{role}</TableCell>
+                  <TableCell>
+                    {salaries.length ? (
+                      formatSalary(minSalary)
+                    ) : (
+                      <span className="text-gray-400">—</span>
+                    )}
+                  </TableCell>
+                  <TableCell>
+                    {salaries.length ? (
+                      formatSalary(maxSalary)
+                    ) : (
+                      <span className="text-gray-400">—</span>
+                    )}
+                  </TableCell>
+                </TableRow>
+              );
+            })}
           </TableBody>
         </Table>
       </div>
