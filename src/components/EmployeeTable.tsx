@@ -43,7 +43,9 @@ const EmployeeTable = ({ employees, isLoading = false }: EmployeeTableProps) => 
   };
   
   const formatName = (name: string): string => {
-    return name.trim() === "" ? "Без имени" : name;
+    // Remove any quote characters and trim whitespace
+    const cleanName = name.replace(/["']/g, '').trim();
+    return cleanName === "" ? "Без имени" : cleanName;
   };
 
   if (isLoading) {
