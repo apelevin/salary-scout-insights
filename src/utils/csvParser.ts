@@ -224,17 +224,28 @@ export const parseRolesCSV = (csvContent: string): { participantName: string; ro
         
         // Add FTE if column exists and has a valid value
         if (fteColumnIndex !== -1 && values[fteColumnIndex]) {
-          // Fix FTE parsing by properly handling comma as decimal separator
           const fteString = values[fteColumnIndex].trim();
-          // Convert comma to dot for proper parsing
+          
+          // Handle both comma and dot as decimal separators
           const normalizedFte = fteString.replace(',', '.');
+          
+          // Try parsing the normalized string
           const fteValue = parseFloat(normalizedFte);
           
           if (!isNaN(fteValue)) {
             role.fte = fteValue;
             console.log(`Parsed FTE for ${participantName}: ${fteString} -> ${fteValue}`);
           } else {
-            console.warn(`Invalid FTE value for ${participantName}: ${fteString}`);
+            // Try handling other formats if parsing fails
+            const cleanedFteString = fteString.replace(/[^0-9.,]/g, '').replace(',', '.');
+            const cleanedFteValue = parseFloat(cleanedFteString);
+            
+            if (!isNaN(cleanedFteValue)) {
+              role.fte = cleanedFteValue;
+              console.log(`Parsed FTE (after cleaning) for ${participantName}: ${fteString} -> ${cleanedFteValue}`);
+            } else {
+              console.warn(`Invalid FTE value for ${participantName}: ${fteString}`);
+            }
           }
         }
         

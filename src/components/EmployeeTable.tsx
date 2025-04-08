@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import {
   Table,
@@ -107,8 +108,10 @@ const EmployeeTable = ({
         participantNameParts.some(part => part === normalizedLastName) && 
         participantNameParts.some(part => part === normalizedFirstName)
       ) {
-        if (entry.fte !== undefined) {
+        // If fte exists, add it to total
+        if (entry.fte !== undefined && !isNaN(entry.fte)) {
           totalFTE += entry.fte;
+          console.log(`Adding FTE for ${lastName} ${firstName}: ${entry.fte}, total now: ${totalFTE}`);
         }
       }
     });
@@ -145,6 +148,7 @@ const EmployeeTable = ({
   };
 
   const formatFTE = (fte: number): string => {
+    // Format with Russian locale to show comma as decimal separator
     return fte.toLocaleString('ru-RU', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
   };
 
