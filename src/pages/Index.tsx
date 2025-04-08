@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import FileUpload from "@/components/FileUpload";
 import EmployeeTable from "@/components/EmployeeTable";
@@ -180,6 +181,7 @@ const Index = () => {
                   <TabsContent value="roles">
                     <RolesTable
                       rolesData={rolesData}
+                      employees={employees}
                       isLoading={isProcessing}
                     />
                   </TabsContent>
