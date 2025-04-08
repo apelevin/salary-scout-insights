@@ -21,6 +21,7 @@ interface EmployeeWithRoles extends Employee {
   roles: string[];
   totalFTE: number;
   normalizedRolesFTE: Map<string, number>;
+  standardSalary?: number;
 }
 
 const EmployeeTable = ({ 
@@ -44,11 +45,14 @@ const EmployeeTable = ({
       
       const normalizedRolesFTE = normalizeRolesFTE(rolesFTEMap, totalFTE);
       
+      const standardSalary = calculateStandardSalary(normalizedRolesFTE);
+      
       return {
         ...emp,
         roles,
         totalFTE,
-        normalizedRolesFTE
+        normalizedRolesFTE,
+        standardSalary
       };
     });
     
@@ -65,6 +69,73 @@ const EmployeeTable = ({
       );
     }
   }, [employees, searchTerm, rolesData]);
+
+  const calculateStandardSalary = (normalizedRolesFTE: Map<string, number>): number => {
+    let totalStandardSalary = 0;
+    
+    for (const [roleName, fte] of normalizedRolesFTE.entries()) {
+      const standardRateForRole = findStandardRateForRole(roleName);
+      totalStandardSalary += fte * standardRateForRole;
+    }
+    
+    return totalStandardSalary;
+  };
+  
+  const findStandardRateForRole = (roleName: string): number => {
+    if (!roleName || !rolesData.length) return 0;
+    
+    const normalizedRoleName = roleName.toLowerCase();
+    
+    const salaries: number[] = [];
+    
+    rolesData.forEach(entry => {
+      if (!entry.participantName || !entry.roleName) return;
+      
+      const cleanedRoleName = cleanRoleName(entry.roleName).toLowerCase();
+      
+      if (cleanedRoleName === normalizedRoleName) {
+        const participantNameParts = entry.participantName
+          .replace(/["']/g, '')
+          .trim()
+          .split(/\s+/)
+          .map(part => part.toLowerCase());
+        
+        if (participantNameParts.length < 2) return;
+          
+        const lastName = participantNameParts[0];
+        const firstName = participantNameParts[1];
+        
+        employees.forEach(emp => {
+          const empNameParts = emp.name
+            .replace(/["']/g, '')
+            .trim()
+            .split(/\s+/)
+            .map(part => part.toLowerCase());
+          
+          if (
+            empNameParts.some(part => part === lastName) && 
+            empNameParts.some(part => part === firstName)
+          ) {
+            salaries.push(emp.salary);
+          }
+        });
+      }
+    });
+    
+    if (salaries.length === 0) return 0;
+    
+    const minSalary = Math.min(...salaries);
+    const maxSalary = Math.max(...salaries);
+    
+    return calculateStandardRate(minSalary, maxSalary);
+  };
+  
+  const calculateStandardRate = (min: number, max: number): number => {
+    if (min === max) {
+      return max;
+    }
+    return min + (max - min) * 0.7;
+  };
 
   const findRolesWithFTEForEmployee = (lastName: string, firstName: string): Map<string, number> => {
     if (!lastName || !firstName || !rolesData.length) return new Map();
@@ -234,9 +305,10 @@ const EmployeeTable = ({
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead className="w-1/5">Имя сотрудника</TableHead>
-              <TableHead className="w-1/5">Зарплата</TableHead>
-              <TableHead className="w-3/5">Роли и нормализованный FTE</TableHead>
+              <TableHead className="w-1/6">Имя сотрудника</TableHead>
+              <TableHead className="w-1/6">Зарплата</TableHead>
+              <TableHead className="w-1/6">Стандартная зарплата</TableHead>
+              <TableHead className="w-1/2">Роли и нормализованный FTE</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -245,6 +317,13 @@ const EmployeeTable = ({
                 <TableRow key={employee.id || index}>
                   <TableCell className="font-medium">{formatName(employee.name)}</TableCell>
                   <TableCell>{formatSalary(employee.salary)}</TableCell>
+                  <TableCell>
+                    {employee.standardSalary && employee.standardSalary > 0 ? (
+                      formatSalary(employee.standardSalary)
+                    ) : (
+                      <span className="text-gray-400">—</span>
+                    )}
+                  </TableCell>
                   <TableCell>
                     {employee.roles.length > 0 ? (
                       <ul className="list-disc list-inside space-y-1">
@@ -272,7 +351,7 @@ const EmployeeTable = ({
               ))
             ) : (
               <TableRow>
-                <TableCell colSpan={3} className="text-center h-32">
+                <TableCell colSpan={4} className="text-center h-32">
                   Сотрудники не найдены
                 </TableCell>
               </TableRow>
