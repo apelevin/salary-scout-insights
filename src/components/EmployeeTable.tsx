@@ -9,9 +9,8 @@ import {
 } from "@/components/ui/table";
 import { Input } from "@/components/ui/input";
 import { Employee, RoleData } from "@/types";
-import { Search, Eye, EyeOff } from "lucide-react";
+import { Search } from "lucide-react";
 import EmployeeInfoSidebar from "./EmployeeInfoSidebar";
-import { Button } from "@/components/ui/button";
 
 interface EmployeeTableProps {
   employees: Employee[];
@@ -38,7 +37,6 @@ const EmployeeTable = ({
   const [employeesWithRoles, setEmployeesWithRoles] = useState<EmployeeWithRoles[]>([]);
   const [selectedEmployee, setSelectedEmployee] = useState<EmployeeWithRoles | null>(null);
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const [showRolesColumn, setShowRolesColumn] = useState(true);
 
   useEffect(() => {
     const withRoles = employees.map(emp => {
@@ -288,10 +286,6 @@ const EmployeeTable = ({
     return fte.toLocaleString('ru-RU', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
   };
 
-  const toggleRolesColumn = () => {
-    setShowRolesColumn(prev => !prev);
-  };
-
   if (isLoading) {
     return (
       <div className="w-full h-60 flex items-center justify-center">
@@ -323,25 +317,16 @@ const EmployeeTable = ({
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
         />
-        <Button 
-          variant="outline" 
-          className="ml-2" 
-          onClick={toggleRolesColumn} 
-          title={showRolesColumn ? "Скрыть колонку ролей" : "Показать колонку ролей"}
-        >
-          {showRolesColumn ? <EyeOff size={16} /> : <Eye size={16} />}
-          <span className="ml-2">Роли</span>
-        </Button>
       </div>
       
       <div className="border rounded-md">
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead className={showRolesColumn ? "w-1/6" : "w-1/3"}>Имя сотрудника</TableHead>
-              <TableHead className={showRolesColumn ? "w-1/6" : "w-1/3"}>Зарплата</TableHead>
-              <TableHead className={showRolesColumn ? "w-1/6" : "w-1/3"}>Стандартная зарплата</TableHead>
-              {showRolesColumn && <TableHead className="w-1/2">Роли и нормализованный FTE</TableHead>}
+              <TableHead className="w-1/6">Имя сотрудника</TableHead>
+              <TableHead className="w-1/6">Зарплата</TableHead>
+              <TableHead className="w-1/6">Стандартная зарплата</TableHead>
+              <TableHead className="w-1/2">Роли и нормализованный FTE</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -364,36 +349,34 @@ const EmployeeTable = ({
                       <span className="text-gray-400">—</span>
                     )}
                   </TableCell>
-                  {showRolesColumn && (
-                    <TableCell>
-                      {employee.roles.length > 0 ? (
-                        <ul className="list-disc list-inside space-y-1">
-                          {employee.roles.map((role, roleIndex) => (
-                            <li key={roleIndex} className="text-sm">
-                              {role} <span className="text-gray-500 ml-2">FTE: {formatRoleFTE(employee, role)}</span>
-                            </li>
-                          ))}
-                        </ul>
-                      ) : (
-                        <span className="text-gray-400 text-sm">Нет ролей</span>
-                      )}
-                      {employee.normalizedRolesFTE.size > 0 && (
-                        <div className="text-xs text-gray-400 mt-2">
-                          {employee.totalFTE === 1 
-                            ? "Суммарный FTE: 1,00 (нормализация не требуется)" 
-                            : employee.totalFTE > 1 
-                              ? `Суммарный FTE до нормализации: ${formatFTE(employee.totalFTE)} (пропорционально уменьшен)`
-                              : `Суммарный FTE до нормализации: ${formatFTE(employee.totalFTE)} (пропорционально увеличен)`
-                          }
-                        </div>
-                      )}
-                    </TableCell>
-                  )}
+                  <TableCell>
+                    {employee.roles.length > 0 ? (
+                      <ul className="list-disc list-inside space-y-1">
+                        {employee.roles.map((role, roleIndex) => (
+                          <li key={roleIndex} className="text-sm">
+                            {role} <span className="text-gray-500 ml-2">FTE: {formatRoleFTE(employee, role)}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    ) : (
+                      <span className="text-gray-400 text-sm">Нет ролей</span>
+                    )}
+                    {employee.normalizedRolesFTE.size > 0 && (
+                      <div className="text-xs text-gray-400 mt-2">
+                        {employee.totalFTE === 1 
+                          ? "Суммарный FTE: 1,00 (нормализация не требуется)" 
+                          : employee.totalFTE > 1 
+                            ? `Суммарный FTE до нормализации: ${formatFTE(employee.totalFTE)} (пропорционально уменьшен)`
+                            : `Суммарный FTE до нормализации: ${formatFTE(employee.totalFTE)} (пропорционально увеличен)`
+                        }
+                      </div>
+                    )}
+                  </TableCell>
                 </TableRow>
               ))
             ) : (
               <TableRow>
-                <TableCell colSpan={showRolesColumn ? 4 : 3} className="text-center h-32">
+                <TableCell colSpan={4} className="text-center h-32">
                   Сотрудники не найдены
                 </TableCell>
               </TableRow>
