@@ -1,4 +1,3 @@
-
 import { Employee } from "@/types";
 
 // Список возможных названий для колонки с именем
@@ -23,6 +22,12 @@ const ROLE_PARTICIPANT_ALIASES = [
 // Список возможных названий для колонки с названием роли
 const ROLE_NAME_ALIASES = [
   'название роли', 'роль', 'role', 'role name', 'наименование роли'
+];
+
+// Список возможных названий для колонки с FTE
+const FTE_COLUMN_ALIASES = [
+  'fte сотрудника', 'fte', 'объем fte', 'доля ставки', 'загрузка',
+  'загрузка сотрудника', 'полная занятость', 'workload'
 ];
 
 export const parseCSV = (csvContent: string): Employee[] => {
@@ -129,7 +134,7 @@ export const parseCSV = (csvContent: string): Employee[] => {
 };
 
 // Parse roles from a CSV file
-export const parseRolesCSV = (csvContent: string): { participantName: string; roleName: string }[] => {
+export const parseRolesCSV = (csvContent: string): { participantName: string; roleName: string; fte?: number }[] => {
   try {
     // Normalize line endings and separators
     const normalizedContent = csvContent
@@ -158,6 +163,7 @@ export const parseRolesCSV = (csvContent: string): { participantName: string; ro
     // Find indices of participant and role name columns
     let participantColumnIndex = -1;
     let roleNameColumnIndex = -1;
+    let fteColumnIndex = -1;
 
     // Check all possible column name variants
     for (let i = 0; i < headers.length; i++) {
@@ -172,10 +178,16 @@ export const parseRolesCSV = (csvContent: string): { participantName: string; ro
           ROLE_NAME_ALIASES.some(alias => header.includes(alias))) {
         roleNameColumnIndex = i;
       }
+      
+      if (fteColumnIndex === -1 && 
+          FTE_COLUMN_ALIASES.some(alias => header.includes(alias))) {
+        fteColumnIndex = i;
+      }
     }
     
     console.log("Индекс колонки с участником роли:", participantColumnIndex);
     console.log("Индекс колонки с названием роли:", roleNameColumnIndex);
+    console.log("Индекс колонки с FTE:", fteColumnIndex);
     
     if (participantColumnIndex === -1 || roleNameColumnIndex === -1) {
       console.error("CSV файл с ролями должен содержать колонки 'участник роли' и 'название роли'");
@@ -183,7 +195,7 @@ export const parseRolesCSV = (csvContent: string): { participantName: string; ro
       return [];
     }
     
-    const roles: { participantName: string; roleName: string }[] = [];
+    const roles: { participantName: string; roleName: string; fte?: number }[] = [];
     
     // Start at 1 to skip headers
     for (let i = 1; i < lines.length; i++) {
@@ -204,10 +216,21 @@ export const parseRolesCSV = (csvContent: string): { participantName: string; ro
       const roleName = values[roleNameColumnIndex];
       
       if (participantName && roleName) {
-        roles.push({
+        const role: { participantName: string; roleName: string; fte?: number } = {
           participantName,
           roleName
-        });
+        };
+        
+        // Add FTE if column exists and has a valid value
+        if (fteColumnIndex !== -1 && values[fteColumnIndex]) {
+          // Parse FTE value, replacing comma with dot for proper parsing
+          const fteValue = parseFloat(values[fteColumnIndex].replace(',', '.'));
+          if (!isNaN(fteValue)) {
+            role.fte = fteValue;
+          }
+        }
+        
+        roles.push(role);
       }
     }
     

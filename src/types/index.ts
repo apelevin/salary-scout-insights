@@ -18,4 +18,5 @@ export interface UploadedFile {
 export interface RoleData {
   participantName: string;
   roleName: string;
+  fte?: number; // Adding FTE field which may not be present in all data
 }

@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import {
   Table,
@@ -24,8 +23,8 @@ const EmployeeTable = ({
   isLoading = false 
 }: EmployeeTableProps) => {
   const [searchTerm, setSearchTerm] = useState("");
-  const [filteredEmployees, setFilteredEmployees] = useState<(Employee & { roles: string[] })[]>([]);
-  const [employeesWithRoles, setEmployeesWithRoles] = useState<(Employee & { roles: string[] })[]>([]);
+  const [filteredEmployees, setFilteredEmployees] = useState<(Employee & { roles: string[], totalFTE: number })[]>([]);
+  const [employeesWithRoles, setEmployeesWithRoles] = useState<(Employee & { roles: string[], totalFTE: number })[]>([]);
 
   useEffect(() => {
     const withRoles = employees.map(emp => {
@@ -34,10 +33,12 @@ const EmployeeTable = ({
       const firstName = nameParts.length > 1 ? nameParts[1] : '';
       
       const roles = findRolesForEmployee(lastName, firstName);
+      const totalFTE = calculateTotalFTE(lastName, firstName);
       
       return {
         ...emp,
-        roles
+        roles,
+        totalFTE
       };
     });
     
@@ -85,6 +86,34 @@ const EmployeeTable = ({
     return roles;
   };
 
+  const calculateTotalFTE = (lastName: string, firstName: string): number => {
+    if (!lastName || !firstName || !rolesData.length) return 0;
+    
+    let totalFTE = 0;
+    
+    const normalizedLastName = lastName.toLowerCase();
+    const normalizedFirstName = firstName.toLowerCase();
+    
+    rolesData.forEach(entry => {
+      if (!entry.participantName) return;
+      
+      const participantNameParts = entry.participantName
+        .replace(/["']/g, '')
+        .trim()
+        .split(/\s+/)
+        .map(part => part.toLowerCase());
+      
+      if (
+        participantNameParts.some(part => part === normalizedLastName) && 
+        participantNameParts.some(part => part === normalizedFirstName)
+      ) {
+        totalFTE += entry.fte !== undefined ? entry.fte : 0;
+      }
+    });
+    
+    return totalFTE;
+  };
+
   const formatSalary = (salary: number): string => {
     return new Intl.NumberFormat("ru-RU", {
       style: "currency",
@@ -111,6 +140,10 @@ const EmployeeTable = ({
 
   const cleanRoleName = (roleName: string): string => {
     return roleName.replace(/["']/g, '').trim();
+  };
+
+  const formatFTE = (fte: number): string => {
+    return fte.toFixed(2);
   };
 
   if (isLoading) {
@@ -150,9 +183,10 @@ const EmployeeTable = ({
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead className="w-1/3">Имя сотрудника</TableHead>
-              <TableHead className="w-1/3">Зарплата</TableHead>
-              <TableHead className="w-1/3">Роли</TableHead>
+              <TableHead className="w-1/4">Имя сотрудника</TableHead>
+              <TableHead className="w-1/4">Зарплата</TableHead>
+              <TableHead className="w-1/4">Роли</TableHead>
+              <TableHead className="w-1/4">Общий FTE</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -172,11 +206,18 @@ const EmployeeTable = ({
                       <span className="text-gray-400 text-sm">Нет ролей</span>
                     )}
                   </TableCell>
+                  <TableCell>
+                    {employee.totalFTE > 0 ? (
+                      formatFTE(employee.totalFTE)
+                    ) : (
+                      <span className="text-gray-400 text-sm">—</span>
+                    )}
+                  </TableCell>
                 </TableRow>
               ))
             ) : (
               <TableRow>
-                <TableCell colSpan={3} className="text-center h-32">
+                <TableCell colSpan={4} className="text-center h-32">
                   Сотрудники не найдены
                 </TableCell>
               </TableRow>
