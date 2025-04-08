@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import {
   Table,
@@ -19,19 +20,70 @@ interface EmployeeTableProps {
 const EmployeeTable = ({ employees, isLoading = false }: EmployeeTableProps) => {
   const [searchTerm, setSearchTerm] = useState("");
   const [filteredEmployees, setFilteredEmployees] = useState<Employee[]>([]);
+  const [employeesWithRoles, setEmployeesWithRoles] = useState<(Employee & { roles: string[] })[]>([]);
 
   useEffect(() => {
+    // First, map employees with roles
+    const withRoles = employees.map(emp => {
+      // Extract first and last name for matching
+      const nameParts = formatName(emp.name).split(' ');
+      const lastName = nameParts[0];
+      const firstName = nameParts.length > 1 ? nameParts[1] : '';
+      
+      // Find roles for this employee by matching name parts
+      const roles = findRolesForEmployee(lastName, firstName);
+      
+      return {
+        ...emp,
+        roles
+      };
+    });
+    
+    setEmployeesWithRoles(withRoles);
+    
+    // Then apply search filter if needed
     if (searchTerm.trim() === "") {
-      setFilteredEmployees(employees);
+      setFilteredEmployees(withRoles);
     } else {
       const term = searchTerm.toLowerCase().trim();
       setFilteredEmployees(
-        employees.filter((employee) =>
-          employee.name.toLowerCase().includes(term)
+        withRoles.filter((employee) =>
+          formatName(employee.name).toLowerCase().includes(term)
         )
       );
     }
   }, [employees, searchTerm]);
+
+  // Mock function to find roles for an employee
+  // This would typically get the data from the roles file
+  const findRolesForEmployee = (lastName: string, firstName: string): string[] => {
+    // In a real implementation, this would search through the roles data
+    // For now, let's return some example roles based on employee names
+    if (!lastName || !firstName) return [];
+    
+    // This is placeholder logic - in a real app, this would look up roles from 
+    // parsed role data that was uploaded as another CSV file
+    const rolesMappings: Record<string, string[]> = {
+      "Иванов Иван": ["Менеджер", "Консультант"],
+      "Петров Петр": ["Директор"],
+      "Сидоров Алексей": ["Аналитик", "Разработчик"]
+    };
+    
+    // Try to match by last name and first name
+    const key = `${lastName} ${firstName}`;
+    if (rolesMappings[key]) {
+      return rolesMappings[key];
+    }
+    
+    // Try partial matches (when we only have part of the name)
+    for (const [name, roles] of Object.entries(rolesMappings)) {
+      if (name.includes(lastName) && name.includes(firstName)) {
+        return roles;
+      }
+    }
+    
+    return [];
+  };
 
   const formatSalary = (salary: number): string => {
     return new Intl.NumberFormat("ru-RU", {
@@ -55,6 +107,14 @@ const EmployeeTable = ({ employees, isLoading = false }: EmployeeTableProps) => 
     }
     
     return cleanName;
+  };
+
+  // Format roles array into a comma-separated string
+  const formatRoles = (roles: string[]): string => {
+    if (!roles || roles.length === 0) {
+      return "—";
+    }
+    return roles.join(", ");
   };
 
   if (isLoading) {
@@ -94,7 +154,8 @@ const EmployeeTable = ({ employees, isLoading = false }: EmployeeTableProps) => 
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead className="w-1/2">Имя сотрудника</TableHead>
+              <TableHead className="w-1/3">Имя сотрудника</TableHead>
+              <TableHead className="w-1/3">Роли</TableHead>
               <TableHead>Зарплата</TableHead>
             </TableRow>
           </TableHeader>
@@ -103,12 +164,13 @@ const EmployeeTable = ({ employees, isLoading = false }: EmployeeTableProps) => 
               filteredEmployees.map((employee, index) => (
                 <TableRow key={employee.id || index}>
                   <TableCell className="font-medium">{formatName(employee.name)}</TableCell>
+                  <TableCell>{formatRoles(employee.roles)}</TableCell>
                   <TableCell>{formatSalary(employee.salary)}</TableCell>
                 </TableRow>
               ))
             ) : (
               <TableRow>
-                <TableCell colSpan={2} className="text-center h-32">
+                <TableCell colSpan={3} className="text-center h-32">
                   Сотрудники не найдены
                 </TableCell>
               </TableRow>
