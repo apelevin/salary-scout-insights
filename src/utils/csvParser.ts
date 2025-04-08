@@ -14,6 +14,17 @@ const SALARY_COLUMN_ALIASES = [
   'wage', 'pay', 'payment'
 ];
 
+// Список возможных названий для колонки с участником роли
+const ROLE_PARTICIPANT_ALIASES = [
+  'участник роли', 'участник', 'employee', 'сотрудник', 
+  'исполнитель роли', 'исполнитель', 'role participant'
+];
+
+// Список возможных названий для колонки с названием роли
+const ROLE_NAME_ALIASES = [
+  'название роли', 'роль', 'role', 'role name', 'наименование роли'
+];
+
 export const parseCSV = (csvContent: string): Employee[] => {
   try {
     // Нормализуем символы конца строки и разделители
@@ -113,6 +124,97 @@ export const parseCSV = (csvContent: string): Employee[] => {
     return employees;
   } catch (error) {
     console.error("Ошибка при парсинге CSV:", error);
+    return [];
+  }
+};
+
+// Parse roles from a CSV file
+export const parseRolesCSV = (csvContent: string): { participantName: string; roleName: string }[] => {
+  try {
+    // Normalize line endings and separators
+    const normalizedContent = csvContent
+      .replace(/\r\n|\r/g, '\n')
+      .trim();
+    
+    const lines = normalizedContent.split('\n').filter(line => line.trim() !== '');
+    
+    if (lines.length === 0) {
+      console.error("CSV файл с ролями не содержит данных");
+      return [];
+    }
+
+    // Support different delimiters (comma, semicolon, tab)
+    let delimiter = ',';
+    const firstLine = lines[0];
+    if (firstLine.includes(';') && !firstLine.includes(',')) {
+      delimiter = ';';
+    } else if (firstLine.includes('\t') && !firstLine.includes(',')) {
+      delimiter = '\t';
+    }
+
+    const headers = lines[0].split(delimiter).map(header => header.trim().toLowerCase());
+    console.log("Обнаруженные заголовки ролей:", headers);
+    
+    // Find indices of participant and role name columns
+    let participantColumnIndex = -1;
+    let roleNameColumnIndex = -1;
+
+    // Check all possible column name variants
+    for (let i = 0; i < headers.length; i++) {
+      const header = headers[i].toLowerCase();
+      
+      if (participantColumnIndex === -1 && 
+          ROLE_PARTICIPANT_ALIASES.some(alias => header.includes(alias))) {
+        participantColumnIndex = i;
+      }
+      
+      if (roleNameColumnIndex === -1 && 
+          ROLE_NAME_ALIASES.some(alias => header.includes(alias))) {
+        roleNameColumnIndex = i;
+      }
+    }
+    
+    console.log("Индекс колонки с участником роли:", participantColumnIndex);
+    console.log("Индекс колонки с названием роли:", roleNameColumnIndex);
+    
+    if (participantColumnIndex === -1 || roleNameColumnIndex === -1) {
+      console.error("CSV файл с ролями должен содержать колонки 'участник роли' и 'название роли'");
+      console.error("Доступные заголовки:", headers);
+      return [];
+    }
+    
+    const roles: { participantName: string; roleName: string }[] = [];
+    
+    // Start at 1 to skip headers
+    for (let i = 1; i < lines.length; i++) {
+      const values = lines[i].split(delimiter).map(value => value.trim());
+      
+      // Skip empty lines
+      if (values.every(v => v === '')) {
+        continue;
+      }
+      
+      // Handle cases where line doesn't have enough values
+      if (values.length < Math.max(participantColumnIndex, roleNameColumnIndex) + 1) {
+        console.warn(`Строка ${i + 1} в файле ролей имеет недостаточно значений. Пропускаем.`);
+        continue;
+      }
+      
+      const participantName = values[participantColumnIndex];
+      const roleName = values[roleNameColumnIndex];
+      
+      if (participantName && roleName) {
+        roles.push({
+          participantName,
+          roleName
+        });
+      }
+    }
+    
+    console.log(`Успешно распознано ${roles.length} записей о ролях`);
+    return roles;
+  } catch (error) {
+    console.error("Ошибка при парсинге CSV с ролями:", error);
     return [];
   }
 };

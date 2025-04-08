@@ -14,12 +14,17 @@ import { Search } from "lucide-react";
 
 interface EmployeeTableProps {
   employees: Employee[];
+  rolesData?: { participantName: string; roleName: string }[];
   isLoading?: boolean;
 }
 
-const EmployeeTable = ({ employees, isLoading = false }: EmployeeTableProps) => {
+const EmployeeTable = ({ 
+  employees, 
+  rolesData = [], 
+  isLoading = false 
+}: EmployeeTableProps) => {
   const [searchTerm, setSearchTerm] = useState("");
-  const [filteredEmployees, setFilteredEmployees] = useState<Employee[]>([]);
+  const [filteredEmployees, setFilteredEmployees] = useState<(Employee & { roles: string[] })[]>([]);
   const [employeesWithRoles, setEmployeesWithRoles] = useState<(Employee & { roles: string[] })[]>([]);
 
   useEffect(() => {
@@ -52,37 +57,44 @@ const EmployeeTable = ({ employees, isLoading = false }: EmployeeTableProps) => 
         )
       );
     }
-  }, [employees, searchTerm]);
+  }, [employees, searchTerm, rolesData]);
 
-  // Mock function to find roles for an employee
-  // This would typically get the data from the roles file
+  // Real function to find roles for an employee based on the rolesData
   const findRolesForEmployee = (lastName: string, firstName: string): string[] => {
-    // In a real implementation, this would search through the roles data
-    // For now, let's return some example roles based on employee names
-    if (!lastName || !firstName) return [];
+    if (!lastName || !firstName || !rolesData.length) return [];
     
-    // This is placeholder logic - in a real app, this would look up roles from 
-    // parsed role data that was uploaded as another CSV file
-    const rolesMappings: Record<string, string[]> = {
-      "Иванов Иван": ["Менеджер", "Консультант"],
-      "Петров Петр": ["Директор"],
-      "Сидоров Алексей": ["Аналитик", "Разработчик"]
-    };
+    // Create a roles map for this employee
+    const roles: string[] = [];
     
-    // Try to match by last name and first name
-    const key = `${lastName} ${firstName}`;
-    if (rolesMappings[key]) {
-      return rolesMappings[key];
-    }
+    // Normalize names for better matching
+    const normalizedLastName = lastName.toLowerCase();
+    const normalizedFirstName = firstName.toLowerCase();
     
-    // Try partial matches (when we only have part of the name)
-    for (const [name, roles] of Object.entries(rolesMappings)) {
-      if (name.includes(lastName) && name.includes(firstName)) {
-        return roles;
+    // Go through all role data entries
+    rolesData.forEach(entry => {
+      if (!entry.participantName || !entry.roleName) return;
+      
+      // Split participant name into parts for matching
+      const participantNameParts = entry.participantName
+        .replace(/["']/g, '')
+        .trim()
+        .split(/\s+/)
+        .map(part => part.toLowerCase());
+      
+      // Try to match by last name and first name
+      // We look for the last name and first name in the participant name parts
+      if (
+        participantNameParts.some(part => part === normalizedLastName) && 
+        participantNameParts.some(part => part === normalizedFirstName)
+      ) {
+        // If we found both last name and first name, add the role if it's not already added
+        if (!roles.includes(entry.roleName)) {
+          roles.push(entry.roleName);
+        }
       }
-    }
+    });
     
-    return [];
+    return roles;
   };
 
   const formatSalary = (salary: number): string => {

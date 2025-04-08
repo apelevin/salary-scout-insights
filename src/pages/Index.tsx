@@ -5,13 +5,14 @@ import EmployeeTable from "@/components/EmployeeTable";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Employee, UploadedFile } from "@/types";
-import { parseCSV } from "@/utils/csvParser";
+import { parseCSV, parseRolesCSV } from "@/utils/csvParser";
 import { toast } from "@/components/ui/use-toast";
 import { BarChart, FileText, FileType } from "lucide-react";
 
 const Index = () => {
   const [uploadedFiles, setUploadedFiles] = useState<UploadedFile[]>([]);
   const [employees, setEmployees] = useState<Employee[]>([]);
+  const [rolesData, setRolesData] = useState<{ participantName: string; roleName: string }[]>([]);
   const [isProcessing, setIsProcessing] = useState(false);
 
   const handleFilesUploaded = (files: UploadedFile[]) => {
@@ -33,19 +34,32 @@ const Index = () => {
     try {
       const allEmployees: Employee[] = [];
       const updatedFiles = [...uploadedFiles];
+      let rolesList: { participantName: string; roleName: string }[] = [];
 
       uploadedFiles.forEach((file, index) => {
+        // Try to parse as roles file first
+        const possibleRoles = parseRolesCSV(file.content);
+        
+        if (possibleRoles.length > 0) {
+          // This appears to be a roles file
+          rolesList = [...rolesList, ...possibleRoles];
+          updatedFiles[index].parsed = true;
+          console.log(`Файл ${file.name} распознан как файл с ролями`);
+          return;
+        }
+        
+        // If not a roles file, try to parse as employees
         const parsedEmployees = parseCSV(file.content);
         if (parsedEmployees.length === 0) {
           toast({
             title: "Ошибка парсинга файла",
-            description: `Файл ${file.name} не содержит корректных данных о сотрудниках.`,
+            description: `Файл ${file.name} не содержит корректных данных о сотрудниках или ролях.`,
             variant: "destructive",
           });
           return;
         }
         
-        // Добавляем id для сотрудников, если его нет
+        // Add IDs for employees if they don't have them
         const employeesWithIds = parsedEmployees.map((emp, i) => ({
           ...emp,
           id: emp.id || `${index}-${i}`,
@@ -57,10 +71,16 @@ const Index = () => {
 
       setUploadedFiles(updatedFiles);
       setEmployees(allEmployees);
+      setRolesData(rolesList);
+      
+      let successMessage = `Загружено ${allEmployees.length} сотрудников.`;
+      if (rolesList.length > 0) {
+        successMessage += ` Найдено ${rolesList.length} записей о ролях.`;
+      }
       
       toast({
         title: "Данные успешно загружены",
-        description: `Загружено ${allEmployees.length} сотрудников.`,
+        description: successMessage,
       });
     } catch (error) {
       console.error("Ошибка при обработке файлов:", error);
@@ -120,13 +140,16 @@ const Index = () => {
                 </div>
                 <div className="space-y-3 text-sm">
                   <p className="text-gray-600">
-                    1. Загрузите до 3 файлов в формате CSV с данными о сотрудниках.
+                    1. Загрузите до 3 файлов в формате CSV с данными о сотрудниках и ролях.
                   </p>
                   <p className="text-gray-600">
-                    2. CSV файлы должны содержать колонки "name" (имя) и "salary" (зарплата).
+                    2. CSV файлы сотрудников должны содержать колонки "name" (имя) и "salary" (зарплата).
                   </p>
                   <p className="text-gray-600">
-                    3. Нажмите "Обработать данные" для анализа загруженных файлов.
+                    3. CSV файлы ролей должны содержать колонки "участник роли" и "название роли".
+                  </p>
+                  <p className="text-gray-600">
+                    4. Нажмите "Обработать данные" для анализа загруженных файлов.
                   </p>
                 </div>
               </CardContent>
@@ -140,7 +163,11 @@ const Index = () => {
                   <BarChart className="h-5 w-5 text-blue-500" />
                   <h2 className="text-xl font-semibold">Данные о сотрудниках</h2>
                 </div>
-                <EmployeeTable employees={employees} isLoading={isProcessing} />
+                <EmployeeTable 
+                  employees={employees} 
+                  rolesData={rolesData}
+                  isLoading={isProcessing} 
+                />
               </CardContent>
             </Card>
           </div>

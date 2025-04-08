@@ -14,3 +14,8 @@ export interface UploadedFile {
   content: string;
   parsed: boolean;
 }
+
+export interface RoleData {
+  participantName: string;
+  roleName: string;
+}
