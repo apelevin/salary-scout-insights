@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import {
   Table,
@@ -43,9 +42,19 @@ const EmployeeTable = ({ employees, isLoading = false }: EmployeeTableProps) => 
   };
   
   const formatName = (name: string): string => {
-    // Remove any quote characters and trim whitespace
     const cleanName = name.replace(/["']/g, '').trim();
-    return cleanName === "" ? "Без имени" : cleanName;
+    
+    if (cleanName === "") {
+      return "Без имени";
+    }
+    
+    const nameParts = cleanName.split(/\s+/);
+    
+    if (nameParts.length >= 2) {
+      return `${nameParts[0]} ${nameParts[1]}`;
+    }
+    
+    return cleanName;
   };
 
   if (isLoading) {
