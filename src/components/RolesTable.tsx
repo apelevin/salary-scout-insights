@@ -46,7 +46,7 @@ const RolesTable = ({ rolesData = [], employees = [], isLoading = false }: Roles
           <TableHeader>
             <TableRow>
               <TableHead>Название роли</TableHead>
-              <TableHead className="text-right">Ставки</TableHead>
+              <TableHead className="text-right">Ставка</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -54,12 +54,7 @@ const RolesTable = ({ rolesData = [], employees = [], isLoading = false }: Roles
               <TableRow key={index}>
                 <TableCell className="font-medium">{role.name}</TableCell>
                 <TableCell className="text-right">
-                  {role.salaries && role.salaries.length > 0 
-                    ? role.salaries.map((salary, idx) => (
-                        <div key={idx}>{formatSalary(salary)}</div>
-                      ))
-                    : "Не определена"
-                  }
+                  {role.salary ? formatSalary(role.salary) : "Не определена"}
                 </TableCell>
               </TableRow>
             ))}
@@ -97,20 +92,18 @@ function getRolesWithSalaries(rolesData: RoleData[], employees: Employee[]) {
   
   return uniqueRoles.map(roleName => {
     const participants = roleNameToParticipants[roleName];
-    const salaries = findSalariesForRole(participants, employees);
+    let salary = findSalaryForRole(participants, employees);
     
     return {
       name: roleName,
-      salaries: salaries
+      salary: salary
     };
   });
 }
 
-// Find all salaries for a role based on its participants
-function findSalariesForRole(participants: string[], employees: Employee[]): number[] {
-  if (!participants.length || !employees.length) return [];
-  
-  const salaries: number[] = [];
+// Find the salary for a role based on its participants
+function findSalaryForRole(participants: string[], employees: Employee[]): number | null {
+  if (!participants.length || !employees.length) return null;
   
   for (const participant of participants) {
     // Split participant name into components
@@ -127,13 +120,13 @@ function findSalariesForRole(participants: string[], employees: Employee[]): num
         employeeParts.some(empPart => empPart === part && part.length > 1)
       );
       
-      if (nameMatches && employee.salary && !salaries.includes(employee.salary)) {
-        salaries.push(employee.salary);
+      if (nameMatches && employee.salary) {
+        return employee.salary;
       }
     }
   }
   
-  return salaries;
+  return null;
 }
 
 // Format salary as Russian currency
