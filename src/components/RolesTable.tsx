@@ -85,6 +85,11 @@ const RolesTable = ({
     return salaries;
   };
 
+  // Function to calculate 80% of the sum of min and max salaries
+  const calculateWeightedSum = (minSalary: number, maxSalary: number): number => {
+    return (minSalary + maxSalary) * 0.8;
+  };
+
   if (isLoading) {
     return (
       <div className="w-full h-60 flex items-center justify-center">
@@ -111,9 +116,10 @@ const RolesTable = ({
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead className="w-1/2">Название роли</TableHead>
+              <TableHead className="w-1/4">Название роли</TableHead>
               <TableHead className="w-1/4">Мин. зарплата</TableHead>
               <TableHead className="w-1/4">Макс. зарплата</TableHead>
+              <TableHead className="w-1/4">80% от суммы</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -121,6 +127,7 @@ const RolesTable = ({
               const salaries = findSalariesForRole(role);
               const minSalary = salaries.length ? Math.min(...salaries) : 0;
               const maxSalary = salaries.length ? Math.max(...salaries) : 0;
+              const weightedSum = calculateWeightedSum(minSalary, maxSalary);
               
               return (
                 <TableRow key={index}>
@@ -135,6 +142,13 @@ const RolesTable = ({
                   <TableCell>
                     {salaries.length ? (
                       formatSalary(maxSalary)
+                    ) : (
+                      <span className="text-gray-400">—</span>
+                    )}
+                  </TableCell>
+                  <TableCell>
+                    {salaries.length ? (
+                      formatSalary(weightedSum)
                     ) : (
                       <span className="text-gray-400">—</span>
                     )}
