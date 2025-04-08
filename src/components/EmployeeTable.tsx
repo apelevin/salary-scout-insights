@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import {
   Table,
@@ -8,13 +9,12 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Input } from "@/components/ui/input";
-import { Employee, EmployeeWithRoles, RoleData } from "@/types";
+import { Employee } from "@/types";
 import { Search } from "lucide-react";
-import EmployeeSidebar from "./EmployeeSidebar";
 
 interface EmployeeTableProps {
   employees: Employee[];
-  rolesData?: RoleData[];
+  rolesData?: { participantName: string; roleName: string }[];
   isLoading?: boolean;
 }
 
@@ -24,10 +24,8 @@ const EmployeeTable = ({
   isLoading = false 
 }: EmployeeTableProps) => {
   const [searchTerm, setSearchTerm] = useState("");
-  const [filteredEmployees, setFilteredEmployees] = useState<EmployeeWithRoles[]>([]);
-  const [employeesWithRoles, setEmployeesWithRoles] = useState<EmployeeWithRoles[]>([]);
-  const [selectedEmployee, setSelectedEmployee] = useState<EmployeeWithRoles | null>(null);
-  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [filteredEmployees, setFilteredEmployees] = useState<(Employee & { roles: string[] })[]>([]);
+  const [employeesWithRoles, setEmployeesWithRoles] = useState<(Employee & { roles: string[] })[]>([]);
 
   useEffect(() => {
     // First, map employees with roles
@@ -123,13 +121,12 @@ const EmployeeTable = ({
     return cleanName;
   };
 
-  const handleEmployeeClick = (employee: EmployeeWithRoles) => {
-    setSelectedEmployee(employee);
-    setIsSidebarOpen(true);
-  };
-
-  const handleCloseSidebar = () => {
-    setIsSidebarOpen(false);
+  // Format roles array into a comma-separated string
+  const formatRoles = (roles: string[]): string => {
+    if (!roles || roles.length === 0) {
+      return "—";
+    }
+    return roles.join(", ");
   };
 
   if (isLoading) {
@@ -169,25 +166,23 @@ const EmployeeTable = ({
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead className="w-1/2">Имя сотрудника</TableHead>
+              <TableHead className="w-1/3">Имя сотрудника</TableHead>
+              <TableHead className="w-1/3">Роли</TableHead>
               <TableHead>Зарплата</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {filteredEmployees.length > 0 ? (
               filteredEmployees.map((employee, index) => (
-                <TableRow 
-                  key={employee.id || index}
-                  className="cursor-pointer hover:bg-muted/80"
-                  onClick={() => handleEmployeeClick(employee)}
-                >
+                <TableRow key={employee.id || index}>
                   <TableCell className="font-medium">{formatName(employee.name)}</TableCell>
+                  <TableCell>{formatRoles(employee.roles)}</TableCell>
                   <TableCell>{formatSalary(employee.salary)}</TableCell>
                 </TableRow>
               ))
             ) : (
               <TableRow>
-                <TableCell colSpan={2} className="text-center h-32">
+                <TableCell colSpan={3} className="text-center h-32">
                   Сотрудники не найдены
                 </TableCell>
               </TableRow>
@@ -198,12 +193,6 @@ const EmployeeTable = ({
       <div className="text-sm text-gray-500 mt-3">
         Всего сотрудников: {filteredEmployees.length}
       </div>
-
-      <EmployeeSidebar 
-        employee={selectedEmployee} 
-        isOpen={isSidebarOpen} 
-        onClose={handleCloseSidebar}
-      />
     </div>
   );
 };

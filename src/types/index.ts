@@ -8,10 +8,6 @@ export interface Employee {
   [key: string]: any;
 }
 
-export interface EmployeeWithRoles extends Employee {
-  roles: string[];
-}
-
 export interface UploadedFile {
   id: string;
   name: string;
