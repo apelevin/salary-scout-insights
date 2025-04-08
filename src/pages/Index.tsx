@@ -17,9 +17,18 @@ const Index = () => {
   const [rolesData, setRolesData] = useState<RoleData[]>([]);
   const [isProcessing, setIsProcessing] = useState(false);
   const [activeTab, setActiveTab] = useState("employees");
+  const [customStandardSalaries, setCustomStandardSalaries] = useState<Map<string, number>>(new Map());
 
   const handleFilesUploaded = (files: UploadedFile[]) => {
     setUploadedFiles(files);
+  };
+
+  const handleStandardSalaryChange = (roleName: string, newStandardSalary: number) => {
+    setCustomStandardSalaries(prev => {
+      const updated = new Map(prev);
+      updated.set(roleName, newStandardSalary);
+      return updated;
+    });
   };
 
   const processFiles = () => {
@@ -150,6 +159,9 @@ const Index = () => {
                   <p className="text-gray-600">
                     4. Нажмите "Обработать данные" для анализа загруженных файлов.
                   </p>
+                  <p className="text-gray-600">
+                    5. Вы можете редактировать стандартные оклады для ролей на соответствующей вкладке.
+                  </p>
                 </div>
               </CardContent>
             </Card>
@@ -176,6 +188,7 @@ const Index = () => {
                       employees={employees} 
                       rolesData={rolesData}
                       isLoading={isProcessing} 
+                      customStandardSalaries={customStandardSalaries}
                     />
                   </TabsContent>
                   <TabsContent value="roles">
@@ -183,6 +196,7 @@ const Index = () => {
                       rolesData={rolesData}
                       employees={employees}
                       isLoading={isProcessing}
+                      onStandardSalaryChange={handleStandardSalaryChange}
                     />
                   </TabsContent>
                 </Tabs>

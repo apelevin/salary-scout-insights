@@ -15,6 +15,7 @@ interface EmployeeTableProps {
   employees: Employee[];
   rolesData?: RoleData[];
   isLoading?: boolean;
+  customStandardSalaries?: Map<string, number>;
 }
 
 interface EmployeeWithRoles extends Employee {
@@ -27,7 +28,8 @@ interface EmployeeWithRoles extends Employee {
 const EmployeeTable = ({ 
   employees, 
   rolesData = [], 
-  isLoading = false 
+  isLoading = false,
+  customStandardSalaries = new Map()
 }: EmployeeTableProps) => {
   const [searchTerm, setSearchTerm] = useState("");
   const [filteredEmployees, setFilteredEmployees] = useState<EmployeeWithRoles[]>([]);
@@ -68,7 +70,7 @@ const EmployeeTable = ({
         )
       );
     }
-  }, [employees, searchTerm, rolesData]);
+  }, [employees, searchTerm, rolesData, customStandardSalaries]);
 
   const calculateStandardSalary = (normalizedRolesFTE: Map<string, number>): number => {
     let totalStandardSalary = 0;
@@ -82,6 +84,10 @@ const EmployeeTable = ({
   };
   
   const findStandardRateForRole = (roleName: string): number => {
+    if (customStandardSalaries.has(roleName)) {
+      return customStandardSalaries.get(roleName) || 0;
+    }
+    
     if (!roleName || !rolesData.length) return 0;
     
     const normalizedRoleName = roleName.toLowerCase();
