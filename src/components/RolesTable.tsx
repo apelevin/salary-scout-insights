@@ -34,6 +34,14 @@ const RolesTable = ({
     }).format(salary);
   };
 
+  // Calculate standard salary based on min and max values
+  const calculateStandardSalary = (min: number, max: number): number => {
+    if (min === max) {
+      return max;
+    }
+    return min + (max - min) * 0.7;
+  };
+
   // Get unique role names and sort them in descending alphabetical order
   const uniqueRoles = [...new Set(rolesData.map((role) => cleanRoleName(role.roleName)))]
     .filter(Boolean)
@@ -111,9 +119,10 @@ const RolesTable = ({
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead className="w-1/2">Название роли</TableHead>
-              <TableHead className="w-1/4">Мин. зарплата</TableHead>
-              <TableHead className="w-1/4">Макс. зарплата</TableHead>
+              <TableHead className="w-1/3">Название роли</TableHead>
+              <TableHead className="w-1/5">Мин. зарплата</TableHead>
+              <TableHead className="w-1/5">Макс. зарплата</TableHead>
+              <TableHead className="w-1/4">Стандартный оклад</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -121,6 +130,7 @@ const RolesTable = ({
               const salaries = findSalariesForRole(role);
               const minSalary = salaries.length ? Math.min(...salaries) : 0;
               const maxSalary = salaries.length ? Math.max(...salaries) : 0;
+              const standardSalary = salaries.length ? calculateStandardSalary(minSalary, maxSalary) : 0;
               
               return (
                 <TableRow key={index}>
@@ -135,6 +145,13 @@ const RolesTable = ({
                   <TableCell>
                     {salaries.length ? (
                       formatSalary(maxSalary)
+                    ) : (
+                      <span className="text-gray-400">—</span>
+                    )}
+                  </TableCell>
+                  <TableCell>
+                    {salaries.length ? (
+                      formatSalary(standardSalary)
                     ) : (
                       <span className="text-gray-400">—</span>
                     )}
