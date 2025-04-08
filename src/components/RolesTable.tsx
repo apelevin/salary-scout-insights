@@ -1,4 +1,3 @@
-
 import {
   Table,
   TableBody,
@@ -85,9 +84,9 @@ const RolesTable = ({
     return salaries;
   };
 
-  // Function to calculate 80% of the sum of min and max salaries
-  const calculateWeightedSum = (minSalary: number, maxSalary: number): number => {
-    return (minSalary + maxSalary) * 0.8;
+  // Function to calculate the 80% of (min + max) value
+  const calculateAdjustedValue = (min: number, max: number): number => {
+    return (min + max) * 0.8;
   };
 
   if (isLoading) {
@@ -116,10 +115,10 @@ const RolesTable = ({
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead className="w-1/4">Название роли</TableHead>
-              <TableHead className="w-1/4">Мин. зарплата</TableHead>
-              <TableHead className="w-1/4">Макс. зарплата</TableHead>
-              <TableHead className="w-1/4">80% от суммы</TableHead>
+              <TableHead className="w-1/5">Название роли</TableHead>
+              <TableHead className="w-1/5">Мин. зарплата</TableHead>
+              <TableHead className="w-1/5">Макс. зарплата</TableHead>
+              <TableHead className="w-2/5">80% от суммы (мин. + макс.)</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -127,7 +126,7 @@ const RolesTable = ({
               const salaries = findSalariesForRole(role);
               const minSalary = salaries.length ? Math.min(...salaries) : 0;
               const maxSalary = salaries.length ? Math.max(...salaries) : 0;
-              const weightedSum = calculateWeightedSum(minSalary, maxSalary);
+              const adjustedValue = calculateAdjustedValue(minSalary, maxSalary);
               
               return (
                 <TableRow key={index}>
@@ -146,9 +145,9 @@ const RolesTable = ({
                       <span className="text-gray-400">—</span>
                     )}
                   </TableCell>
-                  <TableCell>
+                  <TableCell className="font-medium">
                     {salaries.length ? (
-                      formatSalary(weightedSum)
+                      formatSalary(adjustedValue)
                     ) : (
                       <span className="text-gray-400">—</span>
                     )}
