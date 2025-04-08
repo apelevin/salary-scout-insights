@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import {
   Table,
@@ -18,14 +17,20 @@ interface EmployeeTableProps {
   isLoading?: boolean;
 }
 
+interface EmployeeWithRoles extends Employee {
+  roles: string[];
+  totalFTE: number;
+  normalizedRolesFTE: Map<string, number>;
+}
+
 const EmployeeTable = ({ 
   employees, 
   rolesData = [], 
   isLoading = false 
 }: EmployeeTableProps) => {
   const [searchTerm, setSearchTerm] = useState("");
-  const [filteredEmployees, setFilteredEmployees] = useState<(Employee & { roles: string[], totalFTE: number })[]>([]);
-  const [employeesWithRoles, setEmployeesWithRoles] = useState<(Employee & { roles: string[], totalFTE: number })[]>([]);
+  const [filteredEmployees, setFilteredEmployees] = useState<EmployeeWithRoles[]>([]);
+  const [employeesWithRoles, setEmployeesWithRoles] = useState<EmployeeWithRoles[]>([]);
 
   useEffect(() => {
     const withRoles = employees.map(emp => {
@@ -33,13 +38,17 @@ const EmployeeTable = ({
       const lastName = nameParts[0];
       const firstName = nameParts.length > 1 ? nameParts[1] : '';
       
-      const roles = findRolesForEmployee(lastName, firstName);
-      const totalFTE = calculateTotalFTE(lastName, firstName);
+      const rolesFTEMap = findRolesWithFTEForEmployee(lastName, firstName);
+      const roles = Array.from(rolesFTEMap.keys());
+      const totalFTE = calculateTotalFTE(rolesFTEMap);
+      
+      const normalizedRolesFTE = normalizeRolesFTE(rolesFTEMap, totalFTE);
       
       return {
         ...emp,
         roles,
-        totalFTE
+        totalFTE,
+        normalizedRolesFTE
       };
     });
     
@@ -56,6 +65,69 @@ const EmployeeTable = ({
       );
     }
   }, [employees, searchTerm, rolesData]);
+
+  const findRolesWithFTEForEmployee = (lastName: string, firstName: string): Map<string, number> => {
+    if (!lastName || !firstName || !rolesData.length) return new Map();
+    
+    const rolesWithFTE = new Map<string, number>();
+    
+    const normalizedLastName = lastName.toLowerCase();
+    const normalizedFirstName = firstName.toLowerCase();
+    
+    rolesData.forEach(entry => {
+      if (!entry.participantName || !entry.roleName) return;
+      
+      const participantNameParts = entry.participantName
+        .replace(/["']/g, '')
+        .trim()
+        .split(/\s+/)
+        .map(part => part.toLowerCase());
+      
+      if (
+        participantNameParts.some(part => part === normalizedLastName) && 
+        participantNameParts.some(part => part === normalizedFirstName)
+      ) {
+        const roleName = cleanRoleName(entry.roleName);
+        
+        if (rolesWithFTE.has(roleName)) {
+          const currentFTE = rolesWithFTE.get(roleName) || 0;
+          if (entry.fte !== undefined && !isNaN(entry.fte)) {
+            rolesWithFTE.set(roleName, currentFTE + entry.fte);
+          }
+        } else {
+          if (entry.fte !== undefined && !isNaN(entry.fte)) {
+            rolesWithFTE.set(roleName, entry.fte);
+          } else {
+            rolesWithFTE.set(roleName, 0);
+          }
+        }
+      }
+    });
+    
+    return rolesWithFTE;
+  };
+
+  const calculateTotalFTE = (rolesMap: Map<string, number>): number => {
+    let total = 0;
+    for (const fte of rolesMap.values()) {
+      total += fte;
+    }
+    return total;
+  };
+
+  const normalizeRolesFTE = (rolesMap: Map<string, number>, totalFTE: number): Map<string, number> => {
+    if (totalFTE === 0) return rolesMap;
+    if (totalFTE === 1) return rolesMap;
+    
+    const normalizedMap = new Map<string, number>();
+    
+    for (const [role, fte] of rolesMap.entries()) {
+      const normalizedFTE = fte / totalFTE;
+      normalizedMap.set(role, normalizedFTE);
+    }
+    
+    return normalizedMap;
+  };
 
   const findRolesForEmployee = (lastName: string, firstName: string): string[] => {
     if (!lastName || !firstName || !rolesData.length) return [];
@@ -87,36 +159,10 @@ const EmployeeTable = ({
     return roles;
   };
 
-  const calculateTotalFTE = (lastName: string, firstName: string): number => {
-    if (!lastName || !firstName || !rolesData.length) return 0;
+  const formatRoleFTE = (employee: EmployeeWithRoles, roleName: string): string => {
+    const normalizedFTE = employee.normalizedRolesFTE.get(roleName) || 0;
     
-    let totalFTE = 0;
-    
-    const normalizedLastName = lastName.toLowerCase();
-    const normalizedFirstName = firstName.toLowerCase();
-    
-    rolesData.forEach(entry => {
-      if (!entry.participantName) return;
-      
-      const participantNameParts = entry.participantName
-        .replace(/["']/g, '')
-        .trim()
-        .split(/\s+/)
-        .map(part => part.toLowerCase());
-      
-      if (
-        participantNameParts.some(part => part === normalizedLastName) && 
-        participantNameParts.some(part => part === normalizedFirstName)
-      ) {
-        // If fte exists, add it to total
-        if (entry.fte !== undefined && !isNaN(entry.fte)) {
-          totalFTE += entry.fte;
-          console.log(`Adding FTE for ${lastName} ${firstName}: ${entry.fte}, total now: ${totalFTE}`);
-        }
-      }
-    });
-    
-    return totalFTE;
+    return normalizedFTE.toLocaleString('ru-RU', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
   };
 
   const formatSalary = (salary: number): string => {
@@ -148,7 +194,6 @@ const EmployeeTable = ({
   };
 
   const formatFTE = (fte: number): string => {
-    // Format with Russian locale to show comma as decimal separator
     return fte.toLocaleString('ru-RU', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
   };
 
@@ -189,10 +234,9 @@ const EmployeeTable = ({
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead className="w-1/4">Имя сотрудника</TableHead>
-              <TableHead className="w-1/4">Зарплата</TableHead>
-              <TableHead className="w-1/4">Роли</TableHead>
-              <TableHead className="w-1/4">Общий FTE</TableHead>
+              <TableHead className="w-1/5">Имя сотрудника</TableHead>
+              <TableHead className="w-1/5">Зарплата</TableHead>
+              <TableHead className="w-3/5">Роли и нормализованный FTE</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -205,25 +249,30 @@ const EmployeeTable = ({
                     {employee.roles.length > 0 ? (
                       <ul className="list-disc list-inside space-y-1">
                         {employee.roles.map((role, roleIndex) => (
-                          <li key={roleIndex} className="text-sm">{role}</li>
+                          <li key={roleIndex} className="text-sm">
+                            {role} <span className="text-gray-500 ml-2">FTE: {formatRoleFTE(employee, role)}</span>
+                          </li>
                         ))}
                       </ul>
                     ) : (
                       <span className="text-gray-400 text-sm">Нет ролей</span>
                     )}
-                  </TableCell>
-                  <TableCell>
-                    {employee.totalFTE > 0 ? (
-                      formatFTE(employee.totalFTE)
-                    ) : (
-                      <span className="text-gray-400 text-sm">—</span>
+                    {employee.normalizedRolesFTE.size > 0 && (
+                      <div className="text-xs text-gray-400 mt-2">
+                        {employee.totalFTE === 1 
+                          ? "Суммарный FTE: 1,00 (нормализация не требуется)" 
+                          : employee.totalFTE > 1 
+                            ? `Суммарный FTE до нормализации: ${formatFTE(employee.totalFTE)} (пропорционально уменьшен)`
+                            : `Суммарный FTE до нормализации: ${formatFTE(employee.totalFTE)} (пропорционально увеличен)`
+                        }
+                      </div>
                     )}
                   </TableCell>
                 </TableRow>
               ))
             ) : (
               <TableRow>
-                <TableCell colSpan={4} className="text-center h-32">
+                <TableCell colSpan={3} className="text-center h-32">
                   Сотрудники не найдены
                 </TableCell>
               </TableRow>
