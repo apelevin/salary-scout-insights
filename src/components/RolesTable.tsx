@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { Table, TableBody } from "@/components/ui/table";
 import { RoleData } from "@/types";
@@ -104,11 +105,15 @@ const RolesTable = ({
   }, [rolesData, employees]);
 
   if (isLoading) {
-    return <LoadingState />;
+    return <LoadingState>Загрузка ролей...</LoadingState>;
   }
 
   if (roles.length === 0) {
-    return <EmptyState />;
+    return <EmptyState 
+      icon="FileQuestion" 
+      title="Нет доступных ролей" 
+      description="Загрузите файл с данными о ролях, чтобы увидеть информацию."
+    />;
   }
 
   return (
