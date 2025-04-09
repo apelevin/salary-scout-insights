@@ -4,14 +4,16 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import EmployeeTable from "@/components/employee-table/EmployeeTable";
 import RolesTable from "@/components/RolesTable";
-import { Employee, RoleData, CircleData } from "@/types";
+import LeadershipTable from "@/components/leadership/LeadershipTable";
+import { Employee, RoleData, CircleData, LeadershipData } from "@/types";
 
 interface DataDisplaySectionProps {
   activeTab: string;
   setActiveTab: (tab: string) => void;
   employees: Employee[];
   rolesData: RoleData[];
-  circlesData: CircleData[];  // Added circlesData property
+  circlesData: CircleData[];
+  leadershipData: LeadershipData[];
   isProcessing: boolean;
   customStandardSalaries: Map<string, number>;
   onStandardSalaryChange: (roleName: string, newStandardSalary: number) => void;
@@ -23,6 +25,7 @@ const DataDisplaySection = ({
   employees,
   rolesData,
   circlesData,
+  leadershipData,
   isProcessing,
   customStandardSalaries,
   onStandardSalaryChange
@@ -39,9 +42,10 @@ const DataDisplaySection = ({
           onValueChange={setActiveTab}
           className="w-full"
         >
-          <TabsList className="w-full grid grid-cols-2 mb-4">
+          <TabsList className="w-full grid grid-cols-3 mb-4">
             <TabsTrigger value="employees">Сотрудники</TabsTrigger>
             <TabsTrigger value="roles">Роли</TabsTrigger>
+            <TabsTrigger value="leadership">Лидерство</TabsTrigger>
           </TabsList>
           <TabsContent value="employees">
             <EmployeeTable 
@@ -58,6 +62,12 @@ const DataDisplaySection = ({
               employees={employees}
               isLoading={isProcessing}
               onStandardSalaryChange={onStandardSalaryChange}
+            />
+          </TabsContent>
+          <TabsContent value="leadership">
+            <LeadershipTable 
+              leadershipData={leadershipData}
+              isLoading={isProcessing}
             />
           </TabsContent>
         </Tabs>

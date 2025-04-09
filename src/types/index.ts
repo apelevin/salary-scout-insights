@@ -13,7 +13,7 @@ export interface EmployeeWithRoles extends Employee {
   totalFTE: number;
   normalizedRolesFTE: Map<string, number>;
   standardSalary?: number;
-  operationalCircleType?: string; // Added field for storing the operational circle type
+  operationalCircleType?: string;
 }
 
 export interface UploadedFile {
@@ -26,11 +26,17 @@ export interface UploadedFile {
 export interface RoleData {
   participantName: string;
   roleName: string;
-  fte?: number; // Adding FTE field which may not be present in all data
-  circleName?: string; // Adding circle name field
+  fte?: number;
+  circleName?: string;
 }
 
 export interface CircleData {
   name: string;
   functionalType: string;
+}
+
+export interface LeadershipData {
+  roleName: string;
+  standardSalary: number;
+  description?: string;
 }

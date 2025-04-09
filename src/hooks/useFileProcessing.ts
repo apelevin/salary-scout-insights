@@ -1,7 +1,8 @@
 
 import { useState } from "react";
-import { Employee, UploadedFile, RoleData, CircleData } from "@/types";
+import { Employee, UploadedFile, RoleData, CircleData, LeadershipData } from "@/types";
 import { parseCSV, parseRolesCSV, parseCirclesCSV } from "@/utils/csvParser";
+import { parseLeadershipCSV } from "@/utils/leadershipParser";
 import { toast } from "@/components/ui/use-toast";
 
 export const useFileProcessing = () => {
@@ -9,6 +10,7 @@ export const useFileProcessing = () => {
   const [employees, setEmployees] = useState<Employee[]>([]);
   const [rolesData, setRolesData] = useState<RoleData[]>([]);
   const [circlesData, setCirclesData] = useState<CircleData[]>([]);
+  const [leadershipData, setLeadershipData] = useState<LeadershipData[]>([]);
   const [isProcessing, setIsProcessing] = useState(false);
   const [customStandardSalaries, setCustomStandardSalaries] = useState<Map<string, number>>(new Map());
 
@@ -22,6 +24,38 @@ export const useFileProcessing = () => {
       updated.set(roleName, newStandardSalary);
       return updated;
     });
+  };
+
+  const handleLeadershipFileUpload = (file: UploadedFile) => {
+    setIsProcessing(true);
+    
+    try {
+      const parsedLeadership = parseLeadershipCSV(file.content);
+      
+      if (parsedLeadership.length > 0) {
+        setLeadershipData(parsedLeadership);
+        
+        toast({
+          title: "Файл лидерства загружен",
+          description: `Загружено ${parsedLeadership.length} записей о стандартных зарплатах ролей.`,
+        });
+      } else {
+        toast({
+          title: "Ошибка парсинга файла",
+          description: "Файл не содержит корректных данных о лидерстве.",
+          variant: "destructive",
+        });
+      }
+    } catch (error) {
+      console.error("Ошибка при обработке файла лидерства:", error);
+      toast({
+        title: "Ошибка обработки файла",
+        description: "Произошла ошибка при обработке загруженного файла лидерства.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsProcessing(false);
+    }
   };
 
   const processFiles = () => {
@@ -114,10 +148,12 @@ export const useFileProcessing = () => {
     employees,
     rolesData,
     circlesData,
+    leadershipData,
     isProcessing,
     customStandardSalaries,
     handleFilesUploaded,
     handleStandardSalaryChange,
+    handleLeadershipFileUpload,
     processFiles
   };
 };

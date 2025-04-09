@@ -13,10 +13,12 @@ const Index = () => {
     employees,
     rolesData,
     circlesData,
+    leadershipData,
     isProcessing,
     customStandardSalaries,
     handleFilesUploaded,
     handleStandardSalaryChange,
+    handleLeadershipFileUpload,
     processFiles
   } = useFileProcessing();
 
@@ -32,6 +34,7 @@ const Index = () => {
               isProcessing={isProcessing}
               onFilesUploaded={handleFilesUploaded}
               onProcessFiles={processFiles}
+              onLeadershipFileUpload={handleLeadershipFileUpload}
             />
           </div>
 
@@ -42,6 +45,7 @@ const Index = () => {
               employees={employees}
               rolesData={rolesData}
               circlesData={circlesData}
+              leadershipData={leadershipData}
               isProcessing={isProcessing}
               customStandardSalaries={customStandardSalaries}
               onStandardSalaryChange={handleStandardSalaryChange}

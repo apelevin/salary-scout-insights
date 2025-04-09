@@ -1,15 +1,17 @@
 
-import { FileType, FileText } from "lucide-react";
+import { FileType, FileText, Crown } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import FileUpload from "@/components/FileUpload";
 import { Button } from "@/components/ui/button";
 import { UploadedFile } from "@/types";
+import LeadershipFileUpload from "@/components/leadership/LeadershipFileUpload";
 
 interface FileUploadSectionProps {
   uploadedFiles: UploadedFile[];
   isProcessing: boolean;
   onFilesUploaded: (files: UploadedFile[]) => void;
   onProcessFiles: () => void;
+  onLeadershipFileUpload?: (file: UploadedFile) => void;
   maxFiles?: number;
 }
 
@@ -18,6 +20,7 @@ const FileUploadSection = ({
   isProcessing,
   onFilesUploaded,
   onProcessFiles,
+  onLeadershipFileUpload,
   maxFiles = 3
 }: FileUploadSectionProps) => {
   return (
@@ -41,6 +44,19 @@ const FileUploadSection = ({
         </CardContent>
       </Card>
 
+      {onLeadershipFileUpload && (
+        <Card className="mt-6">
+          <CardContent className="p-6">
+            <div className="flex items-center space-x-2 mb-4">
+              <Crown className="h-5 w-5 text-yellow-500" />
+              <h2 className="text-xl font-semibold text-foreground">Загрузка данных лидерства</h2>
+            </div>
+            <LeadershipFileUpload onLeadershipFileUpload={onLeadershipFileUpload} isProcessing={isProcessing} />
+          </div>
+        </CardContent>
+      </Card>
+      )}
+
       <Card className="mt-6">
         <CardContent className="p-6">
           <div className="flex items-center space-x-2 mb-4">
@@ -58,10 +74,13 @@ const FileUploadSection = ({
               3. CSV файлы ролей должны содержать колонки "участник роли" и "название роли".
             </p>
             <p>
-              4. Нажмите "Обработать данные" для анализа загруженных файлов.
+              4. CSV файл лидерства должен содержать колонки "название роли" и "оклад".
             </p>
             <p>
-              5. Вы можете редактировать стандартные оклады для ролей на соответствующей вкладке.
+              5. Нажмите "Обработать данные" для анализа загруженных файлов.
+            </p>
+            <p>
+              6. Вы можете редактировать стандартные оклады для ролей на соответствующей вкладке.
             </p>
           </div>
         </CardContent>
