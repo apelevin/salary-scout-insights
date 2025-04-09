@@ -11,11 +11,16 @@ export const parseLeadershipCSV = (csvContent: string): LeadershipData[] => {
     return [];
   }
   
+  console.log("Парсинг CSV лидерства. Количество строк:", rows.length);
+  console.log("Первая строка:", rows[0]);
+  
   // Определяем разделитель (запятая или точка с запятой)
   const delimiter = rows[0].includes(';') ? ';' : ',';
+  console.log("Используемый разделитель:", delimiter);
   
   // Получаем заголовки (количество кругов)
   const headers = rows[0].split(delimiter).map(header => header.trim().replace(/["']/g, ''));
+  console.log("Заголовки:", headers);
   
   if (headers.length < 2) {
     console.error("Неверный формат файла лидерства: недостаточно колонок");
@@ -27,7 +32,8 @@ export const parseLeadershipCSV = (csvContent: string): LeadershipData[] => {
   
   // Начиная со второй строки (индекс 1), обрабатываем данные о лидерстве
   for (let i = 1; i < rows.length; i++) {
-    const columns = rows[i].split(delimiter).map(col => col.trim());
+    const columns = rows[i].split(delimiter).map(col => col.trim().replace(/["']/g, ''));
+    console.log(`Строка ${i+1}:`, columns);
     
     // Проверяем, что строка содержит достаточно колонок
     if (columns.length < 2) {
@@ -36,7 +42,7 @@ export const parseLeadershipCSV = (csvContent: string): LeadershipData[] => {
     }
     
     // Первая колонка - тип лидерства
-    const leadershipType = columns[0]?.replace(/["']/g, '');
+    const leadershipType = columns[0];
     
     if (!leadershipType) {
       console.warn(`Строка ${i+1} не содержит тип лидерства, пропускаем`);
@@ -54,11 +60,17 @@ export const parseLeadershipCSV = (csvContent: string): LeadershipData[] => {
       // Получаем значение стандартной зарплаты, удаляя нечисловые символы (кроме точки и минуса)
       const salaryStr = columns[j]?.replace(/[^\d.-]/g, '');
       
+      console.log(`Для типа ${leadershipType}, кругов ${circleCount}, значение: ${columns[j]} -> ${salaryStr}`);
+      
       // Если нет количества кругов или зарплаты, пропускаем эту ячейку
-      if (!circleCount || !salaryStr || salaryStr === '') continue;
+      if (!circleCount || !salaryStr || salaryStr === '') {
+        console.warn(`Пропуск ячейки: тип=${leadershipType}, круги=${circleCount}, значение=${columns[j]}`);
+        continue;
+      }
       
       // Преобразуем строку зарплаты в число
-      const salary = Number(salaryStr);
+      // Заменяем запятую на точку для корректного парсинга чисел
+      const salary = Number(salaryStr.replace(',', '.'));
       
       // Пропускаем, если значение не является числом
       if (isNaN(salary)) {
@@ -77,6 +89,7 @@ export const parseLeadershipCSV = (csvContent: string): LeadershipData[] => {
     }
   }
   
+  console.log("Итоговое количество записей о лидерстве:", leadershipData.length);
   return leadershipData;
 };
 

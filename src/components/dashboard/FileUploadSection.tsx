@@ -33,10 +33,19 @@ const FileUploadSection = ({
       const newFiles = files.filter(file => !uploadedFiles.some(existing => existing.id === file.id));
       
       newFiles.forEach(file => {
-        // Проверяем, является ли файл файлом лидерства (простая эвристика)
-        // Файл лидерства имеет в первой строке слово "лидерство" или "leadership"
+        // Проверяем, является ли файл файлом лидерства по имени и содержимому
+        const fileName = file.name.toLowerCase();
         const firstLine = file.content.split('\n')[0].toLowerCase();
-        if (firstLine.includes('лидерство') || firstLine.includes('leadership')) {
+        
+        if (
+          fileName.includes('lead') || 
+          fileName.includes('лидер') || 
+          firstLine.includes('лидерство') || 
+          firstLine.includes('leadership') ||
+          firstLine.includes('lead') ||
+          firstLine.includes('тип')
+        ) {
+          console.log("Обнаружен возможный файл лидерства:", file.name);
           onLeadershipFileUpload(file);
         }
       });

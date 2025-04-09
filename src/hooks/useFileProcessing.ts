@@ -30,16 +30,26 @@ export const useFileProcessing = () => {
     setIsProcessing(true);
     
     try {
+      console.log("Начинаем парсинг файла лидерства:", file.name);
+      console.log("Первые 100 символов содержимого:", file.content.substring(0, 100));
+      
       const parsedLeadership = parseLeadershipCSV(file.content);
+      console.log("Результат парсинга лидерства:", parsedLeadership.length, "записей");
       
       if (parsedLeadership.length > 0) {
         setLeadershipData(parsedLeadership);
+        
+        // Отмечаем файл как успешно обработанный
+        setUploadedFiles(prev => 
+          prev.map(f => f.id === file.id ? { ...f, parsed: true } : f)
+        );
         
         toast({
           title: "Файл лидерства загружен",
           description: `Загружено ${parsedLeadership.length} записей о стандартных зарплатах ролей.`,
         });
       } else {
+        console.error("Файл не содержит корректных данных о лидерстве");
         toast({
           title: "Ошибка парсинга файла",
           description: "Файл не содержит корректных данных о лидерстве.",
@@ -75,8 +85,32 @@ export const useFileProcessing = () => {
       const updatedFiles = [...uploadedFiles];
       let rolesList: RoleData[] = [];
       let circlesList: CircleData[] = [];
+      let leadershipList: LeadershipData[] = [];
 
       uploadedFiles.forEach((file, index) => {
+        // Проверяем, может ли файл быть файлом лидерства
+        const fileName = file.name.toLowerCase();
+        const firstLine = file.content.split('\n')[0].toLowerCase();
+        
+        if (
+          fileName.includes('lead') || 
+          fileName.includes('лидер') || 
+          firstLine.includes('лидерство') || 
+          firstLine.includes('leadership') ||
+          firstLine.includes('lead') ||
+          firstLine.includes('тип')
+        ) {
+          console.log(`Анализ возможного файла лидерства: ${file.name}`);
+          const possibleLeadership = parseLeadershipCSV(file.content);
+          
+          if (possibleLeadership.length > 0) {
+            leadershipList = [...leadershipList, ...possibleLeadership];
+            updatedFiles[index].parsed = true;
+            console.log(`Файл ${file.name} распознан как файл лидерства с ${possibleLeadership.length} записями`);
+            return;
+          }
+        }
+        
         const possibleRoles = parseRolesCSV(file.content);
         
         if (possibleRoles.length > 0) {
@@ -119,12 +153,20 @@ export const useFileProcessing = () => {
       setRolesData(rolesList);
       setCirclesData(circlesList);
       
+      // Обновляем leadershipData только если были найдены новые данные
+      if (leadershipList.length > 0) {
+        setLeadershipData(leadershipList);
+      }
+      
       let successMessage = `Загружено ${allEmployees.length} сотрудников.`;
       if (rolesList.length > 0) {
         successMessage += ` Найдено ${rolesList.length} записей о ролях.`;
       }
       if (circlesList.length > 0) {
         successMessage += ` Найдено ${circlesList.length} записей о кругах.`;
+      }
+      if (leadershipList.length > 0) {
+        successMessage += ` Найдено ${leadershipList.length} записей о лидерстве.`;
       }
       
       toast({
