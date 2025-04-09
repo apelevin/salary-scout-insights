@@ -35,6 +35,7 @@ const Index = () => {
               onFilesUploaded={handleFilesUploaded}
               onProcessFiles={processFiles}
               onLeadershipFileUpload={handleLeadershipFileUpload}
+              maxFiles={4}
             />
           </div>
 

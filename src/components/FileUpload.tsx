@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { UploadCloud, FileText, X, CheckCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -12,7 +11,7 @@ interface FileUploadProps {
   maxFiles?: number;
 }
 
-const FileUpload = ({ onFilesUploaded, maxFiles = 3 }: FileUploadProps) => {
+const FileUpload = ({ onFilesUploaded, maxFiles = 4 }: FileUploadProps) => {
   const [uploadedFiles, setUploadedFiles] = useState<UploadedFile[]>([]);
   const [isDragging, setIsDragging] = useState(false);
 
@@ -154,7 +153,6 @@ const FileUpload = ({ onFilesUploaded, maxFiles = 3 }: FileUploadProps) => {
     setUploadedFiles(updatedFiles);
     onFilesUploaded(updatedFiles);
 
-    // Сбросить input, чтобы можно было загружать тот же файл повторно
     e.target.value = '';
   };
 
