@@ -10,10 +10,9 @@ interface SalaryDifferenceCardProps {
 
 const SalaryDifferenceCard = ({ employees }: SalaryDifferenceCardProps) => {
   // Calculate total difference for all employees with valid standard salary
-  // using Salary - StandardSalary
   const totalDifference = employees
     .filter(emp => emp.standardSalary && emp.standardSalary > 0)
-    .reduce((acc, emp) => acc + (emp.salary - emp.standardSalary), 0);
+    .reduce((acc, emp) => acc + (emp.standardSalary - emp.salary), 0);
 
   const isPositive = totalDifference >= 0;
   
@@ -33,8 +32,8 @@ const SalaryDifferenceCard = ({ employees }: SalaryDifferenceCardProps) => {
         </div>
         <p className="text-sm text-gray-500 mt-1">
           {isPositive 
-            ? "Общий избыток бюджета на зарплаты" 
-            : "Общая экономия бюджета на зарплаты"}
+            ? "Общая экономия бюджета на зарплатах" 
+            : "Общий перерасход бюджета на зарплаты"}
         </p>
       </CardContent>
     </Card>

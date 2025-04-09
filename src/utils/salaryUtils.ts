@@ -88,8 +88,7 @@ export const getSalaryDifference = (standardSalary: number | undefined, actualSa
     return { text: '—', className: 'text-gray-400' };
   }
   
-  // Calculate as Actual - Standard
-  const difference = actualSalary - standardSalary;
+  const difference = standardSalary - actualSalary;
   
   if (difference > 0) {
     return { 
@@ -98,7 +97,7 @@ export const getSalaryDifference = (standardSalary: number | undefined, actualSa
         currency: "RUB",
         maximumFractionDigits: 0,
       }).format(difference)}`, 
-      className: 'text-red-600 font-medium' 
+      className: 'text-green-600 font-medium' 
     };
   } else if (difference < 0) {
     return { 
@@ -107,7 +106,7 @@ export const getSalaryDifference = (standardSalary: number | undefined, actualSa
         currency: "RUB",
         maximumFractionDigits: 0,
       }).format(difference), 
-      className: 'text-green-600 font-medium' 
+      className: 'text-red-600 font-medium' 
     };
   } else {
     return { 
