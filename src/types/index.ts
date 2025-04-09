@@ -14,6 +14,7 @@ export interface EmployeeWithRoles extends Employee {
   normalizedRolesFTE: Map<string, number>;
   standardSalary?: number;
   operationalCircleType?: string;
+  operationalCircleCount?: number;
 }
 
 export interface UploadedFile {

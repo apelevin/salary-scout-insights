@@ -9,6 +9,9 @@ interface OperationalCircleInfoProps {
 }
 
 export const OperationalCircleInfo = ({ employee }: OperationalCircleInfoProps) => {
+  // Get the count of operational circles from the employee data
+  const circleCount = employee.operationalCircleCount || 1;
+  
   return (
     <Card>
       <CardHeader className="pb-2">
@@ -22,6 +25,10 @@ export const OperationalCircleInfo = ({ employee }: OperationalCircleInfoProps) 
           <div className="flex justify-between">
             <span className="text-gray-500">Функциональная принадлежность:</span>
             <span className="font-medium">{cleanFunctionalType(employee.operationalCircleType)}</span>
+          </div>
+          <div className="flex justify-between">
+            <span className="text-gray-500">Количество кругов:</span>
+            <span className="font-medium">{circleCount}</span>
           </div>
         </div>
       </CardContent>
