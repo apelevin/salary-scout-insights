@@ -2,7 +2,7 @@
 import { BarChart } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import EmployeeTable from "@/components/EmployeeTable";
+import EmployeeTable from "@/components/employee-table/EmployeeTable";
 import RolesTable from "@/components/RolesTable";
 import { Employee, RoleData, CircleData } from "@/types";
 
@@ -22,7 +22,7 @@ const DataDisplaySection = ({
   setActiveTab,
   employees,
   rolesData,
-  circlesData,  // Added circlesData parameter
+  circlesData,
   isProcessing,
   customStandardSalaries,
   onStandardSalaryChange
@@ -47,7 +47,7 @@ const DataDisplaySection = ({
             <EmployeeTable 
               employees={employees} 
               rolesData={rolesData}
-              circlesData={circlesData}  // Pass circlesData to EmployeeTable
+              circlesData={circlesData}
               isLoading={isProcessing} 
               customStandardSalaries={customStandardSalaries}
             />
