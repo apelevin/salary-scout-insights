@@ -23,7 +23,7 @@ export const findStandardRateForRole = (
     return customStandardSalaries.get(roleName) || 0;
   }
   
-  // Special case for leader role - use leadership data if available
+  // Special case for leader role - use ONLY leadership data if available
   const isLeaderRole = roleName.toLowerCase() === "лидер".toLowerCase();
   
   if (isLeaderRole && leadershipData && leadershipData.length > 0 && circleType && circleCount) {
@@ -36,55 +36,62 @@ export const findStandardRateForRole = (
     if (leadershipEntry) {
       return leadershipEntry.standardSalary;
     }
+    
+    // If we have leadership data but no exact match was found,
+    // return 0 instead of falling back to regular role-based calculation
+    return 0;
   }
   
-  // Fall back to regular salary calculation if no leadership data matched
-  if (!roleName || !rolesData.length) return 0;
-  
-  const normalizedRoleName = roleName.toLowerCase();
-  
-  const salaries: number[] = [];
-  
-  rolesData.forEach(entry => {
-    if (!entry.participantName || !entry.roleName) return;
+  // For non-leader roles, or if we don't have leadership data,
+  // fall back to regular salary calculation
+  if (!isLeaderRole && roleName && rolesData.length) {
+    const normalizedRoleName = roleName.toLowerCase();
     
-    const cleanedRoleName = cleanRoleName(entry.roleName).toLowerCase();
+    const salaries: number[] = [];
     
-    if (cleanedRoleName === normalizedRoleName) {
-      const participantNameParts = entry.participantName
-        .replace(/["']/g, '')
-        .trim()
-        .split(/\s+/)
-        .map(part => part.toLowerCase());
+    rolesData.forEach(entry => {
+      if (!entry.participantName || !entry.roleName) return;
       
-      if (participantNameParts.length < 2) return;
-        
-      const lastName = participantNameParts[0];
-      const firstName = participantNameParts[1];
+      const cleanedRoleName = cleanRoleName(entry.roleName).toLowerCase();
       
-      employees.forEach(emp => {
-        const empNameParts = emp.name
+      if (cleanedRoleName === normalizedRoleName) {
+        const participantNameParts = entry.participantName
           .replace(/["']/g, '')
           .trim()
           .split(/\s+/)
           .map(part => part.toLowerCase());
         
-        if (
-          empNameParts.some(part => part === lastName) && 
-          empNameParts.some(part => part === firstName)
-        ) {
-          salaries.push(emp.salary);
-        }
-      });
-    }
-  });
+        if (participantNameParts.length < 2) return;
+          
+        const lastName = participantNameParts[0];
+        const firstName = participantNameParts[1];
+        
+        employees.forEach(emp => {
+          const empNameParts = emp.name
+            .replace(/["']/g, '')
+            .trim()
+            .split(/\s+/)
+            .map(part => part.toLowerCase());
+          
+          if (
+            empNameParts.some(part => part === lastName) && 
+            empNameParts.some(part => part === firstName)
+          ) {
+            salaries.push(emp.salary);
+          }
+        });
+      }
+    });
+    
+    if (salaries.length === 0) return 0;
+    
+    const minSalary = Math.min(...salaries);
+    const maxSalary = Math.max(...salaries);
+    
+    return calculateStandardRate(minSalary, maxSalary);
+  }
   
-  if (salaries.length === 0) return 0;
-  
-  const minSalary = Math.min(...salaries);
-  const maxSalary = Math.max(...salaries);
-  
-  return calculateStandardRate(minSalary, maxSalary);
+  return 0;
 };
 
 export const calculateStandardSalary = (
@@ -99,7 +106,6 @@ export const calculateStandardSalary = (
   let totalStandardSalary = 0;
   
   for (const [roleName, fte] of normalizedRolesFTE.entries()) {
-    // For the leader role, use the leadership data if available
     const standardRateForRole = findStandardRateForRole(
       roleName, 
       rolesData, 
