@@ -52,9 +52,8 @@ const FileUploadSection = ({
               <h2 className="text-xl font-semibold text-foreground">Загрузка данных лидерства</h2>
             </div>
             <LeadershipFileUpload onLeadershipFileUpload={onLeadershipFileUpload} isProcessing={isProcessing} />
-          </div>
-        </CardContent>
-      </Card>
+          </CardContent>
+        </Card>
       )}
 
       <Card className="mt-6">
