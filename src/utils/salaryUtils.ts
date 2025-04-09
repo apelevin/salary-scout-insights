@@ -1,4 +1,3 @@
-
 import { Employee, RoleData, LeadershipData } from "@/types";
 import { cleanRoleName, cleanFunctionalType } from "./formatUtils";
 
@@ -6,7 +5,7 @@ export const calculateStandardRate = (min: number, max: number): number => {
   if (min === max) {
     return max;
   }
-  return min + (max - min) * 0.25;
+  return min + (max - min) * 0.5;
 };
 
 export const findStandardRateForRole = (
