@@ -29,6 +29,7 @@ interface EmployeeTableProps {
 const EXCLUDED_EMPLOYEES = ["Пелевин Алексей", "Чиракадзе Дмитрий"];
 
 type SortDirection = "none" | "asc" | "desc";
+type SortField = "name" | "difference";
 
 const EmployeeTable = ({ 
   employees, 
@@ -42,6 +43,7 @@ const EmployeeTable = ({
   const [selectedEmployee, setSelectedEmployee] = useState<EmployeeWithRoles | null>(null);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [sortDirection, setSortDirection] = useState<SortDirection>("none");
+  const [sortField, setSortField] = useState<SortField>("difference");
 
   useEffect(() => {
     // Filter out excluded employees
@@ -70,15 +72,26 @@ const EmployeeTable = ({
   useEffect(() => {
     if (sortDirection !== "none") {
       const sortedEmployees = [...filteredEmployees].sort((a, b) => {
-        const diffA = a.standardSalary ? a.salary - a.standardSalary : 0;
-        const diffB = b.standardSalary ? b.salary - b.standardSalary : 0;
+        if (sortField === "difference") {
+          const diffA = a.standardSalary ? a.salary - a.standardSalary : 0;
+          const diffB = b.standardSalary ? b.salary - b.standardSalary : 0;
+          
+          return sortDirection === "asc" ? diffA - diffB : diffB - diffA;
+        } else if (sortField === "name") {
+          const nameA = formatName(a.name).toLowerCase();
+          const nameB = formatName(b.name).toLowerCase();
+          
+          return sortDirection === "asc" 
+            ? nameA.localeCompare(nameB) 
+            : nameB.localeCompare(nameA);
+        }
         
-        return sortDirection === "asc" ? diffA - diffB : diffB - diffA;
+        return 0;
       });
       
       setFilteredEmployees(sortedEmployees);
     }
-  }, [sortDirection]);
+  }, [sortDirection, sortField, filteredEmployees]);
 
   const handleEmployeeClick = (employee: EmployeeWithRoles) => {
     setSelectedEmployee(employee);
@@ -89,15 +102,24 @@ const EmployeeTable = ({
     setSidebarOpen(false);
   };
 
-  const toggleSort = () => {
-    setSortDirection(prev => {
-      if (prev === "none") return "asc";
-      if (prev === "asc") return "desc";
-      return "none";
-    });
+  const toggleSort = (field: SortField) => {
+    if (sortField !== field) {
+      setSortField(field);
+      setSortDirection("asc");
+    } else {
+      setSortDirection(prev => {
+        if (prev === "none") return "asc";
+        if (prev === "asc") return "desc";
+        return "none";
+      });
+    }
   };
 
-  const getSortIcon = () => {
+  const getSortIconForDifference = () => {
+    if (sortField !== "difference") {
+      return <ArrowDown className="h-4 w-4 text-muted-foreground/70" />;
+    }
+    
     switch (sortDirection) {
       case "asc":
         return <ArrowUp className="h-4 w-4" />;
@@ -105,6 +127,21 @@ const EmployeeTable = ({
         return <ArrowDown className="h-4 w-4" />;
       default:
         return <ArrowDown className="h-4 w-4 text-muted-foreground/70" />; // Default icon when no sorting
+    }
+  };
+
+  const getSortIconForName = () => {
+    if (sortField !== "name") {
+      return <ArrowDownAZ className="h-4 w-4 text-muted-foreground/70" />;
+    }
+    
+    switch (sortDirection) {
+      case "asc":
+        return <ArrowDownAZ className="h-4 w-4" />;
+      case "desc":
+        return <ArrowUpAZ className="h-4 w-4" />;
+      default:
+        return <ArrowDownAZ className="h-4 w-4 text-muted-foreground/70" />;
     }
   };
 
@@ -126,7 +163,19 @@ const EmployeeTable = ({
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead className="w-1/4">Имя сотрудника</TableHead>
+              <TableHead className="w-1/4">
+                <div className="flex items-center justify-between">
+                  <span>Имя сотрудника</span>
+                  <Button 
+                    variant="ghost" 
+                    size="icon" 
+                    onClick={() => toggleSort("name")}
+                    className="ml-2 h-8 w-8 p-0"
+                  >
+                    {getSortIconForName()}
+                  </Button>
+                </div>
+              </TableHead>
               <TableHead className="w-1/4">Зарплата</TableHead>
               <TableHead className="w-1/4">Стандартная зарплата</TableHead>
               <TableHead className="w-1/4">
@@ -135,10 +184,10 @@ const EmployeeTable = ({
                   <Button 
                     variant="ghost" 
                     size="icon" 
-                    onClick={toggleSort}
+                    onClick={() => toggleSort("difference")}
                     className="ml-2 h-8 w-8 p-0"
                   >
-                    {getSortIcon()}
+                    {getSortIconForDifference()}
                   </Button>
                 </div>
               </TableHead>
