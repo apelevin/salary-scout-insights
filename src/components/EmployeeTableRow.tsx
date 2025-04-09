@@ -2,7 +2,7 @@
 import React from "react";
 import { TableCell, TableRow } from "@/components/ui/table";
 import { Employee, EmployeeWithRoles } from "@/types";
-import { formatName, formatSalary, getSalaryDifference } from "@/utils/employeeUtils";
+import { formatName, formatSalary } from "@/utils/employeeUtils";
 
 interface EmployeeTableRowProps {
   employee: Employee | EmployeeWithRoles;
@@ -12,6 +12,32 @@ interface EmployeeTableRowProps {
 const EmployeeTableRow: React.FC<EmployeeTableRowProps> = ({ employee, onClick }) => {
   // Check if it's an EmployeeWithRoles that has standardSalary
   const hasStandardSalary = 'standardSalary' in employee && employee.standardSalary && employee.standardSalary > 0;
+  
+  // Calculate the difference as standardSalary - salary
+  const getDifference = () => {
+    if (!hasStandardSalary) return { text: '—', className: 'text-gray-400' };
+    
+    const difference = (employee as EmployeeWithRoles).standardSalary! - employee.salary;
+    
+    if (difference > 0) {
+      return { 
+        text: `+${formatSalary(difference)}`, 
+        className: 'text-green-600 font-medium' 
+      };
+    } else if (difference < 0) {
+      return { 
+        text: formatSalary(difference), 
+        className: 'text-red-600 font-medium' 
+      };
+    } else {
+      return { 
+        text: `0 ₽`, 
+        className: 'text-gray-500' 
+      };
+    }
+  };
+  
+  const { text, className } = getDifference();
 
   return (
     <TableRow>
@@ -26,19 +52,13 @@ const EmployeeTableRow: React.FC<EmployeeTableRowProps> = ({ employee, onClick }
       <TableCell>{formatSalary(employee.salary)}</TableCell>
       <TableCell>
         {hasStandardSalary ? (
-          formatSalary(employee.standardSalary)
+          formatSalary((employee as EmployeeWithRoles).standardSalary!)
         ) : (
           <span className="text-gray-400">—</span>
         )}
       </TableCell>
       <TableCell>
-        {hasStandardSalary ? (
-          <span className={getSalaryDifference(employee.standardSalary, employee.salary).className}>
-            {getSalaryDifference(employee.standardSalary, employee.salary).text}
-          </span>
-        ) : (
-          <span className="text-gray-400">—</span>
-        )}
+        <span className={className}>{text}</span>
       </TableCell>
     </TableRow>
   );

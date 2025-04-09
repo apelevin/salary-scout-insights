@@ -13,7 +13,8 @@ const DashboardSummaryCards = ({ employees }: DashboardSummaryCardsProps) => {
 
     employees.forEach(employee => {
       if ('standardSalary' in employee && employee.standardSalary && employee.standardSalary > 0) {
-        const difference = employee.salary - employee.standardSalary;
+        // Changed direction of calculation: standardSalary - salary
+        const difference = employee.standardSalary - employee.salary;
         if (difference > 0) {
           totalPositive += difference;
         } else if (difference < 0) {
@@ -41,9 +42,9 @@ const DashboardSummaryCards = ({ employees }: DashboardSummaryCardsProps) => {
         <CardContent className="pt-6">
           <div className="text-center">
             <h3 className="text-sm font-medium text-muted-foreground mb-2">
-              Превышение стандартной зарплаты
+              Экономия по стандартной зарплате
             </h3>
-            <p className="text-2xl font-bold text-red-600">
+            <p className="text-2xl font-bold text-green-600">
               {formatCurrency(totalPositive)}
             </p>
           </div>
@@ -54,9 +55,9 @@ const DashboardSummaryCards = ({ employees }: DashboardSummaryCardsProps) => {
         <CardContent className="pt-6">
           <div className="text-center">
             <h3 className="text-sm font-medium text-muted-foreground mb-2">
-              Экономия по стандартной зарплате
+              Превышение стандартной зарплаты
             </h3>
-            <p className="text-2xl font-bold text-green-600">
+            <p className="text-2xl font-bold text-red-600">
               {formatCurrency(totalNegative)}
             </p>
           </div>

@@ -115,6 +115,7 @@ export const getSalaryDifference = (standardSalary: number | undefined, actualSa
     return { text: '—', className: 'text-gray-400' };
   }
   
+  // Changed direction of calculation: standardSalary - actualSalary
   const difference = standardSalary - actualSalary;
   
   if (difference > 0) {
