@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import {
   Table,
@@ -8,7 +7,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Employee, EmployeeWithRoles, RoleData } from "@/types";
+import { Employee, EmployeeWithRoles, RoleData, CircleData } from "@/types";
 import EmployeeInfoSidebar from "./EmployeeInfoSidebar";
 import EmployeeSearch from "./EmployeeSearch";
 import EmployeeTableRow from "./EmployeeTableRow";
@@ -21,6 +20,7 @@ import { Button } from "@/components/ui/button";
 interface EmployeeTableProps {
   employees: Employee[];
   rolesData?: RoleData[];
+  circlesData?: CircleData[];
   isLoading?: boolean;
   customStandardSalaries?: Map<string, number>;
 }
@@ -34,6 +34,7 @@ type SortField = "name" | "difference";
 const EmployeeTable = ({ 
   employees, 
   rolesData = [], 
+  circlesData = [],
   isLoading = false,
   customStandardSalaries = new Map()
 }: EmployeeTableProps) => {
@@ -53,7 +54,7 @@ const EmployeeTable = ({
       )
     );
     
-    const withRoles = processEmployeesWithRoles(filteredEmployeesList, rolesData, customStandardSalaries);
+    const withRoles = processEmployeesWithRoles(filteredEmployeesList, rolesData, customStandardSalaries, circlesData);
     
     setEmployeesWithRoles(withRoles);
     
@@ -67,7 +68,7 @@ const EmployeeTable = ({
         )
       );
     }
-  }, [employees, searchTerm, rolesData, customStandardSalaries]);
+  }, [employees, searchTerm, rolesData, customStandardSalaries, circlesData]);
 
   useEffect(() => {
     if (sortDirection !== "none") {
@@ -126,7 +127,7 @@ const EmployeeTable = ({
       case "desc":
         return <ArrowDown className="h-4 w-4" />;
       default:
-        return <ArrowDown className="h-4 w-4 text-muted-foreground/70" />; // Default icon when no sorting
+        return <ArrowDown className="h-4 w-4 text-muted-foreground/70" />;
     }
   };
 

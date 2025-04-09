@@ -12,6 +12,7 @@ const Index = () => {
     uploadedFiles,
     employees,
     rolesData,
+    circlesData,
     isProcessing,
     customStandardSalaries,
     handleFilesUploaded,
@@ -40,6 +41,7 @@ const Index = () => {
               setActiveTab={setActiveTab}
               employees={employees}
               rolesData={rolesData}
+              circlesData={circlesData}
               isProcessing={isProcessing}
               customStandardSalaries={customStandardSalaries}
               onStandardSalaryChange={handleStandardSalaryChange}

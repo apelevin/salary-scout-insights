@@ -1,13 +1,14 @@
 
 import { useState } from "react";
-import { Employee, UploadedFile, RoleData } from "@/types";
-import { parseCSV, parseRolesCSV } from "@/utils/csvParser";
+import { Employee, UploadedFile, RoleData, CircleData } from "@/types";
+import { parseCSV, parseRolesCSV, parseCirclesCSV } from "@/utils/csvParser";
 import { toast } from "@/components/ui/use-toast";
 
 export const useFileProcessing = () => {
   const [uploadedFiles, setUploadedFiles] = useState<UploadedFile[]>([]);
   const [employees, setEmployees] = useState<Employee[]>([]);
   const [rolesData, setRolesData] = useState<RoleData[]>([]);
+  const [circlesData, setCirclesData] = useState<CircleData[]>([]);
   const [isProcessing, setIsProcessing] = useState(false);
   const [customStandardSalaries, setCustomStandardSalaries] = useState<Map<string, number>>(new Map());
 
@@ -39,6 +40,7 @@ export const useFileProcessing = () => {
       const allEmployees: Employee[] = [];
       const updatedFiles = [...uploadedFiles];
       let rolesList: RoleData[] = [];
+      let circlesList: CircleData[] = [];
 
       uploadedFiles.forEach((file, index) => {
         const possibleRoles = parseRolesCSV(file.content);
@@ -50,11 +52,20 @@ export const useFileProcessing = () => {
           return;
         }
         
+        const possibleCircles = parseCirclesCSV(file.content);
+        
+        if (possibleCircles.length > 0) {
+          circlesList = [...circlesList, ...possibleCircles];
+          updatedFiles[index].parsed = true;
+          console.log(`Файл ${file.name} распознан как файл с кругами`);
+          return;
+        }
+        
         const parsedEmployees = parseCSV(file.content);
         if (parsedEmployees.length === 0) {
           toast({
             title: "Ошибка парсинга файла",
-            description: `Файл ${file.name} не содержит корректных данных о сотрудниках или ролях.`,
+            description: `Файл ${file.name} не содержит корректных данных о сотрудниках, ролях или кругах.`,
             variant: "destructive",
           });
           return;
@@ -72,10 +83,14 @@ export const useFileProcessing = () => {
       setUploadedFiles(updatedFiles);
       setEmployees(allEmployees);
       setRolesData(rolesList);
+      setCirclesData(circlesList);
       
       let successMessage = `Загружено ${allEmployees.length} сотрудников.`;
       if (rolesList.length > 0) {
         successMessage += ` Найдено ${rolesList.length} записей о ролях.`;
+      }
+      if (circlesList.length > 0) {
+        successMessage += ` Найдено ${circlesList.length} записей о кругах.`;
       }
       
       toast({
@@ -98,6 +113,7 @@ export const useFileProcessing = () => {
     uploadedFiles,
     employees,
     rolesData,
+    circlesData,
     isProcessing,
     customStandardSalaries,
     handleFilesUploaded,

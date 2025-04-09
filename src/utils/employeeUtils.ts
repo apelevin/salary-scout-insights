@@ -1,5 +1,5 @@
 
-import { Employee, RoleData, EmployeeWithRoles } from "@/types";
+import { Employee, RoleData, EmployeeWithRoles, CircleData } from "@/types";
 import { formatName, cleanRoleName } from "./formatUtils";
 import { calculateStandardSalary } from "./salaryUtils";
 import { 
@@ -26,7 +26,12 @@ export {
   normalizeRolesFTE 
 } from "./fteUtils";
 
-export const processEmployeesWithRoles = (employees: Employee[], rolesData: RoleData[], customStandardSalaries: Map<string, number>) => {
+export const processEmployeesWithRoles = (
+  employees: Employee[], 
+  rolesData: RoleData[], 
+  customStandardSalaries: Map<string, number>,
+  circlesData: CircleData[] = []
+) => {
   return employees.map(emp => {
     const nameParts = formatName(emp.name).split(' ');
     const lastName = nameParts[0];
@@ -40,12 +45,52 @@ export const processEmployeesWithRoles = (employees: Employee[], rolesData: Role
     
     const standardSalary = calculateStandardSalary(normalizedRolesFTE, rolesData, employees, customStandardSalaries);
     
+    // Check if the employee has the operational circle leader role
+    const operationalCircleType = findOperationalCircleType(lastName, firstName, rolesData, circlesData);
+    
     return {
       ...emp,
       roles,
       totalFTE,
       normalizedRolesFTE,
-      standardSalary
+      standardSalary,
+      operationalCircleType
     };
   });
+};
+
+// Function to find the operational circle type for an employee
+export const findOperationalCircleType = (
+  lastName: string,
+  firstName: string,
+  rolesData: RoleData[],
+  circlesData: CircleData[]
+): string | undefined => {
+  // Constant for the operational circle leader role name
+  const OPERATIONAL_CIRCLE_LEADER_ROLE = "лидер операционного круга";
+  
+  // Find the employee by name
+  const employeeRoles = rolesData.filter(role => {
+    const participantName = formatName(role.participantName);
+    return participantName.toLowerCase().includes(lastName.toLowerCase()) &&
+           (!firstName || participantName.toLowerCase().includes(firstName.toLowerCase()));
+  });
+  
+  // Check if the employee has the operational circle leader role
+  const operationalCircleRole = employeeRoles.find(role => 
+    role.roleName.toLowerCase().includes(OPERATIONAL_CIRCLE_LEADER_ROLE.toLowerCase())
+  );
+  
+  // If the employee is not an operational circle leader, return undefined
+  if (!operationalCircleRole || !operationalCircleRole.circleName) {
+    return undefined;
+  }
+  
+  // Find the circle in the circles data
+  const circle = circlesData.find(circle => 
+    circle.name.toLowerCase() === operationalCircleRole.circleName?.toLowerCase()
+  );
+  
+  // Return the functional type if found, otherwise undefined
+  return circle?.functionalType;
 };

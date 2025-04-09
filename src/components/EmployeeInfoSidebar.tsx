@@ -10,6 +10,7 @@ import { EmployeeHeader } from "./employee-info/EmployeeHeader";
 import { FinancialInfo } from "./employee-info/FinancialInfo";
 import { SalaryCalculation } from "./employee-info/SalaryCalculation";
 import { RolesAndWorkload } from "./employee-info/RolesAndWorkload";
+import { OperationalCircleInfo } from "./employee-info/OperationalCircleInfo";
 
 interface EmployeeInfoSidebarProps {
   employee: EmployeeWithRoles | null;
@@ -32,6 +33,11 @@ const EmployeeInfoSidebar = ({ employee, open, onClose }: EmployeeInfoSidebarPro
         <div className="space-y-6">
           <FinancialInfo employee={employee} />
           <SalaryCalculation employee={employee} />
+          
+          {employee.operationalCircleType && (
+            <OperationalCircleInfo employee={employee} />
+          )}
+          
           <RolesAndWorkload employee={employee} />
         </div>
 
