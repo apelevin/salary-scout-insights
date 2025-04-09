@@ -1,4 +1,3 @@
-
 import { Employee, RoleData, EmployeeWithRoles, CircleData } from "@/types";
 import { formatName, cleanRoleName, cleanFunctionalType } from "./formatUtils";
 import { calculateStandardSalary } from "./salaryUtils";
@@ -72,7 +71,7 @@ export const findCircleLeadershipInfo = (
   // Constants for the circle leader role names
   const OPERATIONAL_CIRCLE_LEADER = "лидер операционного круга";
   const STRATEGIC_CIRCLE_LEADER = "лидер стратегического круга";
-  const GENERIC_LEADER_ROLE = "лидер";
+  const GENERIC_LEADER_ROLE = "Лидер"; // Capitalized
   
   // Find the employee by name
   const employeeRoles = rolesData.filter(role => {

@@ -32,14 +32,14 @@ export const findRolesWithFTEForEmployee = (
       participantNameParts.some(part => part === normalizedLastName) && 
       participantNameParts.some(part => part === normalizedFirstName)
     ) {
-      // Check if the role is a leader role and normalize it to "лидер"
+      // Check if the role is a leader role and normalize it to "Лидер"
       let roleName = entry.roleName.toLowerCase();
       const isLeaderRole = roleName === GENERIC_LEADER_ROLE.toLowerCase() || 
                           roleName.includes(OPERATIONAL_CIRCLE_LEADER.toLowerCase()) || 
                           roleName.includes(STRATEGIC_CIRCLE_LEADER.toLowerCase());
       
       if (isLeaderRole) {
-        roleName = "лидер"; // Normalize all leader roles to "лидер"
+        roleName = "Лидер"; // Normalize all leader roles to "Лидер" with capital letter
       } else {
         roleName = cleanRoleName(entry.roleName);
       }
