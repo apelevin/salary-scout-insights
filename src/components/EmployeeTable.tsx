@@ -15,6 +15,8 @@ import EmployeeTableRow from "./EmployeeTableRow";
 import { LoadingState, EmptyState } from "./EmployeeTableStates";
 import { formatName, processEmployeesWithRoles } from "@/utils/employeeUtils";
 import DashboardSummaryCards from "./DashboardSummaryCards";
+import { ArrowDownAZ, ArrowUpAZ, ArrowDown, ArrowUp } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
 interface EmployeeTableProps {
   employees: Employee[];
@@ -25,6 +27,8 @@ interface EmployeeTableProps {
 
 // List of employees to exclude from the display
 const EXCLUDED_EMPLOYEES = ["Пелевин Алексей", "Чиракадзе Дмитрий"];
+
+type SortDirection = "none" | "asc" | "desc";
 
 const EmployeeTable = ({ 
   employees, 
@@ -37,6 +41,7 @@ const EmployeeTable = ({
   const [employeesWithRoles, setEmployeesWithRoles] = useState<EmployeeWithRoles[]>([]);
   const [selectedEmployee, setSelectedEmployee] = useState<EmployeeWithRoles | null>(null);
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [sortDirection, setSortDirection] = useState<SortDirection>("none");
 
   useEffect(() => {
     // Filter out excluded employees
@@ -62,6 +67,19 @@ const EmployeeTable = ({
     }
   }, [employees, searchTerm, rolesData, customStandardSalaries]);
 
+  useEffect(() => {
+    if (sortDirection !== "none") {
+      const sortedEmployees = [...filteredEmployees].sort((a, b) => {
+        const diffA = a.standardSalary ? a.salary - a.standardSalary : 0;
+        const diffB = b.standardSalary ? b.salary - b.standardSalary : 0;
+        
+        return sortDirection === "asc" ? diffA - diffB : diffB - diffA;
+      });
+      
+      setFilteredEmployees(sortedEmployees);
+    }
+  }, [sortDirection]);
+
   const handleEmployeeClick = (employee: EmployeeWithRoles) => {
     setSelectedEmployee(employee);
     setSidebarOpen(true);
@@ -69,6 +87,25 @@ const EmployeeTable = ({
 
   const closeSidebar = () => {
     setSidebarOpen(false);
+  };
+
+  const toggleSort = () => {
+    setSortDirection(prev => {
+      if (prev === "none") return "asc";
+      if (prev === "asc") return "desc";
+      return "none";
+    });
+  };
+
+  const getSortIcon = () => {
+    switch (sortDirection) {
+      case "asc":
+        return <ArrowUp className="h-4 w-4" />;
+      case "desc":
+        return <ArrowDown className="h-4 w-4" />;
+      default:
+        return null;
+    }
   };
 
   if (isLoading) {
@@ -92,7 +129,19 @@ const EmployeeTable = ({
               <TableHead className="w-1/4">Имя сотрудника</TableHead>
               <TableHead className="w-1/4">Зарплата</TableHead>
               <TableHead className="w-1/4">Стандартная зарплата</TableHead>
-              <TableHead className="w-1/4">Разница</TableHead>
+              <TableHead className="w-1/4">
+                <div className="flex items-center justify-between">
+                  <span>Разница</span>
+                  <Button 
+                    variant="ghost" 
+                    size="icon" 
+                    onClick={toggleSort}
+                    className="ml-2 h-8 w-8 p-0"
+                  >
+                    {getSortIcon()}
+                  </Button>
+                </div>
+              </TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
