@@ -2,10 +2,10 @@
 import { SheetHeader, SheetTitle, SheetDescription } from "@/components/ui/sheet";
 import { User } from "lucide-react";
 import { formatName } from "@/utils/formatUtils";
-import { EmployeeWithRoles } from "@/types";
+import { Employee, EmployeeWithRoles } from "@/types";
 
 interface EmployeeHeaderProps {
-  employee: EmployeeWithRoles;
+  employee: Employee | EmployeeWithRoles;
 }
 
 export const EmployeeHeader = ({ employee }: EmployeeHeaderProps) => {

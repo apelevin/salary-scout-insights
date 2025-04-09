@@ -5,7 +5,7 @@ import {
   SheetClose
 } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
-import { EmployeeWithRoles, LeadershipData } from "@/types";
+import { Employee, EmployeeWithRoles, LeadershipData } from "@/types";
 import { EmployeeHeader } from "./employee-info/EmployeeHeader";
 import { FinancialInfo } from "./employee-info/FinancialInfo";
 import { SalaryCalculation } from "./employee-info/SalaryCalculation";
@@ -13,7 +13,7 @@ import { RolesAndWorkload } from "./employee-info/RolesAndWorkload";
 import { OperationalCircleInfo } from "./employee-info/OperationalCircleInfo";
 
 interface EmployeeInfoSidebarProps {
-  employee: EmployeeWithRoles | null;
+  employee: Employee | EmployeeWithRoles | null;
   open: boolean;
   onClose: () => void;
   leadershipData: LeadershipData[];
@@ -24,6 +24,9 @@ const EmployeeInfoSidebar = ({ employee, open, onClose, leadershipData }: Employ
     return null;
   }
 
+  // Check if the employee has the properties of EmployeeWithRoles
+  const hasRoles = 'roles' in employee && 'totalFTE' in employee && 'normalizedRolesFTE' in employee;
+
   return (
     <Sheet open={open} onOpenChange={(isOpen) => {
       if (!isOpen) onClose();
@@ -33,16 +36,20 @@ const EmployeeInfoSidebar = ({ employee, open, onClose, leadershipData }: Employ
 
         <div className="space-y-6">
           <FinancialInfo employee={employee} />
-          <SalaryCalculation employee={employee} />
+          {hasRoles && (
+            <SalaryCalculation employee={employee as EmployeeWithRoles} />
+          )}
           
-          {employee.operationalCircleCount && employee.operationalCircleCount > 0 && (
+          {hasRoles && 'operationalCircleCount' in employee && employee.operationalCircleCount && employee.operationalCircleCount > 0 && (
             <OperationalCircleInfo 
-              employee={employee} 
+              employee={employee as EmployeeWithRoles} 
               leadershipData={leadershipData}
             />
           )}
           
-          <RolesAndWorkload employee={employee} />
+          {hasRoles && (
+            <RolesAndWorkload employee={employee as EmployeeWithRoles} />
+          )}
         </div>
 
         <div className="mt-6 flex justify-end">
