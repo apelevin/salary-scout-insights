@@ -80,8 +80,7 @@ const RolesTable = ({
   useEffect(() => {
     const uniqueRoles = [...new Set(rolesData.map((role) => cleanRoleName(role.roleName)))]
       .filter(Boolean)
-      .sort((a, b) => a.localeCompare(b))
-      .reverse();
+      .sort((a, b) => b.localeCompare(a));
 
     const rolesWithSalaries = uniqueRoles.map(role => {
       const salaries = findSalariesForRole(role);
