@@ -42,3 +42,8 @@ export interface LeadershipData {
   leadershipType?: string;
   circleCount?: string;
 }
+
+export interface LeadershipTableData {
+  leadershipType: string;
+  circleSalaries: Map<string, number>;
+}

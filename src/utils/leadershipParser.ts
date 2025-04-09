@@ -1,5 +1,5 @@
 
-import { LeadershipData } from "@/types";
+import { LeadershipData, LeadershipTableData } from "@/types";
 
 export const parseLeadershipCSV = (csvContent: string): LeadershipData[] => {
   const rows = csvContent.split('\n');
@@ -44,4 +44,44 @@ export const parseLeadershipCSV = (csvContent: string): LeadershipData[] => {
   }
   
   return leadershipData;
+};
+
+export const transformLeadershipData = (leadershipData: LeadershipData[]): LeadershipTableData[] => {
+  const leadershipMap = new Map<string, Map<string, number>>();
+  
+  // Group by leadership type
+  leadershipData.forEach(item => {
+    if (!item.leadershipType && item.roleName) {
+      // Extract leadership type from roleName format: "Type (X кругов)"
+      const match = item.roleName.match(/^(.+?)\s+\(\d+/);
+      item.leadershipType = match ? match[1] : item.roleName;
+      
+      // Extract circle count from roleName
+      const circleMatch = item.roleName.match(/\((\d+)\s+кругов\)/);
+      item.circleCount = circleMatch ? circleMatch[1] : "";
+    }
+    
+    const leadershipType = item.leadershipType || "";
+    const circleCount = item.circleCount || "";
+    
+    if (!leadershipMap.has(leadershipType)) {
+      leadershipMap.set(leadershipType, new Map<string, number>());
+    }
+    
+    const typeEntry = leadershipMap.get(leadershipType);
+    if (typeEntry && circleCount) {
+      typeEntry.set(circleCount, item.standardSalary);
+    }
+  });
+  
+  // Convert to array format
+  const result: LeadershipTableData[] = [];
+  leadershipMap.forEach((circleSalaries, leadershipType) => {
+    result.push({
+      leadershipType,
+      circleSalaries
+    });
+  });
+  
+  return result;
 };
