@@ -12,6 +12,7 @@ import { Card, CardHeader, CardContent, CardTitle } from "@/components/ui/card";
 import { User, DollarSign, Briefcase } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Employee } from "@/types";
+import { cleanRoleName } from "@/utils/roleUtils";
 
 interface EmployeeWithRoles extends Employee {
   roles: string[];
@@ -51,7 +52,7 @@ const EmployeeInfoSidebar = ({ employee, open, onClose }: EmployeeInfoSidebarPro
         <SheetHeader className="pb-4">
           <SheetTitle className="text-2xl flex items-center gap-2">
             <User className="h-6 w-6 text-blue-500" />
-            {employee.name}
+            {cleanRoleName(employee.name)}
           </SheetTitle>
           <SheetDescription>
             Подробная информация о сотруднике
