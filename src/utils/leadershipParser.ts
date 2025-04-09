@@ -2,43 +2,77 @@
 import { LeadershipData, LeadershipTableData } from "@/types";
 
 export const parseLeadershipCSV = (csvContent: string): LeadershipData[] => {
-  const rows = csvContent.split('\n');
-  const headers = rows[0].split(',').map(header => header.trim());
+  // Нормализуем строки файла, убирая символы возврата каретки и пустые строки
+  const cleanedContent = csvContent.replace(/\r\n|\r/g, '\n').trim();
+  const rows = cleanedContent.split('\n').filter(row => row.trim() !== '');
+  
+  if (rows.length === 0) {
+    console.error("Пустой файл лидерства");
+    return [];
+  }
+  
+  // Определяем разделитель (запятая или точка с запятой)
+  const delimiter = rows[0].includes(';') ? ';' : ',';
+  
+  // Получаем заголовки (количество кругов)
+  const headers = rows[0].split(delimiter).map(header => header.trim().replace(/["']/g, ''));
   
   if (headers.length < 2) {
     console.error("Неверный формат файла лидерства: недостаточно колонок");
     return [];
   }
   
+  // Создаем массив для хранения данных о лидерстве
   const leadershipData: LeadershipData[] = [];
   
-  // Пропускаем заголовок (первую строку)
+  // Начиная со второй строки (индекс 1), обрабатываем данные о лидерстве
   for (let i = 1; i < rows.length; i++) {
-    if (!rows[i].trim()) continue;
+    const columns = rows[i].split(delimiter).map(col => col.trim());
     
-    const columns = rows[i].split(',').map(col => col.trim());
+    // Проверяем, что строка содержит достаточно колонок
+    if (columns.length < 2) {
+      console.warn(`Строка ${i+1} не содержит достаточно колонок, пропускаем`);
+      continue;
+    }
     
-    if (columns.length < 2) continue;
-    
+    // Первая колонка - тип лидерства
     const leadershipType = columns[0]?.replace(/["']/g, '');
     
-    if (!leadershipType) continue;
+    if (!leadershipType) {
+      console.warn(`Строка ${i+1} не содержит тип лидерства, пропускаем`);
+      continue;
+    }
     
     // Обрабатываем каждую колонку с количеством кругов (со второй по последнюю)
     for (let j = 1; j < columns.length; j++) {
-      const circleCount = headers[j]?.replace(/["']/g, '');
+      // Пропускаем, если индекс выходит за пределы заголовков
+      if (j >= headers.length) continue;
+      
+      // Получаем количество кругов из заголовка
+      const circleCount = headers[j];
+      
+      // Получаем значение стандартной зарплаты, удаляя нечисловые символы (кроме точки и минуса)
       const salaryStr = columns[j]?.replace(/[^\d.-]/g, '');
       
+      // Если нет количества кругов или зарплаты, пропускаем эту ячейку
       if (!circleCount || !salaryStr || salaryStr === '') continue;
       
+      // Преобразуем строку зарплаты в число
       const salary = Number(salaryStr);
       
-      if (isNaN(salary)) continue;
+      // Пропускаем, если значение не является числом
+      if (isNaN(salary)) {
+        console.warn(`Некорректное значение зарплаты в строке ${i+1}, колонке ${j+1}: ${columns[j]}`);
+        continue;
+      }
       
+      // Добавляем данные о лидерстве в массив
       leadershipData.push({
-        roleName: `${leadershipType} (${circleCount} кругов)`,
+        roleName: `${leadershipType} (${circleCount})`,
         standardSalary: salary,
-        description: `Лидерство типа "${leadershipType}" с ${circleCount} кругами`
+        description: `Лидерство типа "${leadershipType}" с ${circleCount} кругами`,
+        leadershipType: leadershipType,
+        circleCount: circleCount
       });
     }
   }
@@ -53,11 +87,11 @@ export const transformLeadershipData = (leadershipData: LeadershipData[]): Leade
   leadershipData.forEach(item => {
     if (!item.leadershipType && item.roleName) {
       // Extract leadership type from roleName format: "Type (X кругов)"
-      const match = item.roleName.match(/^(.+?)\s+\(\d+/);
+      const match = item.roleName.match(/^(.+?)\s+\(/);
       item.leadershipType = match ? match[1] : item.roleName;
       
       // Extract circle count from roleName
-      const circleMatch = item.roleName.match(/\((\d+)\s+кругов\)/);
+      const circleMatch = item.roleName.match(/\((\d+|\w+)\)/);
       item.circleCount = circleMatch ? circleMatch[1] : "";
     }
     
