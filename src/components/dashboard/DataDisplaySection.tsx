@@ -4,13 +4,14 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import EmployeeTable from "@/components/EmployeeTable";
 import RolesTable from "@/components/RolesTable";
-import { Employee, RoleData } from "@/types";
+import { Employee, RoleData, CircleData } from "@/types";
 
 interface DataDisplaySectionProps {
   activeTab: string;
   setActiveTab: (tab: string) => void;
   employees: Employee[];
   rolesData: RoleData[];
+  circlesData: CircleData[];  // Added circlesData property
   isProcessing: boolean;
   customStandardSalaries: Map<string, number>;
   onStandardSalaryChange: (roleName: string, newStandardSalary: number) => void;
@@ -21,6 +22,7 @@ const DataDisplaySection = ({
   setActiveTab,
   employees,
   rolesData,
+  circlesData,  // Added circlesData parameter
   isProcessing,
   customStandardSalaries,
   onStandardSalaryChange
@@ -45,6 +47,7 @@ const DataDisplaySection = ({
             <EmployeeTable 
               employees={employees} 
               rolesData={rolesData}
+              circlesData={circlesData}  // Pass circlesData to EmployeeTable
               isLoading={isProcessing} 
               customStandardSalaries={customStandardSalaries}
             />
