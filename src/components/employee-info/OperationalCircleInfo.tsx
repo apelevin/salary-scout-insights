@@ -2,6 +2,7 @@
 import { Card, CardHeader, CardContent, CardTitle } from "@/components/ui/card";
 import { CircleAlert } from "lucide-react";
 import { EmployeeWithRoles } from "@/types";
+import { cleanFunctionalType } from "@/utils/formatUtils";
 
 interface OperationalCircleInfoProps {
   employee: EmployeeWithRoles;
@@ -20,7 +21,7 @@ export const OperationalCircleInfo = ({ employee }: OperationalCircleInfoProps) 
         <div className="space-y-1">
           <div className="flex justify-between">
             <span className="text-gray-500">Функциональная принадлежность:</span>
-            <span className="font-medium">{employee.operationalCircleType}</span>
+            <span className="font-medium">{cleanFunctionalType(employee.operationalCircleType)}</span>
           </div>
         </div>
       </CardContent>

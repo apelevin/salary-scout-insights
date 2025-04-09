@@ -32,3 +32,9 @@ export const formatFTE = (fte: number): string => {
 export const cleanRoleName = (roleName: string): string => {
   return roleName.replace(/["']/g, '').trim();
 };
+
+// New utility function to clean functional type
+export const cleanFunctionalType = (type: string | undefined): string => {
+  if (!type) return '';
+  return type.replace(/["']/g, '').trim();
+};

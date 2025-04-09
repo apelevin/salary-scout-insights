@@ -1,6 +1,6 @@
 
 import { Employee, RoleData, EmployeeWithRoles, CircleData } from "@/types";
-import { formatName, cleanRoleName } from "./formatUtils";
+import { formatName, cleanRoleName, cleanFunctionalType } from "./formatUtils";
 import { calculateStandardSalary } from "./salaryUtils";
 import { 
   findRolesWithFTEForEmployee, 
@@ -13,7 +13,8 @@ export {
   formatSalary, 
   formatName, 
   formatFTE, 
-  cleanRoleName 
+  cleanRoleName,
+  cleanFunctionalType
 } from "./formatUtils";
 
 export { 
@@ -91,6 +92,6 @@ export const findOperationalCircleType = (
     circle.name.toLowerCase() === operationalCircleRole.circleName?.toLowerCase()
   );
   
-  // Return the functional type if found, otherwise undefined
-  return circle?.functionalType;
+  // Return the cleaned functional type if found, otherwise undefined
+  return circle ? cleanFunctionalType(circle.functionalType) : undefined;
 };
