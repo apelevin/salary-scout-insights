@@ -55,7 +55,7 @@ const RolesTable = ({
     if (min === max) {
       return max;
     }
-    return min + (max - min) * 0.5;
+    return min + (max - min) * 0.25;
   };
 
   const findSalariesForRole = (roleName: string): number[] => {

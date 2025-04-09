@@ -1,4 +1,3 @@
-
 import { Employee, RoleData } from "@/types";
 
 export const formatSalary = (salary: number): string => {
@@ -111,7 +110,7 @@ export const calculateStandardRate = (min: number, max: number): number => {
   if (min === max) {
     return max;
   }
-  return min + (max - min) * 0.5;
+  return min + (max - min) * 0.25;
 };
 
 export const findRolesWithFTEForEmployee = (
