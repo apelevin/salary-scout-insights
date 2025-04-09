@@ -1,7 +1,7 @@
 
 import { useState } from "react";
 import { Table } from "@/components/ui/table";
-import { Employee, RoleData, CircleData, LeadershipData } from "@/types";
+import { Employee, RoleData, CircleData, LeadershipData, EmployeeWithRoles } from "@/types";
 import EmployeeInfoSidebar from "../EmployeeInfoSidebar";
 import EmployeeSearch from "../EmployeeSearch";
 import { LoadingState, EmptyState } from "../EmployeeTableStates";
@@ -29,7 +29,7 @@ const EmployeeTable = ({
   customStandardSalaries = new Map()
 }: EmployeeTableProps) => {
   const [searchTerm, setSearchTerm] = useState("");
-  const [selectedEmployee, setSelectedEmployee] = useState(null);
+  const [selectedEmployee, setSelectedEmployee] = useState<Employee | EmployeeWithRoles | null>(null);
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   const { filteredEmployees } = useEmployeeFilter(
@@ -44,7 +44,7 @@ const EmployeeTable = ({
   const { sortedEmployees, sortDirection, sortField, toggleSort } = 
     useSortableEmployees(filteredEmployees);
 
-  const handleEmployeeClick = (employee) => {
+  const handleEmployeeClick = (employee: Employee | EmployeeWithRoles) => {
     setSelectedEmployee(employee);
     setSidebarOpen(true);
   };
