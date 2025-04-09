@@ -1,9 +1,10 @@
 
-import { FileType, FileText } from "lucide-react";
+import { FileType, FileText, Crown } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
+import FileUpload from "@/components/FileUpload";
 import { Button } from "@/components/ui/button";
 import { UploadedFile } from "@/types";
-import UnifiedFileUpload from "@/components/UnifiedFileUpload";
+import LeadershipFileUpload from "@/components/leadership/LeadershipFileUpload";
 
 interface FileUploadSectionProps {
   uploadedFiles: UploadedFile[];
@@ -30,15 +31,7 @@ const FileUploadSection = ({
             <FileType className="h-5 w-5 text-blue-500" />
             <h2 className="text-xl font-semibold text-foreground">Загрузка данных</h2>
           </div>
-          
-          <UnifiedFileUpload
-            onFilesUploaded={onFilesUploaded}
-            onLeadershipFileUpload={onLeadershipFileUpload}
-            uploadedFiles={uploadedFiles}
-            isProcessing={isProcessing}
-            maxFiles={maxFiles}
-          />
-          
+          <FileUpload onFilesUploaded={onFilesUploaded} maxFiles={maxFiles} />
           <div className="mt-6">
             <Button 
               className="w-full" 
@@ -50,6 +43,18 @@ const FileUploadSection = ({
           </div>
         </CardContent>
       </Card>
+
+      {onLeadershipFileUpload && (
+        <Card className="mt-6">
+          <CardContent className="p-6">
+            <div className="flex items-center space-x-2 mb-4">
+              <Crown className="h-5 w-5 text-yellow-500" />
+              <h2 className="text-xl font-semibold text-foreground">Загрузка данных лидерства</h2>
+            </div>
+            <LeadershipFileUpload onLeadershipFileUpload={onLeadershipFileUpload} isProcessing={isProcessing} />
+          </CardContent>
+        </Card>
+      )}
 
       <Card className="mt-6">
         <CardContent className="p-6">
