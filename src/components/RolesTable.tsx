@@ -1,9 +1,9 @@
-
 import { useState, useEffect } from "react";
 import { Table, TableBody } from "@/components/ui/table";
 import { RoleData } from "@/types";
 import { Employee } from "@/types";
-import { formatSalary, cleanRoleName, calculateStandardSalary } from "@/utils/roleUtils";
+import { formatSalary, cleanRoleName } from "@/utils/formatUtils";
+import { calculateStandardRate } from "@/utils/salaryUtils";
 import RoleRow from "@/components/roles/RoleRow";
 import RolesTableHeader from "@/components/roles/RolesTableHeader";
 import LoadingState from "@/components/roles/LoadingState";
@@ -87,7 +87,7 @@ const RolesTable = ({
       const salaries = findSalariesForRole(role);
       const minSalary = salaries.length ? Math.min(...salaries) : 0;
       const maxSalary = salaries.length ? Math.max(...salaries) : 0;
-      const standardSalary = salaries.length ? calculateStandardSalary(minSalary, maxSalary) : 0;
+      const standardSalary = salaries.length ? calculateStandardRate(minSalary, maxSalary) : 0;
       
       return {
         roleName: role,

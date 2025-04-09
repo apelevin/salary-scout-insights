@@ -1,4 +1,3 @@
-
 import { 
   Sheet, 
   SheetContent, 
@@ -12,7 +11,7 @@ import { Card, CardHeader, CardContent, CardTitle } from "@/components/ui/card";
 import { User, DollarSign, Briefcase, Calculator } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Employee } from "@/types";
-import { cleanRoleName } from "@/utils/roleUtils";
+import { cleanRoleName, formatSalary, formatFTE } from "@/utils/formatUtils";
 
 interface EmployeeWithRoles extends Employee {
   roles: string[];
@@ -31,18 +30,6 @@ const EmployeeInfoSidebar = ({ employee, open, onClose }: EmployeeInfoSidebarPro
   if (!employee) {
     return null;
   }
-
-  const formatSalary = (salary: number): string => {
-    return new Intl.NumberFormat("ru-RU", {
-      style: "currency",
-      currency: "RUB",
-      maximumFractionDigits: 0,
-    }).format(salary);
-  };
-  
-  const formatFTE = (fte: number): string => {
-    return fte.toLocaleString('ru-RU', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-  };
 
   return (
     <Sheet open={open} onOpenChange={(isOpen) => {
@@ -113,7 +100,6 @@ const EmployeeInfoSidebar = ({ employee, open, onClose }: EmployeeInfoSidebarPro
                   
                   <div className="space-y-3">
                     {Array.from(employee.normalizedRolesFTE.entries()).map(([role, fte], index) => {
-                      // Вычисляем вклад каждой роли в итоговую стандартную зарплату
                       const roleContribution = employee.standardSalary 
                         ? employee.standardSalary * fte
                         : 0;
