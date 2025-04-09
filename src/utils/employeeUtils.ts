@@ -1,5 +1,4 @@
-
-import { Employee, RoleData, EmployeeWithRoles, CircleData, LeadershipData } from "@/types";
+import { Employee, RoleData, EmployeeWithRoles, CircleData } from "@/types";
 import { formatName, cleanRoleName, cleanFunctionalType } from "./formatUtils";
 import { calculateStandardSalary } from "./salaryUtils";
 import { 
@@ -31,8 +30,7 @@ export const processEmployeesWithRoles = (
   employees: Employee[], 
   rolesData: RoleData[], 
   customStandardSalaries: Map<string, number>,
-  circlesData: CircleData[] = [],
-  leadershipData: LeadershipData[] = []
+  circlesData: CircleData[] = []
 ) => {
   return employees.map(emp => {
     const nameParts = formatName(emp.name).split(' ');
@@ -45,21 +43,10 @@ export const processEmployeesWithRoles = (
     
     const normalizedRolesFTE = normalizeRolesFTE(rolesFTEMap, totalFTE);
     
+    const standardSalary = calculateStandardSalary(normalizedRolesFTE, rolesData, employees, customStandardSalaries);
+    
     // Find circle leadership info
     const { circleType, circleCount } = findCircleLeadershipInfo(lastName, firstName, rolesData, circlesData);
-    
-    // Debug log circle information
-    console.log(`Employee: ${emp.name}, Circle Type: ${circleType}, Circle Count: ${circleCount}`);
-    
-    const standardSalary = calculateStandardSalary(
-      normalizedRolesFTE, 
-      rolesData, 
-      employees, 
-      customStandardSalaries,
-      leadershipData,
-      circleType,
-      circleCount
-    );
     
     return {
       ...emp,
@@ -84,12 +71,10 @@ export const findCircleLeadershipInfo = (
   // Constants for the circle leader role names
   const OPERATIONAL_CIRCLE_LEADER = "лидер операционного круга";
   const STRATEGIC_CIRCLE_LEADER = "лидер стратегического круга";
-  const GENERIC_LEADER_ROLE = "лидер"; // Case insensitive
+  const GENERIC_LEADER_ROLE = "Лидер"; // Capitalized
   
   // Find the employee by name
   const employeeRoles = rolesData.filter(role => {
-    if (!role.participantName) return false;
-    
     const participantName = formatName(role.participantName);
     return participantName.toLowerCase().includes(lastName.toLowerCase()) &&
            (!firstName || participantName.toLowerCase().includes(firstName.toLowerCase()));
@@ -97,8 +82,6 @@ export const findCircleLeadershipInfo = (
   
   // Check if the employee has any leader roles (operational or strategic)
   const leaderRoles = employeeRoles.filter(role => {
-    if (!role.roleName) return false;
-    
     const roleName = role.roleName.toLowerCase();
     return roleName.includes(OPERATIONAL_CIRCLE_LEADER.toLowerCase()) || 
            roleName.includes(STRATEGIC_CIRCLE_LEADER.toLowerCase()) ||
@@ -113,27 +96,22 @@ export const findCircleLeadershipInfo = (
   // Count the total number of circles led
   const circleCount = leaderRoles.length;
   
-  // Create a set to store unique functional types
-  const circleTypes = new Set<string>();
-  
-  // Iterate over each leader role to find circle information
-  for (const leaderRole of leaderRoles) {
-    if (leaderRole.circleName) {
-      const circle = circlesData.find(circle => 
-        circle.name.toLowerCase() === leaderRole.circleName?.toLowerCase()
-      );
-      
-      if (circle && circle.functionalType) {
-        circleTypes.add(cleanFunctionalType(circle.functionalType));
-      }
-    }
-  }
-  
-  // Combine circle types if there are multiple types
+  // Get the functional type from the first operational circle found (if any)
   let circleType: string | undefined = undefined;
   
-  if (circleTypes.size > 0) {
-    circleType = Array.from(circleTypes).join(' & ');
+  // First try to find an operational circle with functional type
+  const operationalCircle = leaderRoles.find(role => 
+    role.roleName.toLowerCase().includes(OPERATIONAL_CIRCLE_LEADER.toLowerCase())
+  );
+  
+  if (operationalCircle?.circleName) {
+    const circle = circlesData.find(circle => 
+      circle.name.toLowerCase() === operationalCircle.circleName?.toLowerCase()
+    );
+    
+    if (circle) {
+      circleType = cleanFunctionalType(circle.functionalType);
+    }
   }
   
   return { 

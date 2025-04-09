@@ -3,7 +3,7 @@ import { useState } from "react";
 import DashboardHeader from "@/components/dashboard/DashboardHeader";
 import FileUploadSection from "@/components/dashboard/FileUploadSection";
 import DataDisplaySection from "@/components/dashboard/DataDisplaySection";
-import { useFileProcessing } from "@/hooks/file-processing";
+import { useFileProcessing } from "@/hooks/useFileProcessing";
 
 const Index = () => {
   const [activeTab, setActiveTab] = useState("employees");
@@ -18,7 +18,6 @@ const Index = () => {
     customStandardSalaries,
     handleFilesUploaded,
     handleStandardSalaryChange,
-    handleLeadershipDataChange,
     handleLeadershipFileUpload,
     processFiles
   } = useFileProcessing();
@@ -50,7 +49,6 @@ const Index = () => {
               isProcessing={isProcessing}
               customStandardSalaries={customStandardSalaries}
               onStandardSalaryChange={handleStandardSalaryChange}
-              onLeadershipDataChange={handleLeadershipDataChange}
             />
           </div>
         </div>

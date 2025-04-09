@@ -10,27 +10,7 @@ interface SalaryCalculationProps {
 
 export const SalaryCalculation = ({ employee }: SalaryCalculationProps) => {
   if (!employee.standardSalary || employee.standardSalary <= 0) {
-    return (
-      <Card>
-        <CardHeader className="pb-2">
-          <CardTitle className="text-lg flex items-center gap-2">
-            <Calculator className="h-5 w-5 text-purple-500" />
-            Расчет стандартной зарплаты
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="text-center py-6 text-gray-500">
-            <p>Не удалось рассчитать стандартную зарплату.</p>
-            {employee.normalizedRolesFTE.has("Лидер") && employee.operationalCircleType && (
-              <div className="mt-2 text-sm">
-                <p>Для роли лидера не найдены данные:</p>
-                <p className="font-medium mt-1">{employee.operationalCircleType} - {employee.operationalCircleCount} кругов</p>
-              </div>
-            )}
-          </div>
-        </CardContent>
-      </Card>
-    );
+    return null;
   }
 
   return (
@@ -48,37 +28,14 @@ export const SalaryCalculation = ({ employee }: SalaryCalculationProps) => {
             <ul className="list-disc pl-5 space-y-1">
               <li>Нормализованных значений FTE для каждой роли</li>
               <li>Стандартных окладов для каждой роли</li>
-              {employee.operationalCircleType && (
-                <li>Для роли лидера используется таблица лидерства (<strong>{employee.operationalCircleType}</strong>, <strong>{employee.operationalCircleCount} кругов</strong>)</li>
-              )}
             </ul>
           </div>
           
           <div className="space-y-3">
             {Array.from(employee.normalizedRolesFTE.entries()).map(([role, fte], index) => {
-              let roleContribution = 0;
-              let baseSalary = 0;
-              
-              if (role.toLowerCase() === "лидер") {
-                // For leader role, use the exact salary from leadership data
-                if (employee.operationalCircleType && employee.operationalCircleCount) {
-                  // We'll estimate the base salary based on the standardSalary and FTE
-                  // This is just for display purposes
-                  baseSalary = employee.standardSalary / fte;
-                  roleContribution = employee.standardSalary;
-                  
-                  console.log(`Leader role: Base salary=${baseSalary}, FTE=${fte}, Contribution=${roleContribution}`);
-                } else {
-                  // Generic leader role without circle data
-                  baseSalary = employee.standardSalary / employee.normalizedRolesFTE.size;
-                  roleContribution = baseSalary * fte;
-                }
-              } else {
-                // For non-leader roles, calculate based on standardSalary and FTE
-                const roleProportion = fte / Array.from(employee.normalizedRolesFTE.values()).reduce((sum, val) => sum + val, 0);
-                roleContribution = employee.standardSalary * roleProportion;
-                baseSalary = roleContribution / fte;
-              }
+              const roleContribution = employee.standardSalary 
+                ? employee.standardSalary * fte
+                : 0;
               
               return (
                 <div key={index} className="border rounded-md p-3">
@@ -86,19 +43,6 @@ export const SalaryCalculation = ({ employee }: SalaryCalculationProps) => {
                   <div className="grid grid-cols-2 gap-x-2 gap-y-1 text-xs">
                     <span className="text-gray-500">Нормализованный FTE:</span>
                     <span className="text-right">{formatFTE(fte)}</span>
-                    
-                    {role.toLowerCase() === "лидер" && employee.operationalCircleType && (
-                      <>
-                        <span className="text-gray-500">Тип кругов:</span>
-                        <span className="text-right">{employee.operationalCircleType}</span>
-                        
-                        <span className="text-gray-500">Количество кругов:</span>
-                        <span className="text-right">{employee.operationalCircleCount}</span>
-                        
-                        <span className="text-gray-500">Базовый оклад по лидерству:</span>
-                        <span className="text-right">{formatSalary(baseSalary)}</span>
-                      </>
-                    )}
                     
                     <span className="text-gray-500">Вклад в стандартную зарплату:</span>
                     <span className="text-right font-medium">{formatSalary(roleContribution)}</span>
@@ -119,4 +63,3 @@ export const SalaryCalculation = ({ employee }: SalaryCalculationProps) => {
     </Card>
   );
 };
-
