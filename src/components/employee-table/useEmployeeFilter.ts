@@ -1,44 +1,58 @@
 
-import { useState, useEffect } from "react";
-import { Employee, EmployeeWithRoles, RoleData, CircleData } from "@/types";
-import { formatName, processEmployeesWithRoles } from "@/utils/employeeUtils";
+import { useState, useEffect, useMemo } from "react";
+import { Employee, RoleData, CircleData, LeadershipData } from "@/types";
+import { processEmployeesWithRoles } from "@/utils/employeeUtils";
 
-// List of employees to exclude from the display
-const EXCLUDED_EMPLOYEES = ["Пелевин Алексей", "Чиракадзе Дмитрий"];
+export interface UseEmployeeFilterParams {
+  employees: Employee[];
+  rolesData: RoleData[];
+  circlesData: CircleData[];
+  leadershipData: LeadershipData[];
+  customStandardSalaries: Map<string, number>;
+  searchTerm: string;
+}
 
 export const useEmployeeFilter = (
   employees: Employee[],
-  rolesData: RoleData[],
-  circlesData: CircleData[],
-  customStandardSalaries: Map<string, number>,
-  searchTerm: string
+  rolesData: RoleData[] = [],
+  circlesData: CircleData[] = [],
+  customStandardSalaries: Map<string, number> = new Map(),
+  searchTerm: string = "",
+  leadershipData: LeadershipData[] = []
 ) => {
-  const [filteredEmployees, setFilteredEmployees] = useState<EmployeeWithRoles[]>([]);
-  const [employeesWithRoles, setEmployeesWithRoles] = useState<EmployeeWithRoles[]>([]);
+  const [filteredEmployees, setFilteredEmployees] = useState(employees);
 
+  // Process employees with roles and calculate derived data
+  const processedEmployees = useMemo(() => {
+    if (!employees.length) return [];
+    
+    return processEmployeesWithRoles(
+      employees, 
+      rolesData, 
+      customStandardSalaries, 
+      circlesData,
+      leadershipData
+    );
+  }, [employees, rolesData, customStandardSalaries, circlesData, leadershipData]);
+
+  // Apply search filter
   useEffect(() => {
-    // Filter out excluded employees
-    const filteredEmployeesList = employees.filter(emp => 
-      !EXCLUDED_EMPLOYEES.some(excluded => 
-        formatName(emp.name).toLowerCase().includes(excluded.toLowerCase())
-      )
+    if (!searchTerm) {
+      setFilteredEmployees(processedEmployees);
+      return;
+    }
+
+    const lowerSearchTerm = searchTerm.toLowerCase();
+    const filtered = processedEmployees.filter(employee =>
+      employee.name.toLowerCase().includes(lowerSearchTerm) ||
+      (employee.position && employee.position.toLowerCase().includes(lowerSearchTerm)) ||
+      (employee.roles && employee.roles.some(role => 
+        role.toLowerCase().includes(lowerSearchTerm)
+      ))
     );
     
-    const withRoles = processEmployeesWithRoles(filteredEmployeesList, rolesData, customStandardSalaries, circlesData);
-    
-    setEmployeesWithRoles(withRoles);
-    
-    if (searchTerm.trim() === "") {
-      setFilteredEmployees(withRoles);
-    } else {
-      const term = searchTerm.toLowerCase().trim();
-      setFilteredEmployees(
-        withRoles.filter((employee) =>
-          formatName(employee.name).toLowerCase().includes(term)
-        )
-      );
-    }
-  }, [employees, searchTerm, rolesData, customStandardSalaries, circlesData]);
+    setFilteredEmployees(filtered);
+  }, [processedEmployees, searchTerm]);
 
-  return { filteredEmployees, employeesWithRoles };
+  return { filteredEmployees };
 };

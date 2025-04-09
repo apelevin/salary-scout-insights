@@ -27,7 +27,12 @@ export const SalaryCalculation = ({ employee }: SalaryCalculationProps) => {
             <p className="mb-2">Стандартная зарплата рассчитывается на основе:</p>
             <ul className="list-disc pl-5 space-y-1">
               <li>Нормализованных значений FTE для каждой роли</li>
-              <li>Стандартных окладов для каждой роли</li>
+              <li>
+                {employee.operationalCircleCount && employee.operationalCircleCount > 0 
+                  ? "Стандартных окладов для ролей и данных о лидерстве"
+                  : "Стандартных окладов для каждой роли"
+                }
+              </li>
             </ul>
           </div>
           

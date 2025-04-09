@@ -15,7 +15,7 @@ interface EmployeeTableProps {
   employees: Employee[];
   rolesData?: RoleData[];
   circlesData?: CircleData[];
-  leadershipData?: LeadershipData[];  // Add this prop to the interface
+  leadershipData?: LeadershipData[];
   isLoading?: boolean;
   customStandardSalaries?: Map<string, number>;
 }
@@ -24,7 +24,7 @@ const EmployeeTable = ({
   employees, 
   rolesData = [], 
   circlesData = [],
-  leadershipData = [],  // Add this prop with a default value
+  leadershipData = [], 
   isLoading = false,
   customStandardSalaries = new Map()
 }: EmployeeTableProps) => {
@@ -37,7 +37,8 @@ const EmployeeTable = ({
     rolesData,
     circlesData,
     customStandardSalaries,
-    searchTerm
+    searchTerm,
+    leadershipData
   );
 
   const { sortedEmployees, sortDirection, sortField, toggleSort } = 
@@ -87,7 +88,7 @@ const EmployeeTable = ({
         employee={selectedEmployee} 
         open={sidebarOpen} 
         onClose={closeSidebar}
-        leadershipData={leadershipData} // Pass the leadership data to the sidebar
+        leadershipData={leadershipData}
       />
     </div>
   );

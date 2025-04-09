@@ -13,8 +13,24 @@ export const findStandardRateForRole = (
   roleName: string, 
   rolesData: RoleData[], 
   employees: Employee[],
-  customStandardSalaries: Map<string, number>
+  customStandardSalaries: Map<string, number>,
+  leadershipData?: LeadershipData[],
+  employeeCircleType?: string,
+  employeeCircleCount?: number
 ): number => {
+  // Special case for leader role
+  if (roleName.toLowerCase() === "лидер" && leadershipData && employeeCircleType && employeeCircleCount) {
+    const leadershipSalary = findLeadershipStandardSalary(
+      employeeCircleType,
+      String(employeeCircleCount),
+      leadershipData
+    );
+    
+    if (leadershipSalary !== null) {
+      return leadershipSalary;
+    }
+  }
+  
   if (customStandardSalaries.has(roleName)) {
     return customStandardSalaries.get(roleName) || 0;
   }
@@ -71,12 +87,23 @@ export const calculateStandardSalary = (
   normalizedRolesFTE: Map<string, number>, 
   rolesData: RoleData[], 
   employees: Employee[],
-  customStandardSalaries: Map<string, number>
+  customStandardSalaries: Map<string, number>,
+  leadershipData?: LeadershipData[],
+  employeeCircleType?: string,
+  employeeCircleCount?: number
 ): number => {
   let totalStandardSalary = 0;
   
   for (const [roleName, fte] of normalizedRolesFTE.entries()) {
-    const standardRateForRole = findStandardRateForRole(roleName, rolesData, employees, customStandardSalaries);
+    const standardRateForRole = findStandardRateForRole(
+      roleName, 
+      rolesData, 
+      employees, 
+      customStandardSalaries,
+      leadershipData,
+      employeeCircleType,
+      employeeCircleCount
+    );
     totalStandardSalary += fte * standardRateForRole;
   }
   
