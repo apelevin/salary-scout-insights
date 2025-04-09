@@ -38,15 +38,18 @@ export const SalaryCalculation = ({ employee }: SalaryCalculationProps) => {
             {Array.from(employee.normalizedRolesFTE.entries()).map(([role, fte], index) => {
               // For leader role, get the right standard salary based on leadership data
               let roleContribution = 0;
+              let baseSalary = 0;
               
               // For debugging
               console.log(`Calculating role contribution for ${role} with FTE ${fte}`);
               
               if (role.toLowerCase() === "лидер" && employee.operationalCircleType && employee.operationalCircleCount) {
                 const baseLeaderSalary = employee.standardSalary / fte; // Calculate base leader salary from total
+                baseSalary = baseLeaderSalary;
                 roleContribution = fte * baseLeaderSalary;
                 console.log(`Leader role: Base salary=${baseLeaderSalary}, FTE=${fte}, Contribution=${roleContribution}`);
               } else {
+                baseSalary = employee.standardSalary / fte;
                 roleContribution = employee.standardSalary * fte;
               }
               
@@ -56,6 +59,19 @@ export const SalaryCalculation = ({ employee }: SalaryCalculationProps) => {
                   <div className="grid grid-cols-2 gap-x-2 gap-y-1 text-xs">
                     <span className="text-gray-500">Нормализованный FTE:</span>
                     <span className="text-right">{formatFTE(fte)}</span>
+                    
+                    {role.toLowerCase() === "лидер" && employee.operationalCircleType && (
+                      <>
+                        <span className="text-gray-500">Тип кругов:</span>
+                        <span className="text-right">{employee.operationalCircleType}</span>
+                        
+                        <span className="text-gray-500">Количество кругов:</span>
+                        <span className="text-right">{employee.operationalCircleCount}</span>
+                        
+                        <span className="text-gray-500">Базовый оклад по лидерству:</span>
+                        <span className="text-right">{formatSalary(baseSalary)}</span>
+                      </>
+                    )}
                     
                     <span className="text-gray-500">Вклад в стандартную зарплату:</span>
                     <span className="text-right font-medium">{formatSalary(roleContribution)}</span>
