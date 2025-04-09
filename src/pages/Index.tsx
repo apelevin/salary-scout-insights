@@ -3,7 +3,7 @@ import { useState } from "react";
 import DashboardHeader from "@/components/dashboard/DashboardHeader";
 import FileUploadSection from "@/components/dashboard/FileUploadSection";
 import DataDisplaySection from "@/components/dashboard/DataDisplaySection";
-import { useFileProcessing } from "@/hooks/useFileProcessing";
+import { useFileProcessing } from "@/hooks/file-processing";
 
 const Index = () => {
   const [activeTab, setActiveTab] = useState("employees");
