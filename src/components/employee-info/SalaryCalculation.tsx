@@ -36,21 +36,42 @@ export const SalaryCalculation = ({ employee }: SalaryCalculationProps) => {
           
           <div className="space-y-3">
             {Array.from(employee.normalizedRolesFTE.entries()).map(([role, fte], index) => {
-              // For leader role, get the right standard salary based on leadership data
               let roleContribution = 0;
               let baseSalary = 0;
               
               // For debugging
               console.log(`Calculating role contribution for ${role} with FTE ${fte}`);
               
-              if (role.toLowerCase() === "лидер" && employee.operationalCircleType && employee.operationalCircleCount) {
-                const baseLeaderSalary = employee.standardSalary / fte; // Calculate base leader salary from total
-                baseSalary = baseLeaderSalary;
-                roleContribution = fte * baseLeaderSalary;
-                console.log(`Leader role: Base salary=${baseLeaderSalary}, FTE=${fte}, Contribution=${roleContribution}`);
+              if (role.toLowerCase() === "лидер") {
+                // For leader role, calculate contribution based on leadership data
+                // The base salary is determined by the leadership table lookup in salaryUtils.ts
+                // and is already factored into the standardSalary
+                if (employee.standardSalary > 0 && employee.normalizedRolesFTE.size > 0) {
+                  // For leader role with leadership data
+                  if (employee.operationalCircleType && employee.operationalCircleCount) {
+                    // Leadership base salary is factored into standardSalary
+                    // We extract it from the total standardSalary based on FTE proportion
+                    const totalFteContribution = Array.from(employee.normalizedRolesFTE.values()).reduce((sum, val) => sum + val, 0);
+                    const leaderFteProportion = fte / totalFteContribution;
+                    
+                    // The leader role's contribution to total salary
+                    roleContribution = employee.standardSalary * leaderFteProportion;
+                    
+                    // Calculate the base leadership salary (before FTE adjustment)
+                    baseSalary = roleContribution / fte;
+                    
+                    console.log(`Leader role: Base salary=${baseSalary}, FTE=${fte}, Contribution=${roleContribution}`);
+                  } else {
+                    // Generic leader role without circle data
+                    baseSalary = employee.standardSalary / employee.normalizedRolesFTE.size;
+                    roleContribution = baseSalary * fte;
+                  }
+                }
               } else {
-                baseSalary = employee.standardSalary / fte;
-                roleContribution = employee.standardSalary * fte;
+                // For non-leader roles, calculate based on standardSalary and FTE
+                const roleProportion = fte / Array.from(employee.normalizedRolesFTE.values()).reduce((sum, val) => sum + val, 0);
+                roleContribution = employee.standardSalary * roleProportion;
+                baseSalary = roleContribution / fte;
               }
               
               return (

@@ -23,7 +23,7 @@ export const findStandardRateForRole = (
     return customStandardSalaries.get(roleName) || 0;
   }
   
-  // Special case for leader role - use ONLY leadership data if available
+  // Special case for leader role - use leadership data if available
   const isLeaderRole = roleName.toLowerCase() === "лидер".toLowerCase();
   
   if (isLeaderRole && leadershipData && leadershipData.length > 0) {
