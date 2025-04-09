@@ -34,7 +34,7 @@ const EmployeeInfoSidebar = ({ employee, open, onClose }: EmployeeInfoSidebarPro
           <FinancialInfo employee={employee} />
           <SalaryCalculation employee={employee} />
           
-          {employee.operationalCircleType && (
+          {(employee.operationalCircleType || employee.strategicCircleCount) && (
             <OperationalCircleInfo employee={employee} />
           )}
           

@@ -15,6 +15,7 @@ export interface EmployeeWithRoles extends Employee {
   standardSalary?: number;
   operationalCircleType?: string;
   operationalCircleCount?: number;
+  strategicCircleCount?: number;
 }
 
 export interface UploadedFile {

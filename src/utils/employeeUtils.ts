@@ -46,8 +46,9 @@ export const processEmployeesWithRoles = (
     
     const standardSalary = calculateStandardSalary(normalizedRolesFTE, rolesData, employees, customStandardSalaries);
     
-    // Find operational circle info and count
+    // Find operational and strategic circle info and count
     const { operationalCircleType, operationalCircleCount } = findOperationalCircleInfo(lastName, firstName, rolesData, circlesData);
+    const strategicCircleCount = findStrategicCircleCount(lastName, firstName, rolesData);
     
     return {
       ...emp,
@@ -56,7 +57,8 @@ export const processEmployeesWithRoles = (
       normalizedRolesFTE,
       standardSalary,
       operationalCircleType,
-      operationalCircleCount
+      operationalCircleCount,
+      strategicCircleCount
     };
   });
 };
@@ -108,5 +110,36 @@ export const findOperationalCircleInfo = (
   };
 };
 
+// Function to find the strategic circle count for an employee
+export const findStrategicCircleCount = (
+  lastName: string,
+  firstName: string,
+  rolesData: RoleData[]
+): number | undefined => {
+  // Constant for the strategic circle leader role name
+  const STRATEGIC_CIRCLE_LEADER_ROLE = "лидер стратегического круга";
+  
+  // Find the employee by name
+  const employeeRoles = rolesData.filter(role => {
+    const participantName = formatName(role.participantName);
+    return participantName.toLowerCase().includes(lastName.toLowerCase()) &&
+           (!firstName || participantName.toLowerCase().includes(firstName.toLowerCase()));
+  });
+  
+  // Check if the employee has the strategic circle leader role
+  const strategicCircleRoles = employeeRoles.filter(role => 
+    role.roleName.toLowerCase().includes(STRATEGIC_CIRCLE_LEADER_ROLE.toLowerCase())
+  );
+  
+  // If the employee has no strategic circle roles, return undefined
+  if (strategicCircleRoles.length === 0) {
+    return undefined;
+  }
+  
+  // Return the number of strategic circles
+  return strategicCircleRoles.length;
+};
+
 // The old function is replaced by the new findOperationalCircleInfo function
 const findOperationalCircleType = findOperationalCircleInfo;
+
