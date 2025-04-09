@@ -42,7 +42,7 @@ const EmployeeTable = ({
   );
 
   const { sortedEmployees, sortDirection, sortField, toggleSort } = 
-    useSortableEmployees(filteredEmployees);
+    useSortableEmployees(filteredEmployees as (Employee | EmployeeWithRoles)[]);
 
   const handleEmployeeClick = (employee: Employee | EmployeeWithRoles) => {
     setSelectedEmployee(employee);

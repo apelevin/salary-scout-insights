@@ -2,14 +2,17 @@
 import { Card, CardHeader, CardContent, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { DollarSign } from "lucide-react";
-import { EmployeeWithRoles } from "@/types";
+import { Employee, EmployeeWithRoles } from "@/types";
 import { formatSalary } from "@/utils/formatUtils";
 
 interface FinancialInfoProps {
-  employee: EmployeeWithRoles;
+  employee: Employee | EmployeeWithRoles;
 }
 
 export const FinancialInfo = ({ employee }: FinancialInfoProps) => {
+  // Check if employee has standardSalary (specific to EmployeeWithRoles)
+  const hasStandardSalary = 'standardSalary' in employee && employee.standardSalary && employee.standardSalary > 0;
+
   return (
     <Card>
       <CardHeader className="pb-2">
@@ -26,18 +29,18 @@ export const FinancialInfo = ({ employee }: FinancialInfoProps) => {
         <div className="flex justify-between items-center py-1 border-b">
           <span className="text-sm text-gray-500">Стандартная зарплата:</span>
           <span className="font-semibold">
-            {employee.standardSalary && employee.standardSalary > 0 ? 
-              formatSalary(employee.standardSalary) : 
+            {hasStandardSalary ? 
+              formatSalary((employee as EmployeeWithRoles).standardSalary!) : 
               "Не определена"
             }
           </span>
         </div>
-        {employee.standardSalary && employee.standardSalary > 0 && (
+        {hasStandardSalary && (
           <div className="flex justify-between items-center pt-1">
             <span className="text-sm text-gray-500">Разница:</span>
-            <Badge className={employee.salary >= employee.standardSalary ? "bg-green-500" : "bg-red-500"}>
-              {employee.salary >= employee.standardSalary ? "+" : "-"}
-              {formatSalary(Math.abs(employee.salary - employee.standardSalary))}
+            <Badge className={employee.salary >= (employee as EmployeeWithRoles).standardSalary! ? "bg-green-500" : "bg-red-500"}>
+              {employee.salary >= (employee as EmployeeWithRoles).standardSalary! ? "+" : "-"}
+              {formatSalary(Math.abs(employee.salary - (employee as EmployeeWithRoles).standardSalary!))}
             </Badge>
           </div>
         )}
