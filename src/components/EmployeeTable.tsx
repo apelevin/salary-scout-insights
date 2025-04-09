@@ -22,6 +22,9 @@ interface EmployeeTableProps {
   customStandardSalaries?: Map<string, number>;
 }
 
+// List of employees to exclude from the display
+const EXCLUDED_EMPLOYEES = ["Пелевин Алексей", "Чиракадзе Дмитрий"];
+
 const EmployeeTable = ({ 
   employees, 
   rolesData = [], 
@@ -35,7 +38,14 @@ const EmployeeTable = ({
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   useEffect(() => {
-    const withRoles = processEmployeesWithRoles(employees, rolesData, customStandardSalaries);
+    // Filter out excluded employees
+    const filteredEmployeesList = employees.filter(emp => 
+      !EXCLUDED_EMPLOYEES.some(excluded => 
+        formatName(emp.name).toLowerCase().includes(excluded.toLowerCase())
+      )
+    );
+    
+    const withRoles = processEmployeesWithRoles(filteredEmployeesList, rolesData, customStandardSalaries);
     
     setEmployeesWithRoles(withRoles);
     

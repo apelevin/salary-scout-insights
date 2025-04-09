@@ -80,6 +80,7 @@ const RolesTable = ({
   useEffect(() => {
     const uniqueRoles = [...new Set(rolesData.map((role) => cleanRoleName(role.roleName)))]
       .filter(Boolean)
+      .filter(roleName => roleName.toLowerCase() !== 'ceo') // Filter out CEO role
       .sort((a, b) => a.localeCompare(b)); // Changed from b.localeCompare(a) to a.localeCompare(b) for ascending order
 
     const rolesWithSalaries = uniqueRoles.map(role => {
