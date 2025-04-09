@@ -6,14 +6,25 @@ import LeadershipTableRow from "./LeadershipTableRow";
 import EmptyState from "../roles/EmptyState";
 import LoadingState from "../roles/LoadingState";
 import { transformLeadershipData } from "@/utils/leadershipParser";
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
+import { toast } from "@/components/ui/use-toast";
 
 interface LeadershipTableProps {
   leadershipData: LeadershipData[];
   isLoading: boolean;
+  onLeadershipDataChange?: (updatedData: LeadershipData[]) => void;
 }
 
-const LeadershipTable = ({ leadershipData, isLoading }: LeadershipTableProps) => {
+const LeadershipTable = ({ 
+  leadershipData, 
+  isLoading,
+  onLeadershipDataChange
+}: LeadershipTableProps) => {
+  const [localLeadershipData, setLocalLeadershipData] = useState<LeadershipData[]>(leadershipData);
+
+  // Use the provided data or local state
+  const currentData = onLeadershipDataChange ? leadershipData : localLeadershipData;
+  
   const formatSalary = (salary: number) => {
     return new Intl.NumberFormat("ru-RU", {
       style: "currency",
@@ -24,7 +35,7 @@ const LeadershipTable = ({ leadershipData, isLoading }: LeadershipTableProps) =>
   
   const { tableData, uniqueCircleCounts } = useMemo(() => {
     // Transform leadership data
-    const transformedData = transformLeadershipData(leadershipData);
+    const transformedData = transformLeadershipData(currentData);
     
     // Get unique circle counts across all leadership types
     const allCircleCounts = new Set<string>();
@@ -41,13 +52,53 @@ const LeadershipTable = ({ leadershipData, isLoading }: LeadershipTableProps) =>
       tableData: transformedData,
       uniqueCircleCounts: uniqueCounts
     };
-  }, [leadershipData]);
+  }, [currentData]);
+  
+  const handleSalaryChange = (leadershipType: string, circleCount: string, newSalary: number) => {
+    // Find the corresponding data entry and update it
+    const updatedData = currentData.map(item => {
+      if (item.leadershipType === leadershipType && item.circleCount === circleCount) {
+        return {
+          ...item,
+          standardSalary: newSalary
+        };
+      }
+      return item;
+    });
+    
+    // Check if we found and updated an existing entry
+    const entryExists = updatedData.some(
+      item => item.leadershipType === leadershipType && item.circleCount === circleCount
+    );
+    
+    // If entry doesn't exist, create a new one
+    if (!entryExists) {
+      updatedData.push({
+        roleName: `${leadershipType} (${circleCount})`,
+        standardSalary: newSalary,
+        leadershipType: leadershipType,
+        circleCount: circleCount
+      });
+    }
+    
+    // Update state or call the provided callback
+    if (onLeadershipDataChange) {
+      onLeadershipDataChange(updatedData);
+    } else {
+      setLocalLeadershipData(updatedData);
+    }
+    
+    toast({
+      title: "Значение обновлено",
+      description: `Оклад для ${leadershipType} с ${circleCount} кругами: ${formatSalary(newSalary)}`,
+    });
+  };
   
   if (isLoading) {
     return <LoadingState>Загрузка данных о лидерстве...</LoadingState>;
   }
 
-  if (leadershipData.length === 0) {
+  if (currentData.length === 0) {
     return <EmptyState 
       icon="Crown"
       title="Данные о лидерстве отсутствуют"
@@ -67,6 +118,7 @@ const LeadershipTable = ({ leadershipData, isLoading }: LeadershipTableProps) =>
               circleSalaries={item.circleSalaries}
               circleCounts={uniqueCircleCounts}
               formatSalary={formatSalary}
+              onSalaryChange={handleSalaryChange}
             />
           ))}
         </TableBody>
