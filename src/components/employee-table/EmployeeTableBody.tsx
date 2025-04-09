@@ -1,12 +1,12 @@
 
 import React from "react";
 import { TableBody, TableCell, TableRow } from "@/components/ui/table";
-import { EmployeeWithRoles } from "@/types";
+import { Employee, EmployeeWithRoles } from "@/types";
 import EmployeeTableRow from "../EmployeeTableRow";
 
 interface EmployeeTableBodyProps {
-  employees: EmployeeWithRoles[];
-  onEmployeeClick: (employee: EmployeeWithRoles) => void;
+  employees: (Employee | EmployeeWithRoles)[];
+  onEmployeeClick: (employee: Employee | EmployeeWithRoles) => void;
 }
 
 const EmployeeTableBody: React.FC<EmployeeTableBodyProps> = ({ employees, onEmployeeClick }) => {
