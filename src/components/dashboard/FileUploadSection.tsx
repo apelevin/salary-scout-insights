@@ -1,10 +1,8 @@
 
-import { FileType, FileText, Crown } from "lucide-react";
+import { FileText } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
-import FileUpload from "@/components/FileUpload";
-import { Button } from "@/components/ui/button";
 import { UploadedFile } from "@/types";
-import LeadershipFileUpload from "@/components/leadership/LeadershipFileUpload";
+import UnifiedFileUpload from "@/components/UnifiedFileUpload";
 
 interface FileUploadSectionProps {
   uploadedFiles: UploadedFile[];
@@ -25,36 +23,14 @@ const FileUploadSection = ({
 }: FileUploadSectionProps) => {
   return (
     <>
-      <Card>
-        <CardContent className="p-6">
-          <div className="flex items-center space-x-2 mb-4">
-            <FileType className="h-5 w-5 text-blue-500" />
-            <h2 className="text-xl font-semibold text-foreground">Загрузка данных</h2>
-          </div>
-          <FileUpload onFilesUploaded={onFilesUploaded} maxFiles={maxFiles} />
-          <div className="mt-6">
-            <Button 
-              className="w-full" 
-              disabled={uploadedFiles.length === 0 || isProcessing}
-              onClick={onProcessFiles}
-            >
-              {isProcessing ? "Обработка..." : "Обработать данные"}
-            </Button>
-          </div>
-        </CardContent>
-      </Card>
-
-      {onLeadershipFileUpload && (
-        <Card className="mt-6">
-          <CardContent className="p-6">
-            <div className="flex items-center space-x-2 mb-4">
-              <Crown className="h-5 w-5 text-yellow-500" />
-              <h2 className="text-xl font-semibold text-foreground">Загрузка данных лидерства</h2>
-            </div>
-            <LeadershipFileUpload onLeadershipFileUpload={onLeadershipFileUpload} isProcessing={isProcessing} />
-          </CardContent>
-        </Card>
-      )}
+      <UnifiedFileUpload
+        uploadedFiles={uploadedFiles}
+        isProcessing={isProcessing}
+        onFilesUploaded={onFilesUploaded}
+        onProcessFiles={onProcessFiles}
+        onLeadershipFileUpload={onLeadershipFileUpload}
+        maxFiles={maxFiles}
+      />
 
       <Card className="mt-6">
         <CardContent className="p-6">
