@@ -21,14 +21,14 @@ const LeadershipTable = ({ leadershipData, isLoading }: LeadershipTableProps) =>
   };
   
   if (isLoading) {
-    return <LoadingState message="Загрузка данных о лидерстве..." />;
+    return <LoadingState>Загрузка данных о лидерстве...</LoadingState>;
   }
 
   if (leadershipData.length === 0) {
     return <EmptyState 
+      icon="Crown"
       title="Данные о лидерстве отсутствуют"
       description="Загрузите файл с данными о лидерстве, чтобы увидеть информацию о стандартных окладах ролей."
-      iconName="Crown"
     />;
   }
 
