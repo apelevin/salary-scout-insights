@@ -1,7 +1,7 @@
 
 import { useState } from "react";
 import { Table } from "@/components/ui/table";
-import { Employee, RoleData, CircleData } from "@/types";
+import { Employee, RoleData, CircleData, LeadershipData } from "@/types";
 import EmployeeInfoSidebar from "../EmployeeInfoSidebar";
 import EmployeeSearch from "../EmployeeSearch";
 import { LoadingState, EmptyState } from "../EmployeeTableStates";
@@ -15,6 +15,7 @@ interface EmployeeTableProps {
   employees: Employee[];
   rolesData?: RoleData[];
   circlesData?: CircleData[];
+  leadershipData?: LeadershipData[];  // Add this prop to the interface
   isLoading?: boolean;
   customStandardSalaries?: Map<string, number>;
 }
@@ -23,6 +24,7 @@ const EmployeeTable = ({
   employees, 
   rolesData = [], 
   circlesData = [],
+  leadershipData = [],  // Add this prop with a default value
   isLoading = false,
   customStandardSalaries = new Map()
 }: EmployeeTableProps) => {
@@ -84,7 +86,8 @@ const EmployeeTable = ({
       <EmployeeInfoSidebar 
         employee={selectedEmployee} 
         open={sidebarOpen} 
-        onClose={closeSidebar} 
+        onClose={closeSidebar}
+        leadershipData={leadershipData} // Pass the leadership data to the sidebar
       />
     </div>
   );
