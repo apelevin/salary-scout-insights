@@ -10,7 +10,27 @@ interface SalaryCalculationProps {
 
 export const SalaryCalculation = ({ employee }: SalaryCalculationProps) => {
   if (!employee.standardSalary || employee.standardSalary <= 0) {
-    return null;
+    return (
+      <Card>
+        <CardHeader className="pb-2">
+          <CardTitle className="text-lg flex items-center gap-2">
+            <Calculator className="h-5 w-5 text-purple-500" />
+            Расчет стандартной зарплаты
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="text-center py-6 text-gray-500">
+            <p>Не удалось рассчитать стандартную зарплату.</p>
+            {employee.normalizedRolesFTE.has("Лидер") && employee.operationalCircleType && (
+              <div className="mt-2 text-sm">
+                <p>Для роли лидера не найдены данные:</p>
+                <p className="font-medium mt-1">{employee.operationalCircleType} - {employee.operationalCircleCount} кругов</p>
+              </div>
+            )}
+          </div>
+        </CardContent>
+      </Card>
+    );
   }
 
   return (
@@ -39,16 +59,13 @@ export const SalaryCalculation = ({ employee }: SalaryCalculationProps) => {
               let roleContribution = 0;
               let baseSalary = 0;
               
-              // For debugging
-              console.log(`Calculating role contribution for ${role} with FTE ${fte}`);
-              
               if (role.toLowerCase() === "лидер") {
                 // For leader role, use the exact salary from leadership data
                 if (employee.operationalCircleType && employee.operationalCircleCount) {
-                  // For leadership roles, we get the base salary directly from leadership data
-                  // The actual contribution is calculated by multiplying this base by the FTE
-                  baseSalary = 450000; // This should come from leadership data (hardcoded for now for debugging)
-                  roleContribution = baseSalary * fte;
+                  // We'll estimate the base salary based on the standardSalary and FTE
+                  // This is just for display purposes
+                  baseSalary = employee.standardSalary / fte;
+                  roleContribution = employee.standardSalary;
                   
                   console.log(`Leader role: Base salary=${baseSalary}, FTE=${fte}, Contribution=${roleContribution}`);
                 } else {
@@ -102,3 +119,4 @@ export const SalaryCalculation = ({ employee }: SalaryCalculationProps) => {
     </Card>
   );
 };
+

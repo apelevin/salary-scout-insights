@@ -1,4 +1,3 @@
-
 import { Employee, RoleData, LeadershipData } from "@/types";
 import { cleanRoleName } from "./formatUtils";
 
@@ -32,10 +31,10 @@ export const findStandardRateForRole = (
     
     // Log values for debugging
     console.log(`Finding leadership salary for: Type=${circleType}, Count=${circleCountStr}`);
+    console.log(`Available leadership data:`, leadershipData);
     
     if (circleType && circleCountStr) {
       // Find a matching entry in leadershipData based on type and count
-      // First try exact match
       const exactMatch = leadershipData.find(entry => 
         entry.leadershipType?.toLowerCase() === circleType.toLowerCase() && 
         entry.circleCount === circleCountStr
@@ -68,15 +67,11 @@ export const findStandardRateForRole = (
     } else {
       console.log(`Missing circle type or count: Type=${circleType}, Count=${circleCountStr}`);
     }
-    
-    // If we have leadership data but no exact match was found,
-    // return 0 instead of falling back to regular role-based calculation
-    return 0;
   }
   
-  // For non-leader roles, or if we don't have leadership data,
+  // For non-leader roles, or if leader role with no leadership data,
   // fall back to regular salary calculation
-  if (!isLeaderRole && roleName && rolesData.length) {
+  if (roleName && rolesData.length) {
     const normalizedRoleName = roleName.toLowerCase();
     
     const salaries: number[] = [];
