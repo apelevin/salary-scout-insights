@@ -14,6 +14,7 @@ import EmployeeSearch from "./EmployeeSearch";
 import EmployeeTableRow from "./EmployeeTableRow";
 import { LoadingState, EmptyState } from "./EmployeeTableStates";
 import { formatName, processEmployeesWithRoles } from "@/utils/employeeUtils";
+import SalaryDifferenceCard from "./dashboard/SalaryDifferenceCard";
 
 interface EmployeeTableProps {
   employees: Employee[];
@@ -80,6 +81,8 @@ const EmployeeTable = ({
 
   return (
     <div className="w-full">
+      <SalaryDifferenceCard employees={filteredEmployees} />
+      
       <EmployeeSearch searchTerm={searchTerm} setSearchTerm={setSearchTerm} />
       
       <div className="border rounded-md">
