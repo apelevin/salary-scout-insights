@@ -1,9 +1,9 @@
 
 import { Card, CardContent } from "@/components/ui/card";
-import { EmployeeWithRoles } from "@/types";
+import { Employee, EmployeeWithRoles } from "@/types";
 
 interface DashboardSummaryCardsProps {
-  employees: EmployeeWithRoles[];
+  employees: (Employee | EmployeeWithRoles)[];
 }
 
 const DashboardSummaryCards = ({ employees }: DashboardSummaryCardsProps) => {
@@ -12,7 +12,7 @@ const DashboardSummaryCards = ({ employees }: DashboardSummaryCardsProps) => {
     let totalNegative = 0;
 
     employees.forEach(employee => {
-      if (employee.standardSalary && employee.standardSalary > 0) {
+      if ('standardSalary' in employee && employee.standardSalary && employee.standardSalary > 0) {
         const difference = employee.salary - employee.standardSalary;
         if (difference > 0) {
           totalPositive += difference;
