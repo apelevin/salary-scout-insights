@@ -46,9 +46,8 @@ export const processEmployeesWithRoles = (
     
     const standardSalary = calculateStandardSalary(normalizedRolesFTE, rolesData, employees, customStandardSalaries);
     
-    // Find operational and strategic circle info and count
-    const { operationalCircleType, operationalCircleCount } = findOperationalCircleInfo(lastName, firstName, rolesData, circlesData);
-    const strategicCircleCount = findStrategicCircleCount(lastName, firstName, rolesData);
+    // Find circle leadership info (combines both operational and strategic)
+    const { circleType, circleCount } = findCircleLeadershipInfo(lastName, firstName, rolesData, circlesData);
     
     return {
       ...emp,
@@ -56,22 +55,24 @@ export const processEmployeesWithRoles = (
       totalFTE,
       normalizedRolesFTE,
       standardSalary,
-      operationalCircleType,
-      operationalCircleCount,
-      strategicCircleCount
+      operationalCircleType: circleType, // keep for backwards compatibility
+      operationalCircleCount: circleCount, // total circle leadership count
+      strategicCircleCount: undefined // no longer needed as separate count
     };
   });
 };
 
-// Function to find the operational circle information for an employee
-export const findOperationalCircleInfo = (
+// Function to find the leadership information for an employee combining both types of circles
+export const findCircleLeadershipInfo = (
   lastName: string,
   firstName: string,
   rolesData: RoleData[],
   circlesData: CircleData[]
-): { operationalCircleType?: string, operationalCircleCount?: number } => {
-  // Constant for the operational circle leader role name
-  const OPERATIONAL_CIRCLE_LEADER_ROLE = "лидер операционного круга";
+): { circleType?: string, circleCount: number } => {
+  // Constants for the circle leader role names
+  const OPERATIONAL_CIRCLE_LEADER = "лидер операционного круга";
+  const STRATEGIC_CIRCLE_LEADER = "лидер стратегического круга";
+  const GENERIC_LEADER_ROLE = "лидер";
   
   // Find the employee by name
   const employeeRoles = rolesData.filter(role => {
@@ -80,66 +81,48 @@ export const findOperationalCircleInfo = (
            (!firstName || participantName.toLowerCase().includes(firstName.toLowerCase()));
   });
   
-  // Check if the employee has the operational circle leader role
-  const operationalCircleRoles = employeeRoles.filter(role => 
-    role.roleName.toLowerCase().includes(OPERATIONAL_CIRCLE_LEADER_ROLE.toLowerCase())
-  );
+  // Check if the employee has any leader roles (operational or strategic)
+  const leaderRoles = employeeRoles.filter(role => {
+    const roleName = role.roleName.toLowerCase();
+    return roleName.includes(OPERATIONAL_CIRCLE_LEADER.toLowerCase()) || 
+           roleName.includes(STRATEGIC_CIRCLE_LEADER.toLowerCase()) ||
+           roleName === GENERIC_LEADER_ROLE.toLowerCase();
+  });
   
-  // If the employee is not an operational circle leader, return empty values
-  if (operationalCircleRoles.length === 0) {
-    return { operationalCircleType: undefined, operationalCircleCount: undefined };
+  // If the employee is not a leader of any kind, return empty values
+  if (leaderRoles.length === 0) {
+    return { circleType: undefined, circleCount: 0 };
   }
   
-  // Count the number of operational circles
-  const operationalCircleCount = operationalCircleRoles.length;
+  // Count the total number of circles led
+  const circleCount = leaderRoles.length;
   
-  // Get the functional type from the first operational circle found
-  let operationalCircleType: string | undefined = undefined;
+  // Get the functional type from the first operational circle found (if any)
+  let circleType: string | undefined = undefined;
   
-  if (operationalCircleRoles[0].circleName) {
+  // First try to find an operational circle with functional type
+  const operationalCircle = leaderRoles.find(role => 
+    role.roleName.toLowerCase().includes(OPERATIONAL_CIRCLE_LEADER.toLowerCase())
+  );
+  
+  if (operationalCircle?.circleName) {
     const circle = circlesData.find(circle => 
-      circle.name.toLowerCase() === operationalCircleRoles[0].circleName?.toLowerCase()
+      circle.name.toLowerCase() === operationalCircle.circleName?.toLowerCase()
     );
     
-    operationalCircleType = circle ? cleanFunctionalType(circle.functionalType) : undefined;
+    if (circle) {
+      circleType = cleanFunctionalType(circle.functionalType);
+    }
   }
   
   return { 
-    operationalCircleType, 
-    operationalCircleCount
+    circleType, 
+    circleCount
   };
 };
 
-// Function to find the strategic circle count for an employee
-export const findStrategicCircleCount = (
-  lastName: string,
-  firstName: string,
-  rolesData: RoleData[]
-): number | undefined => {
-  // Constant for the strategic circle leader role name
-  const STRATEGIC_CIRCLE_LEADER_ROLE = "лидер стратегического круга";
-  
-  // Find the employee by name
-  const employeeRoles = rolesData.filter(role => {
-    const participantName = formatName(role.participantName);
-    return participantName.toLowerCase().includes(lastName.toLowerCase()) &&
-           (!firstName || participantName.toLowerCase().includes(firstName.toLowerCase()));
-  });
-  
-  // Check if the employee has the strategic circle leader role
-  const strategicCircleRoles = employeeRoles.filter(role => 
-    role.roleName.toLowerCase().includes(STRATEGIC_CIRCLE_LEADER_ROLE.toLowerCase())
-  );
-  
-  // If the employee has no strategic circle roles, return undefined
-  if (strategicCircleRoles.length === 0) {
-    return undefined;
-  }
-  
-  // Return the number of strategic circles
-  return strategicCircleRoles.length;
-};
-
-// The old function is replaced by the new findOperationalCircleInfo function
-const findOperationalCircleType = findOperationalCircleInfo;
+// These functions are kept for backwards compatibility but are no longer used directly
+// They are replaced by the new unified findCircleLeadershipInfo function
+export const findOperationalCircleInfo = findCircleLeadershipInfo;
+export const findStrategicCircleCount = () => undefined;
 

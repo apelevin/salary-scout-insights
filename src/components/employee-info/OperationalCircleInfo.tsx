@@ -9,10 +9,8 @@ interface OperationalCircleInfoProps {
 }
 
 export const OperationalCircleInfo = ({ employee }: OperationalCircleInfoProps) => {
-  // Get the count of operational circles from the employee data
-  const operationalCircleCount = employee.operationalCircleCount || 1;
-  // Get the count of strategic circles from the employee data
-  const strategicCircleCount = employee.strategicCircleCount;
+  // Get the total count of circles led by the employee
+  const circleCount = employee.operationalCircleCount || 0;
   
   return (
     <Card>
@@ -24,20 +22,16 @@ export const OperationalCircleInfo = ({ employee }: OperationalCircleInfoProps) 
       </CardHeader>
       <CardContent>
         <div className="space-y-1">
-          <div className="flex justify-between">
-            <span className="text-gray-500">Функциональная принадлежность:</span>
-            <span className="font-medium">{cleanFunctionalType(employee.operationalCircleType)}</span>
-          </div>
-          <div className="flex justify-between">
-            <span className="text-gray-500">Операционных кругов:</span>
-            <span className="font-medium">{operationalCircleCount}</span>
-          </div>
-          {strategicCircleCount !== undefined && (
+          {employee.operationalCircleType && (
             <div className="flex justify-between">
-              <span className="text-gray-500">Стратегических кругов:</span>
-              <span className="font-medium">{strategicCircleCount}</span>
+              <span className="text-gray-500">Функциональная принадлежность:</span>
+              <span className="font-medium">{cleanFunctionalType(employee.operationalCircleType)}</span>
             </div>
           )}
+          <div className="flex justify-between">
+            <span className="text-gray-500">Количество кругов:</span>
+            <span className="font-medium">{circleCount}</span>
+          </div>
         </div>
       </CardContent>
     </Card>
