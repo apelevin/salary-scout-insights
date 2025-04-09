@@ -46,7 +46,7 @@ export const processEmployeesWithRoles = (
     
     const standardSalary = calculateStandardSalary(normalizedRolesFTE, rolesData, employees, customStandardSalaries);
     
-    // Find circle leadership info (combines both operational and strategic)
+    // Find circle leadership info
     const { circleType, circleCount } = findCircleLeadershipInfo(lastName, firstName, rolesData, circlesData);
     
     return {
@@ -55,14 +55,14 @@ export const processEmployeesWithRoles = (
       totalFTE,
       normalizedRolesFTE,
       standardSalary,
-      operationalCircleType: circleType, // keep for backwards compatibility
-      operationalCircleCount: circleCount, // total circle leadership count
+      operationalCircleType: circleType,
+      operationalCircleCount: circleCount,
       strategicCircleCount: undefined // no longer needed as separate count
     };
   });
 };
 
-// Function to find the leadership information for an employee combining both types of circles
+// Function to find the leadership information for an employee
 export const findCircleLeadershipInfo = (
   lastName: string,
   firstName: string,
@@ -122,7 +122,5 @@ export const findCircleLeadershipInfo = (
 };
 
 // These functions are kept for backwards compatibility but are no longer used directly
-// They are replaced by the new unified findCircleLeadershipInfo function
 export const findOperationalCircleInfo = findCircleLeadershipInfo;
 export const findStrategicCircleCount = () => undefined;
-

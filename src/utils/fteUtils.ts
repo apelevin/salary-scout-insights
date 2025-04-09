@@ -13,6 +13,11 @@ export const findRolesWithFTEForEmployee = (
   
   const normalizedLastName = lastName.toLowerCase();
   const normalizedFirstName = firstName.toLowerCase();
+
+  // Constants for the circle leader role names
+  const OPERATIONAL_CIRCLE_LEADER = "лидер операционного круга";
+  const STRATEGIC_CIRCLE_LEADER = "лидер стратегического круга";
+  const GENERIC_LEADER_ROLE = "лидер";
   
   rolesData.forEach(entry => {
     if (!entry.participantName || !entry.roleName) return;
@@ -27,7 +32,17 @@ export const findRolesWithFTEForEmployee = (
       participantNameParts.some(part => part === normalizedLastName) && 
       participantNameParts.some(part => part === normalizedFirstName)
     ) {
-      const roleName = cleanRoleName(entry.roleName);
+      // Check if the role is a leader role and normalize it to "лидер"
+      let roleName = entry.roleName.toLowerCase();
+      const isLeaderRole = roleName === GENERIC_LEADER_ROLE.toLowerCase() || 
+                          roleName.includes(OPERATIONAL_CIRCLE_LEADER.toLowerCase()) || 
+                          roleName.includes(STRATEGIC_CIRCLE_LEADER.toLowerCase());
+      
+      if (isLeaderRole) {
+        roleName = "лидер"; // Normalize all leader roles to "лидер"
+      } else {
+        roleName = cleanRoleName(entry.roleName);
+      }
       
       if (rolesWithFTE.has(roleName)) {
         const currentFTE = rolesWithFTE.get(roleName) || 0;

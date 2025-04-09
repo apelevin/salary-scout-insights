@@ -17,7 +17,7 @@ export const OperationalCircleInfo = ({ employee }: OperationalCircleInfoProps) 
       <CardHeader className="pb-2">
         <CardTitle className="text-lg flex items-center gap-2">
           <CircleAlert className="h-5 w-5 text-blue-500" />
-          Лидерство в кругах
+          Лидерство
         </CardTitle>
       </CardHeader>
       <CardContent>
