@@ -9,7 +9,7 @@ import {
 } from "@/components/ui/sheet";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardHeader, CardContent, CardTitle } from "@/components/ui/card";
-import { User, DollarSign, Briefcase } from "lucide-react";
+import { User, DollarSign, Briefcase, Calculator } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Employee } from "@/types";
 import { cleanRoleName } from "@/utils/roleUtils";
@@ -90,6 +90,39 @@ const EmployeeInfoSidebar = ({ employee, open, onClose }: EmployeeInfoSidebarPro
                   </Badge>
                 </div>
               )}
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader className="pb-2">
+              <CardTitle className="text-lg flex items-center gap-2">
+                <Calculator className="h-5 w-5 text-purple-500" />
+                Формула расчета стандартной зарплаты
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-3">
+                <div className="bg-gray-50 p-3 rounded-md">
+                  <p className="text-center font-medium">min + (max - min) × 0.25</p>
+                </div>
+                
+                <div className="space-y-2">
+                  <div className="text-sm text-gray-600">где:</div>
+                  <div className="grid grid-cols-[auto_1fr] gap-x-3 gap-y-1 text-sm">
+                    <span className="font-medium">min</span>
+                    <span>минимальная зарплата среди сотрудников с аналогичной ролью</span>
+                    <span className="font-medium">max</span>
+                    <span>максимальная зарплата среди сотрудников с аналогичной ролью</span>
+                    <span className="font-medium">0.25</span>
+                    <span>коэффициент для расчета (первый квартиль)</span>
+                  </div>
+                  
+                  <div className="text-xs text-gray-500 mt-2">
+                    Стандартная зарплата рассчитывается как сумма произведений
+                    стандартной ставки по каждой роли и доли FTE этой роли
+                  </div>
+                </div>
+              </div>
             </CardContent>
           </Card>
 
