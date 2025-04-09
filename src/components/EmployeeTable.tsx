@@ -104,7 +104,7 @@ const EmployeeTable = ({
       case "desc":
         return <ArrowDown className="h-4 w-4" />;
       default:
-        return null;
+        return <ArrowDown className="h-4 w-4 text-muted-foreground/70" />; // Default icon when no sorting
     }
   };
 
