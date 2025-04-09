@@ -101,7 +101,7 @@ const LeadershipFileUpload = ({ onLeadershipFileUpload, isProcessing }: Leadersh
       </div>
       <p className="text-sm text-muted-foreground">
         Загрузите CSV-файл со стандартными окладами ролей лидерства.
-        Файл должен содержать колонки "название роли" и "оклад".
+        Первая колонка должна содержать тип лидерства, а в последующих колонках — количество кругов и соответствующие стандартные оклады.
       </p>
     </div>
   );

@@ -39,4 +39,6 @@ export interface LeadershipData {
   roleName: string;
   standardSalary: number;
   description?: string;
+  leadershipType?: string;
+  circleCount?: string;
 }
