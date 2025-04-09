@@ -5,7 +5,7 @@ import {
   SheetClose
 } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
-import { EmployeeWithRoles } from "@/types";
+import { EmployeeWithRoles, LeadershipData } from "@/types";
 import { EmployeeHeader } from "./employee-info/EmployeeHeader";
 import { FinancialInfo } from "./employee-info/FinancialInfo";
 import { SalaryCalculation } from "./employee-info/SalaryCalculation";
@@ -16,9 +16,10 @@ interface EmployeeInfoSidebarProps {
   employee: EmployeeWithRoles | null;
   open: boolean;
   onClose: () => void;
+  leadershipData: LeadershipData[];
 }
 
-const EmployeeInfoSidebar = ({ employee, open, onClose }: EmployeeInfoSidebarProps) => {
+const EmployeeInfoSidebar = ({ employee, open, onClose, leadershipData }: EmployeeInfoSidebarProps) => {
   if (!employee) {
     return null;
   }
@@ -35,7 +36,10 @@ const EmployeeInfoSidebar = ({ employee, open, onClose }: EmployeeInfoSidebarPro
           <SalaryCalculation employee={employee} />
           
           {employee.operationalCircleCount && employee.operationalCircleCount > 0 && (
-            <OperationalCircleInfo employee={employee} />
+            <OperationalCircleInfo 
+              employee={employee} 
+              leadershipData={leadershipData}
+            />
           )}
           
           <RolesAndWorkload employee={employee} />

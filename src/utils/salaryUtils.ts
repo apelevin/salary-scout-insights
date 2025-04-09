@@ -1,6 +1,6 @@
 
-import { Employee, RoleData } from "@/types";
-import { cleanRoleName } from "./formatUtils";
+import { Employee, RoleData, LeadershipData } from "@/types";
+import { cleanRoleName, cleanFunctionalType } from "./formatUtils";
 
 export const calculateStandardRate = (min: number, max: number): number => {
   if (min === max) {
@@ -114,4 +114,49 @@ export const getSalaryDifference = (standardSalary: number | undefined, actualSa
       className: 'text-gray-500' 
     };
   }
+};
+
+/**
+ * Find the standard salary for a leadership role based on functional type and circle count
+ * 
+ * @param functionalType The functional type of the leadership (e.g., "Delivery", "Discovery")
+ * @param circleCount The number of circles as a string
+ * @param leadershipData Array of leadership data from the table
+ * @returns The standard salary or null if not found
+ */
+export const findLeadershipStandardSalary = (
+  functionalType: string,
+  circleCount: string,
+  leadershipData: LeadershipData[]
+): number | null => {
+  if (!functionalType || !circleCount || !leadershipData.length) {
+    return null;
+  }
+  
+  // Clean and normalize the functional type
+  const cleanedType = cleanFunctionalType(functionalType).toLowerCase();
+  
+  // Look for exact match first
+  for (const entry of leadershipData) {
+    if (
+      entry.leadershipType && 
+      cleanFunctionalType(entry.leadershipType).toLowerCase() === cleanedType &&
+      entry.circleCount === circleCount
+    ) {
+      return entry.standardSalary;
+    }
+  }
+  
+  // If no exact match, look for a partial match (type might include multiple functions)
+  for (const entry of leadershipData) {
+    if (
+      entry.leadershipType && 
+      cleanFunctionalType(entry.leadershipType).toLowerCase().includes(cleanedType) &&
+      entry.circleCount === circleCount
+    ) {
+      return entry.standardSalary;
+    }
+  }
+  
+  return null;
 };

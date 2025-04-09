@@ -52,6 +52,7 @@ const DataDisplaySection = ({
               employees={employees} 
               rolesData={rolesData}
               circlesData={circlesData}
+              leadershipData={leadershipData}
               isLoading={isProcessing} 
               customStandardSalaries={customStandardSalaries}
             />
