@@ -1,9 +1,15 @@
 
-const LoadingState = () => {
+import React from "react";
+
+interface LoadingStateProps {
+  children: React.ReactNode;
+}
+
+const LoadingState = ({ children }: LoadingStateProps) => {
   return (
     <div className="w-full h-60 flex items-center justify-center">
       <div className="animate-pulse text-lg text-gray-500">
-        Загрузка данных...
+        {children || "Загрузка данных..."}
       </div>
     </div>
   );
