@@ -28,14 +28,27 @@ export const SalaryCalculation = ({ employee }: SalaryCalculationProps) => {
             <ul className="list-disc pl-5 space-y-1">
               <li>Нормализованных значений FTE для каждой роли</li>
               <li>Стандартных окладов для каждой роли</li>
+              {employee.operationalCircleType && (
+                <li>Для роли лидера используется таблица лидерства (<strong>{employee.operationalCircleType}</strong>, <strong>{employee.operationalCircleCount} кругов</strong>)</li>
+              )}
             </ul>
           </div>
           
           <div className="space-y-3">
             {Array.from(employee.normalizedRolesFTE.entries()).map(([role, fte], index) => {
-              const roleContribution = employee.standardSalary 
-                ? employee.standardSalary * fte
-                : 0;
+              // For leader role, get the right standard salary based on leadership data
+              let roleContribution = 0;
+              
+              // For debugging
+              console.log(`Calculating role contribution for ${role} with FTE ${fte}`);
+              
+              if (role.toLowerCase() === "лидер" && employee.operationalCircleType && employee.operationalCircleCount) {
+                const baseLeaderSalary = employee.standardSalary / fte; // Calculate base leader salary from total
+                roleContribution = fte * baseLeaderSalary;
+                console.log(`Leader role: Base salary=${baseLeaderSalary}, FTE=${fte}, Contribution=${roleContribution}`);
+              } else {
+                roleContribution = employee.standardSalary * fte;
+              }
               
               return (
                 <div key={index} className="border rounded-md p-3">

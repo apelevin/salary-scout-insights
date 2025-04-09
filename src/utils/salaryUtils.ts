@@ -26,15 +26,28 @@ export const findStandardRateForRole = (
   // Special case for leader role - use ONLY leadership data if available
   const isLeaderRole = roleName.toLowerCase() === "лидер".toLowerCase();
   
-  if (isLeaderRole && leadershipData && leadershipData.length > 0 && circleType && circleCount) {
-    // Find a matching entry in leadershipData based on type and count
-    const leadershipEntry = leadershipData.find(entry => 
-      entry.leadershipType?.toLowerCase() === circleType.toLowerCase() && 
-      entry.circleCount === String(circleCount)
-    );
+  if (isLeaderRole && leadershipData && leadershipData.length > 0) {
+    // Convert circleCount to string for comparison with leadershipData
+    const circleCountStr = circleCount !== undefined ? String(circleCount) : undefined;
     
-    if (leadershipEntry) {
-      return leadershipEntry.standardSalary;
+    // Log values for debugging
+    console.log(`Finding leadership salary for: Type=${circleType}, Count=${circleCountStr}`);
+    
+    if (circleType && circleCountStr) {
+      // Find a matching entry in leadershipData based on type and count
+      const leadershipEntry = leadershipData.find(entry => 
+        entry.leadershipType?.toLowerCase() === circleType.toLowerCase() && 
+        entry.circleCount === circleCountStr
+      );
+      
+      if (leadershipEntry) {
+        console.log(`Found leadership salary: ${leadershipEntry.standardSalary} for ${circleType} with ${circleCountStr} circles`);
+        return leadershipEntry.standardSalary;
+      } else {
+        console.log(`No matching leadership entry found for ${circleType} with ${circleCountStr} circles`);
+      }
+    } else {
+      console.log(`Missing circle type or count: Type=${circleType}, Count=${circleCountStr}`);
     }
     
     // If we have leadership data but no exact match was found,
@@ -115,6 +128,10 @@ export const calculateStandardSalary = (
       circleType,
       circleCount
     );
+    
+    // For debugging
+    console.log(`Role: ${roleName}, FTE: ${fte}, Standard rate: ${standardRateForRole}, Contribution: ${fte * standardRateForRole}`);
+    
     totalStandardSalary += fte * standardRateForRole;
   }
   
