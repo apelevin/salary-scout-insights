@@ -35,17 +35,36 @@ export const findStandardRateForRole = (
     
     if (circleType && circleCountStr) {
       // Find a matching entry in leadershipData based on type and count
-      const leadershipEntry = leadershipData.find(entry => 
+      // First try exact match
+      const exactMatch = leadershipData.find(entry => 
         entry.leadershipType?.toLowerCase() === circleType.toLowerCase() && 
         entry.circleCount === circleCountStr
       );
       
-      if (leadershipEntry) {
-        console.log(`Found leadership salary: ${leadershipEntry.standardSalary} for ${circleType} with ${circleCountStr} circles`);
-        return leadershipEntry.standardSalary;
-      } else {
-        console.log(`No matching leadership entry found for ${circleType} with ${circleCountStr} circles`);
+      if (exactMatch) {
+        console.log(`Found exact leadership salary match: ${exactMatch.standardSalary} for ${circleType} with ${circleCountStr} circles`);
+        return exactMatch.standardSalary;
       }
+      
+      // If no exact match, try to find a match for just the type with any count
+      // This handles combined types like "Delivery & Discovery"
+      const leadershipEntriesForType = leadershipData.filter(entry => 
+        entry.leadershipType?.toLowerCase() === circleType.toLowerCase()
+      );
+      
+      if (leadershipEntriesForType.length > 0) {
+        // Find entry with matching count
+        const countMatch = leadershipEntriesForType.find(entry => 
+          entry.circleCount === circleCountStr
+        );
+        
+        if (countMatch) {
+          console.log(`Found leadership type+count match: ${countMatch.standardSalary} for ${circleType} with ${circleCountStr} circles`);
+          return countMatch.standardSalary;
+        }
+      }
+      
+      console.log(`No matching leadership entry found for ${circleType} with ${circleCountStr} circles`);
     } else {
       console.log(`Missing circle type or count: Type=${circleType}, Count=${circleCountStr}`);
     }

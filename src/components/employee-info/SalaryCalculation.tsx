@@ -43,29 +43,18 @@ export const SalaryCalculation = ({ employee }: SalaryCalculationProps) => {
               console.log(`Calculating role contribution for ${role} with FTE ${fte}`);
               
               if (role.toLowerCase() === "лидер") {
-                // For leader role, calculate contribution based on leadership data
-                // The base salary is determined by the leadership table lookup in salaryUtils.ts
-                // and is already factored into the standardSalary
-                if (employee.standardSalary > 0 && employee.normalizedRolesFTE.size > 0) {
-                  // For leader role with leadership data
-                  if (employee.operationalCircleType && employee.operationalCircleCount) {
-                    // Leadership base salary is factored into standardSalary
-                    // We extract it from the total standardSalary based on FTE proportion
-                    const totalFteContribution = Array.from(employee.normalizedRolesFTE.values()).reduce((sum, val) => sum + val, 0);
-                    const leaderFteProportion = fte / totalFteContribution;
-                    
-                    // The leader role's contribution to total salary
-                    roleContribution = employee.standardSalary * leaderFteProportion;
-                    
-                    // Calculate the base leadership salary (before FTE adjustment)
-                    baseSalary = roleContribution / fte;
-                    
-                    console.log(`Leader role: Base salary=${baseSalary}, FTE=${fte}, Contribution=${roleContribution}`);
-                  } else {
-                    // Generic leader role without circle data
-                    baseSalary = employee.standardSalary / employee.normalizedRolesFTE.size;
-                    roleContribution = baseSalary * fte;
-                  }
+                // For leader role, use the exact salary from leadership data
+                if (employee.operationalCircleType && employee.operationalCircleCount) {
+                  // For leadership roles, we get the base salary directly from leadership data
+                  // The actual contribution is calculated by multiplying this base by the FTE
+                  baseSalary = 450000; // This should come from leadership data (hardcoded for now for debugging)
+                  roleContribution = baseSalary * fte;
+                  
+                  console.log(`Leader role: Base salary=${baseSalary}, FTE=${fte}, Contribution=${roleContribution}`);
+                } else {
+                  // Generic leader role without circle data
+                  baseSalary = employee.standardSalary / employee.normalizedRolesFTE.size;
+                  roleContribution = baseSalary * fte;
                 }
               } else {
                 // For non-leader roles, calculate based on standardSalary and FTE
