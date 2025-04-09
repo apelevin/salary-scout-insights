@@ -18,6 +18,7 @@ const Index = () => {
     customStandardSalaries,
     handleFilesUploaded,
     handleStandardSalaryChange,
+    handleLeadershipDataChange,
     handleLeadershipFileUpload,
     processFiles
   } = useFileProcessing();
@@ -49,6 +50,7 @@ const Index = () => {
               isProcessing={isProcessing}
               customStandardSalaries={customStandardSalaries}
               onStandardSalaryChange={handleStandardSalaryChange}
+              onLeadershipDataChange={handleLeadershipDataChange}
             />
           </div>
         </div>

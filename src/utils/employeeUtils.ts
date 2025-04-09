@@ -1,4 +1,5 @@
-import { Employee, RoleData, EmployeeWithRoles, CircleData } from "@/types";
+
+import { Employee, RoleData, EmployeeWithRoles, CircleData, LeadershipData } from "@/types";
 import { formatName, cleanRoleName, cleanFunctionalType } from "./formatUtils";
 import { calculateStandardSalary } from "./salaryUtils";
 import { 
@@ -30,7 +31,8 @@ export const processEmployeesWithRoles = (
   employees: Employee[], 
   rolesData: RoleData[], 
   customStandardSalaries: Map<string, number>,
-  circlesData: CircleData[] = []
+  circlesData: CircleData[] = [],
+  leadershipData: LeadershipData[] = []
 ) => {
   return employees.map(emp => {
     const nameParts = formatName(emp.name).split(' ');
@@ -43,10 +45,18 @@ export const processEmployeesWithRoles = (
     
     const normalizedRolesFTE = normalizeRolesFTE(rolesFTEMap, totalFTE);
     
-    const standardSalary = calculateStandardSalary(normalizedRolesFTE, rolesData, employees, customStandardSalaries);
-    
     // Find circle leadership info
     const { circleType, circleCount } = findCircleLeadershipInfo(lastName, firstName, rolesData, circlesData);
+    
+    const standardSalary = calculateStandardSalary(
+      normalizedRolesFTE, 
+      rolesData, 
+      employees, 
+      customStandardSalaries,
+      leadershipData,
+      circleType,
+      circleCount
+    );
     
     return {
       ...emp,

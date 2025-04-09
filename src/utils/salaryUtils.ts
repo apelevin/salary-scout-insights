@@ -1,5 +1,5 @@
 
-import { Employee, RoleData } from "@/types";
+import { Employee, RoleData, LeadershipData } from "@/types";
 import { cleanRoleName } from "./formatUtils";
 
 export const calculateStandardRate = (min: number, max: number): number => {
@@ -13,12 +13,32 @@ export const findStandardRateForRole = (
   roleName: string, 
   rolesData: RoleData[], 
   employees: Employee[],
-  customStandardSalaries: Map<string, number>
+  customStandardSalaries: Map<string, number>,
+  leadershipData?: LeadershipData[],
+  circleType?: string,
+  circleCount?: number
 ): number => {
+  // Check for custom standard salaries first
   if (customStandardSalaries.has(roleName)) {
     return customStandardSalaries.get(roleName) || 0;
   }
   
+  // Special case for leader role - use leadership data if available
+  const isLeaderRole = roleName.toLowerCase() === "лидер".toLowerCase();
+  
+  if (isLeaderRole && leadershipData && leadershipData.length > 0 && circleType && circleCount) {
+    // Find a matching entry in leadershipData based on type and count
+    const leadershipEntry = leadershipData.find(entry => 
+      entry.leadershipType?.toLowerCase() === circleType.toLowerCase() && 
+      entry.circleCount === String(circleCount)
+    );
+    
+    if (leadershipEntry) {
+      return leadershipEntry.standardSalary;
+    }
+  }
+  
+  // Fall back to regular salary calculation if no leadership data matched
   if (!roleName || !rolesData.length) return 0;
   
   const normalizedRoleName = roleName.toLowerCase();
@@ -71,12 +91,24 @@ export const calculateStandardSalary = (
   normalizedRolesFTE: Map<string, number>, 
   rolesData: RoleData[], 
   employees: Employee[],
-  customStandardSalaries: Map<string, number>
+  customStandardSalaries: Map<string, number>,
+  leadershipData?: LeadershipData[],
+  circleType?: string,
+  circleCount?: number
 ): number => {
   let totalStandardSalary = 0;
   
   for (const [roleName, fte] of normalizedRolesFTE.entries()) {
-    const standardRateForRole = findStandardRateForRole(roleName, rolesData, employees, customStandardSalaries);
+    // For the leader role, use the leadership data if available
+    const standardRateForRole = findStandardRateForRole(
+      roleName, 
+      rolesData, 
+      employees, 
+      customStandardSalaries,
+      leadershipData,
+      circleType,
+      circleCount
+    );
     totalStandardSalary += fte * standardRateForRole;
   }
   

@@ -4,6 +4,7 @@ import { Employee, UploadedFile, RoleData, CircleData, LeadershipData } from "@/
 import { parseCSV, parseRolesCSV, parseCirclesCSV } from "@/utils/csvParser";
 import { parseLeadershipCSV } from "@/utils/leadershipParser";
 import { toast } from "@/components/ui/use-toast";
+import { processEmployeesWithRoles } from "@/utils/employeeUtils";
 
 export const useFileProcessing = () => {
   const [uploadedFiles, setUploadedFiles] = useState<UploadedFile[]>([]);
@@ -24,6 +25,34 @@ export const useFileProcessing = () => {
       updated.set(roleName, newStandardSalary);
       return updated;
     });
+    
+    // Recalculate employee standard salaries when role standard salary changes
+    if (employees.length > 0 && rolesData.length > 0) {
+      const updatedEmployees = processEmployeesWithRoles(
+        employees, 
+        rolesData, 
+        new Map(customStandardSalaries).set(roleName, newStandardSalary),
+        circlesData,
+        leadershipData
+      );
+      setEmployees(updatedEmployees);
+    }
+  };
+  
+  const handleLeadershipDataChange = (updatedData: LeadershipData[]) => {
+    setLeadershipData(updatedData);
+    
+    // Recalculate employee standard salaries when leadership data changes
+    if (employees.length > 0 && rolesData.length > 0) {
+      const updatedEmployees = processEmployeesWithRoles(
+        employees,
+        rolesData,
+        customStandardSalaries,
+        circlesData,
+        updatedData
+      );
+      setEmployees(updatedEmployees);
+    }
   };
 
   const handleLeadershipFileUpload = (file: UploadedFile) => {
@@ -34,6 +63,18 @@ export const useFileProcessing = () => {
       
       if (parsedLeadership.length > 0) {
         setLeadershipData(parsedLeadership);
+        
+        // Recalculate employee standard salaries with the new leadership data
+        if (employees.length > 0 && rolesData.length > 0) {
+          const updatedEmployees = processEmployeesWithRoles(
+            employees,
+            rolesData,
+            customStandardSalaries,
+            circlesData,
+            parsedLeadership
+          );
+          setEmployees(updatedEmployees);
+        }
         
         toast({
           title: "Файл лидерства загружен",
@@ -115,9 +156,22 @@ export const useFileProcessing = () => {
       });
 
       setUploadedFiles(updatedFiles);
-      setEmployees(allEmployees);
       setRolesData(rolesList);
       setCirclesData(circlesList);
+      
+      // Process employees with roles and calculate standard salaries
+      if (allEmployees.length > 0) {
+        const processedEmployees = processEmployeesWithRoles(
+          allEmployees,
+          rolesList,
+          customStandardSalaries,
+          circlesList,
+          leadershipData
+        );
+        setEmployees(processedEmployees);
+      } else {
+        setEmployees(allEmployees);
+      }
       
       let successMessage = `Загружено ${allEmployees.length} сотрудников.`;
       if (rolesList.length > 0) {
@@ -153,6 +207,7 @@ export const useFileProcessing = () => {
     customStandardSalaries,
     handleFilesUploaded,
     handleStandardSalaryChange,
+    handleLeadershipDataChange,
     handleLeadershipFileUpload,
     processFiles
   };
