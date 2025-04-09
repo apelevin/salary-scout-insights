@@ -1,18 +1,13 @@
+
 import { useState, useEffect } from "react";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
+import { Table, TableBody } from "@/components/ui/table";
 import { RoleData } from "@/types";
 import { Employee } from "@/types";
-import { Edit2, Check, X } from "lucide-react";
-import { toast } from "@/components/ui/use-toast";
+import { formatSalary, cleanRoleName, calculateStandardSalary } from "@/utils/roleUtils";
+import RoleRow from "@/components/roles/RoleRow";
+import RolesTableHeader from "@/components/roles/RolesTableHeader";
+import LoadingState from "@/components/roles/LoadingState";
+import EmptyState from "@/components/roles/EmptyState";
 
 interface RolesTableProps {
   rolesData: RoleData[];
@@ -38,25 +33,6 @@ const RolesTable = ({
   onStandardSalaryChange
 }: RolesTableProps) => {
   const [roles, setRoles] = useState<RoleWithSalaries[]>([]);
-
-  const cleanRoleName = (roleName: string): string => {
-    return roleName.replace(/["']/g, '').trim();
-  };
-
-  const formatSalary = (salary: number): string => {
-    return new Intl.NumberFormat("ru-RU", {
-      style: "currency",
-      currency: "RUB",
-      maximumFractionDigits: 0,
-    }).format(salary);
-  };
-
-  const calculateStandardSalary = (min: number, max: number): number => {
-    if (min === max) {
-      return max;
-    }
-    return min + (max - min) * 0.25;
-  };
 
   const findSalariesForRole = (roleName: string): number[] => {
     if (!roleName || !rolesData.length || !employees.length) return [];
@@ -126,175 +102,32 @@ const RolesTable = ({
     setRoles(rolesWithSalaries);
   }, [rolesData, employees]);
 
-  const handleEditClick = (index: number) => {
-    setRoles(prevRoles => 
-      prevRoles.map((role, i) => 
-        i === index 
-          ? { ...role, isEditing: true, editValue: role.standardSalary.toString() } 
-          : role
-      )
-    );
-  };
-
-  const handleStandardSalaryChange = (index: number, value: string) => {
-    setRoles(prevRoles => 
-      prevRoles.map((role, i) => 
-        i === index ? { ...role, editValue: value } : role
-      )
-    );
-  };
-
-  const handleSaveClick = (index: number) => {
-    setRoles(prevRoles => {
-      const updatedRoles = [...prevRoles];
-      const role = updatedRoles[index];
-      
-      let newValue = parseFloat(role.editValue.replace(/[^\d,.]/g, '').replace(',', '.'));
-      
-      if (isNaN(newValue) || newValue <= 0) {
-        toast({
-          title: "Ошибка ввода",
-          description: "Пожалуйста, введите корректное положительное число",
-          variant: "destructive",
-        });
-        return prevRoles;
-      }
-      
-      updatedRoles[index] = { 
-        ...role, 
-        standardSalary: newValue, 
-        isEditing: false 
-      };
-      
-      if (onStandardSalaryChange) {
-        onStandardSalaryChange(role.roleName, newValue);
-      }
-      
-      toast({
-        title: "Стандартный оклад обновлен",
-        description: `Новый стандартный оклад для роли "${role.roleName}": ${formatSalary(newValue)}`,
-      });
-      
-      return updatedRoles;
-    });
-  };
-
-  const handleCancelClick = (index: number) => {
-    setRoles(prevRoles => 
-      prevRoles.map((role, i) => 
-        i === index ? { ...role, isEditing: false, editValue: role.standardSalary.toString() } : role
-      )
-    );
-  };
-
   if (isLoading) {
-    return (
-      <div className="w-full h-60 flex items-center justify-center">
-        <div className="animate-pulse text-lg text-gray-500">
-          Загрузка данных...
-        </div>
-      </div>
-    );
+    return <LoadingState />;
   }
 
   if (roles.length === 0) {
-    return (
-      <div className="w-full h-60 flex items-center justify-center">
-        <div className="text-lg text-gray-500">
-          Нет доступных ролей. Загрузите файл с данными о ролях.
-        </div>
-      </div>
-    );
+    return <EmptyState />;
   }
 
   return (
     <div className="w-full">
       <div className="border rounded-md">
         <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead className="w-1/3">Название роли</TableHead>
-              <TableHead className="w-1/5">Мин. зарплата</TableHead>
-              <TableHead className="w-1/5">Макс. зарплата</TableHead>
-              <TableHead className="w-1/4">Стандартный оклад</TableHead>
-              <TableHead className="w-[80px]"></TableHead>
-            </TableRow>
-          </TableHeader>
+          <RolesTableHeader />
           <TableBody>
             {roles.map((role, index) => (
-              <TableRow key={index}>
-                <TableCell className="font-medium">{role.roleName}</TableCell>
-                <TableCell>
-                  {role.salaries.length ? (
-                    formatSalary(role.minSalary)
-                  ) : (
-                    <span className="text-gray-400">—</span>
-                  )}
-                </TableCell>
-                <TableCell>
-                  {role.salaries.length ? (
-                    formatSalary(role.maxSalary)
-                  ) : (
-                    <span className="text-gray-400">—</span>
-                  )}
-                </TableCell>
-                <TableCell>
-                  {role.isEditing ? (
-                    <Input
-                      value={role.editValue}
-                      onChange={(e) => handleStandardSalaryChange(index, e.target.value)}
-                      className="max-w-[150px]"
-                      onKeyDown={(e) => {
-                        if (e.key === "Enter") {
-                          handleSaveClick(index);
-                        } else if (e.key === "Escape") {
-                          handleCancelClick(index);
-                        }
-                      }}
-                      autoFocus
-                    />
-                  ) : (
-                    role.salaries.length ? (
-                      formatSalary(role.standardSalary)
-                    ) : (
-                      <span className="text-gray-400">—</span>
-                    )
-                  )}
-                </TableCell>
-                <TableCell>
-                  {role.salaries.length ? (
-                    role.isEditing ? (
-                      <div className="flex space-x-1">
-                        <Button 
-                          variant="ghost" 
-                          size="icon" 
-                          onClick={() => handleSaveClick(index)}
-                          className="h-8 w-8"
-                        >
-                          <Check className="h-4 w-4" />
-                        </Button>
-                        <Button 
-                          variant="ghost" 
-                          size="icon" 
-                          onClick={() => handleCancelClick(index)}
-                          className="h-8 w-8"
-                        >
-                          <X className="h-4 w-4" />
-                        </Button>
-                      </div>
-                    ) : (
-                      <Button 
-                        variant="ghost" 
-                        size="icon" 
-                        onClick={() => handleEditClick(index)}
-                        className="h-8 w-8"
-                      >
-                        <Edit2 className="h-4 w-4" />
-                      </Button>
-                    )
-                  ) : null}
-                </TableCell>
-              </TableRow>
+              <RoleRow
+                key={index}
+                index={index}
+                roleName={role.roleName}
+                minSalary={role.minSalary}
+                maxSalary={role.maxSalary}
+                standardSalary={role.standardSalary}
+                salaries={role.salaries}
+                formatSalary={formatSalary}
+                onStandardSalaryChange={onStandardSalaryChange}
+              />
             ))}
           </TableBody>
         </Table>
