@@ -7,9 +7,14 @@ import { formatName, formatSalary } from "@/utils/employeeUtils";
 interface EmployeeTableRowProps {
   employee: Employee | EmployeeWithRoles;
   onClick: (employee: Employee | EmployeeWithRoles) => void;
+  incognitoMode?: boolean;
 }
 
-const EmployeeTableRow: React.FC<EmployeeTableRowProps> = ({ employee, onClick }) => {
+const EmployeeTableRow: React.FC<EmployeeTableRowProps> = ({ 
+  employee, 
+  onClick,
+  incognitoMode = false
+}) => {
   // Check if it's an EmployeeWithRoles that has standardSalary
   const hasStandardSalary = 'standardSalary' in employee && employee.standardSalary && employee.standardSalary > 0;
   
@@ -38,6 +43,8 @@ const EmployeeTableRow: React.FC<EmployeeTableRowProps> = ({ employee, onClick }
   };
   
   const { text, className } = getDifference();
+  
+  const displayName = incognitoMode ? '░░░░░ ░░░░░' : formatName(employee.name);
 
   return (
     <TableRow>
@@ -46,7 +53,7 @@ const EmployeeTableRow: React.FC<EmployeeTableRowProps> = ({ employee, onClick }
           className="text-blue-600 hover:text-blue-800 hover:underline text-left"
           onClick={() => onClick(employee)}
         >
-          {formatName(employee.name)}
+          {displayName}
         </button>
       </TableCell>
       <TableCell>{formatSalary(employee.salary)}</TableCell>

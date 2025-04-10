@@ -17,9 +17,16 @@ interface EmployeeInfoSidebarProps {
   open: boolean;
   onClose: () => void;
   leadershipData: LeadershipData[];
+  incognitoMode?: boolean;
 }
 
-const EmployeeInfoSidebar = ({ employee, open, onClose, leadershipData }: EmployeeInfoSidebarProps) => {
+const EmployeeInfoSidebar = ({ 
+  employee, 
+  open, 
+  onClose, 
+  leadershipData,
+  incognitoMode = false
+}: EmployeeInfoSidebarProps) => {
   if (!employee) {
     return null;
   }
@@ -32,7 +39,7 @@ const EmployeeInfoSidebar = ({ employee, open, onClose, leadershipData }: Employ
       if (!isOpen) onClose();
     }}>
       <SheetContent className="overflow-y-auto">
-        <EmployeeHeader employee={employee} />
+        <EmployeeHeader employee={employee} incognitoMode={incognitoMode} />
 
         <div className="space-y-6">
           <FinancialInfo employee={employee} />

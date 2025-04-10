@@ -38,3 +38,11 @@ export const cleanFunctionalType = (type: string | undefined): string => {
   if (!type) return '';
   return type.replace(/["']/g, '').trim();
 };
+
+// New utility function for incognito mode name display
+export const formatNameIncognito = (name: string, incognitoMode: boolean): string => {
+  if (incognitoMode) {
+    return '░░░░░ ░░░░░';
+  }
+  return formatName(name);
+};

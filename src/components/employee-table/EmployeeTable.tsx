@@ -18,6 +18,7 @@ interface EmployeeTableProps {
   leadershipData?: LeadershipData[];
   isLoading?: boolean;
   customStandardSalaries?: Map<string, number>;
+  incognitoMode?: boolean;
 }
 
 const EmployeeTable = ({ 
@@ -26,7 +27,8 @@ const EmployeeTable = ({
   circlesData = [],
   leadershipData = [], 
   isLoading = false,
-  customStandardSalaries = new Map()
+  customStandardSalaries = new Map(),
+  incognitoMode = false
 }: EmployeeTableProps) => {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedEmployee, setSelectedEmployee] = useState<Employee | EmployeeWithRoles | null>(null);
@@ -77,6 +79,7 @@ const EmployeeTable = ({
           <EmployeeTableBody 
             employees={sortedEmployees} 
             onEmployeeClick={handleEmployeeClick} 
+            incognitoMode={incognitoMode}
           />
         </Table>
       </div>
@@ -89,6 +92,7 @@ const EmployeeTable = ({
         open={sidebarOpen} 
         onClose={closeSidebar}
         leadershipData={leadershipData}
+        incognitoMode={incognitoMode}
       />
     </div>
   );

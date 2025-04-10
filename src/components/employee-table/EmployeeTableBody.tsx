@@ -7,9 +7,14 @@ import EmployeeTableRow from "../EmployeeTableRow";
 interface EmployeeTableBodyProps {
   employees: (Employee | EmployeeWithRoles)[];
   onEmployeeClick: (employee: Employee | EmployeeWithRoles) => void;
+  incognitoMode?: boolean;
 }
 
-const EmployeeTableBody: React.FC<EmployeeTableBodyProps> = ({ employees, onEmployeeClick }) => {
+const EmployeeTableBody: React.FC<EmployeeTableBodyProps> = ({ 
+  employees, 
+  onEmployeeClick,
+  incognitoMode = false 
+}) => {
   if (employees.length === 0) {
     return (
       <TableBody>
@@ -29,6 +34,7 @@ const EmployeeTableBody: React.FC<EmployeeTableBodyProps> = ({ employees, onEmpl
           key={employee.id || index} 
           employee={employee} 
           onClick={onEmployeeClick} 
+          incognitoMode={incognitoMode}
         />
       ))}
     </TableBody>

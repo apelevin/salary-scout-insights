@@ -17,6 +17,7 @@ interface DataDisplaySectionProps {
   isProcessing: boolean;
   customStandardSalaries: Map<string, number>;
   onStandardSalaryChange: (roleName: string, newStandardSalary: number) => void;
+  incognitoMode?: boolean;
 }
 
 const DataDisplaySection = ({
@@ -28,7 +29,8 @@ const DataDisplaySection = ({
   leadershipData,
   isProcessing,
   customStandardSalaries,
-  onStandardSalaryChange
+  onStandardSalaryChange,
+  incognitoMode = false
 }: DataDisplaySectionProps) => {
   return (
     <Card>
@@ -55,6 +57,7 @@ const DataDisplaySection = ({
               leadershipData={leadershipData}
               isLoading={isProcessing} 
               customStandardSalaries={customStandardSalaries}
+              incognitoMode={incognitoMode}
             />
           </TabsContent>
           <TabsContent value="roles">
@@ -63,6 +66,7 @@ const DataDisplaySection = ({
               employees={employees}
               isLoading={isProcessing}
               onStandardSalaryChange={onStandardSalaryChange}
+              incognitoMode={incognitoMode}
             />
           </TabsContent>
           <TabsContent value="leadership">
