@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { Table, TableBody } from "@/components/ui/table";
 import { RoleData } from "@/types";
@@ -8,6 +9,9 @@ import RoleRow from "@/components/roles/RoleRow";
 import RolesTableHeader from "@/components/roles/RolesTableHeader";
 import LoadingState from "@/components/roles/LoadingState";
 import EmptyState from "@/components/roles/EmptyState";
+import { Button } from "@/components/ui/button";
+import { Download } from "lucide-react";
+import { toast } from "@/components/ui/use-toast";
 
 interface RolesTableProps {
   rolesData: RoleData[];
@@ -134,6 +138,55 @@ const RolesTable = ({
     setRoles(rolesWithSalaries);
   }, [rolesData, employees]);
 
+  const downloadCSV = () => {
+    if (roles.length === 0) {
+      toast({
+        title: "Нет данных для выгрузки",
+        description: "Загрузите данные о ролях, прежде чем экспортировать их в CSV.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    // Prepare CSV content
+    const headers = ["Название роли", "Стандартный оклад"];
+    
+    // Convert role data to CSV rows
+    const rows = roles.map(role => {
+      const salary = role.standardSalary ? 
+        role.standardSalary.toString().replace('.', ',') : 
+        "0";
+      return [role.roleName, salary];
+    });
+    
+    // Combine headers and rows into CSV string
+    const csvContent = [
+      headers.join(';'),
+      ...rows.map(row => row.join(';'))
+    ].join('\n');
+    
+    // Create blob and download
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    
+    // Set link attributes
+    link.setAttribute('href', url);
+    link.setAttribute('download', `roles-export-${new Date().toISOString().split('T')[0]}.csv`);
+    link.style.visibility = 'hidden';
+    
+    // Add to document, trigger download and clean up
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+    
+    toast({
+      title: "Экспорт завершен",
+      description: `Файл со списком ${roles.length} ролей успешно скачан.`,
+    });
+  };
+
   if (isLoading) {
     return <LoadingState>Загрузка ролей...</LoadingState>;
   }
@@ -148,6 +201,20 @@ const RolesTable = ({
 
   return (
     <div className="w-full">
+      <div className="flex justify-between items-center mb-4">
+        <div className="text-sm text-gray-500">
+          Всего ролей: {roles.length}
+        </div>
+        <Button 
+          variant="outline" 
+          size="sm" 
+          onClick={downloadCSV}
+          className="flex items-center gap-2"
+        >
+          <Download size={16} /> 
+          Скачать CSV
+        </Button>
+      </div>
       <div className="border rounded-md">
         <Table>
           <RolesTableHeader />
@@ -167,9 +234,6 @@ const RolesTable = ({
             ))}
           </TableBody>
         </Table>
-      </div>
-      <div className="text-sm text-gray-500 mt-3">
-        Всего ролей: {roles.length}
       </div>
     </div>
   );
