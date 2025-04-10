@@ -5,7 +5,7 @@ export const calculateStandardRate = (min: number, max: number): number => {
   if (min === max) {
     return max;
   }
-  return min + (max - min) * 0.5;
+  return min + (max - min) * 0.3;
 };
 
 export const findStandardRateForRole = (
