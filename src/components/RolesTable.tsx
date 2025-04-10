@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Table, TableBody } from "@/components/ui/table";
 import { RoleData } from "@/types";
@@ -15,6 +14,7 @@ interface RolesTableProps {
   isLoading?: boolean;
   employees?: Employee[];
   onStandardSalaryChange?: (roleName: string, newStandardSalary: number) => void;
+  incognitoMode?: boolean;
 }
 
 interface RoleWithSalaries {
@@ -31,23 +31,22 @@ const RolesTable = ({
   rolesData = [], 
   isLoading = false,
   employees = [],
-  onStandardSalaryChange
+  onStandardSalaryChange,
+  incognitoMode = false
 }: RolesTableProps) => {
   const [roles, setRoles] = useState<RoleWithSalaries[]>([]);
 
-  // Constants for the circle leader role names
   const OPERATIONAL_CIRCLE_LEADER = "лидер операционного круга";
   const STRATEGIC_CIRCLE_LEADER = "лидер стратегического круга";
   const GENERIC_LEADER_ROLE = "лидер";
-  const NORMALIZED_LEADER_ROLE = "Лидер"; // Capitalized version for display
-  
+  const NORMALIZED_LEADER_ROLE = "Лидер";
+
   const findSalariesForRole = (roleName: string): number[] => {
     if (!roleName || !rolesData.length || !employees.length) return [];
     
     const salaries: number[] = [];
     const normalizedRoleName = roleName.toLowerCase();
     
-    // Check if this is the unified leader role
     const isLeaderRole = normalizedRoleName === NORMALIZED_LEADER_ROLE.toLowerCase();
     
     rolesData.forEach(entry => {
@@ -57,12 +56,10 @@ const RolesTable = ({
       const entryRoleName = entry.roleName.toLowerCase();
       
       if (isLeaderRole) {
-        // For leader role, match any of the leader role variants
         matchesRole = entryRoleName === GENERIC_LEADER_ROLE.toLowerCase() || 
                       entryRoleName.includes(OPERATIONAL_CIRCLE_LEADER.toLowerCase()) || 
                       entryRoleName.includes(STRATEGIC_CIRCLE_LEADER.toLowerCase());
       } else {
-        // For other roles, use normal matching
         const cleanedRoleName = cleanRoleName(entry.roleName).toLowerCase();
         matchesRole = cleanedRoleName === normalizedRoleName;
       }
@@ -100,27 +97,23 @@ const RolesTable = ({
   };
 
   useEffect(() => {
-    // Step 1: First extract all roles and normalize them
     const allRoles = rolesData.map((role) => {
-      // Check if the role is a leader role and normalize it
       const roleName = role.roleName.toLowerCase();
       if (
         roleName === GENERIC_LEADER_ROLE.toLowerCase() || 
         roleName.includes(OPERATIONAL_CIRCLE_LEADER.toLowerCase()) || 
         roleName.includes(STRATEGIC_CIRCLE_LEADER.toLowerCase())
       ) {
-        return NORMALIZED_LEADER_ROLE; // Use capitalized "Лидер"
+        return NORMALIZED_LEADER_ROLE;
       } else {
         return cleanRoleName(role.roleName);
       }
     }).filter(Boolean);
     
-    // Step 2: Get unique roles and sort them
     const uniqueRoles = [...new Set(allRoles)]
-      .filter(roleName => roleName.toLowerCase() !== 'ceo') // Filter out CEO role
-      .sort((a, b) => a.localeCompare(b)); // Changed from b.localeCompare(a) to a.localeCompare(b) for ascending order
-
-    // Step 3: Calculate salaries for each unique role
+      .filter(roleName => roleName.toLowerCase() !== 'ceo')
+      .sort((a, b) => a.localeCompare(b));
+    
     const rolesWithSalaries = uniqueRoles.map(role => {
       const salaries = findSalariesForRole(role);
       const minSalary = salaries.length ? Math.min(...salaries) : 0;
