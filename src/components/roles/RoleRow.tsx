@@ -1,10 +1,10 @@
-
 import { useState } from "react";
 import { TableCell, TableRow } from "@/components/ui/table";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Edit2, Check, X } from "lucide-react";
+import { Edit2, Check, X, AlertCircle } from "lucide-react";
 import { toast } from "@/components/ui/use-toast";
+import { Badge } from "@/components/ui/badge";
 
 interface RoleRowProps {
   roleName: string;
@@ -29,6 +29,9 @@ const RoleRow = ({
 }: RoleRowProps) => {
   const [isEditing, setIsEditing] = useState(false);
   const [editValue, setEditValue] = useState(standardSalary.toString());
+
+  const needsDecomposition = minSalary > 0 && maxSalary > 0 && 
+    ((maxSalary - minSalary) / minSalary) > 0.3; // More than 30% difference
 
   const handleEditClick = () => {
     setIsEditing(true);
@@ -97,29 +100,40 @@ const RoleRow = ({
   };
 
   const renderStandardSalaryField = () => {
+    const decompositionWarning = needsDecomposition ? (
+      <div className="flex items-center mt-2">
+        <AlertCircle size={16} className="text-amber-500 mr-1" />
+        <span className="text-xs text-amber-500">Роль требует декомпозиции</span>
+      </div>
+    ) : null;
+
     if (isEditing) {
       return (
-        <Input
-          value={editValue}
-          onChange={(e) => handleStandardSalaryChange(e.target.value)}
-          className="max-w-[150px]"
-          onKeyDown={(e) => {
-            if (e.key === "Enter") {
-              handleSaveClick();
-            } else if (e.key === "Escape") {
-              handleCancelClick();
-            }
-          }}
-          autoFocus
-        />
+        <div>
+          <Input
+            value={editValue}
+            onChange={(e) => handleStandardSalaryChange(e.target.value)}
+            className="max-w-[150px]"
+            onKeyDown={(e) => {
+              if (e.key === "Enter") {
+                handleSaveClick();
+              } else if (e.key === "Escape") {
+                handleCancelClick();
+              }
+            }}
+            autoFocus
+          />
+          {decompositionWarning}
+        </div>
       );
     }
     
-    if (salaries.length) {
-      return formatSalary(standardSalary);
-    }
-    
-    return <span className="text-gray-400">—</span>;
+    return (
+      <div>
+        {salaries.length ? formatSalary(standardSalary) : <span className="text-gray-400">—</span>}
+        {decompositionWarning}
+      </div>
+    );
   };
 
   const renderActionButtons = () => {
