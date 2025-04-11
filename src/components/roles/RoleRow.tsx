@@ -3,8 +3,9 @@ import { useState } from "react";
 import { TableCell, TableRow } from "@/components/ui/table";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Edit2, Check, X } from "lucide-react";
+import { Edit2, Check, X, AlertTriangle } from "lucide-react";
 import { toast } from "@/components/ui/use-toast";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 
 interface RoleRowProps {
   roleName: string;
@@ -29,6 +30,10 @@ const RoleRow = ({
 }: RoleRowProps) => {
   const [isEditing, setIsEditing] = useState(false);
   const [editValue, setEditValue] = useState(standardSalary.toString());
+
+  // Calculate salary difference percentage
+  const salaryDifferencePercentage = minSalary > 0 ? ((maxSalary - minSalary) / minSalary) * 100 : 0;
+  const needsDecomposition = salaryDifferencePercentage > 30;
 
   const handleEditClick = () => {
     setIsEditing(true);
@@ -93,7 +98,24 @@ const RoleRow = ({
     if (salaries.length === 0) {
       return <span className="text-gray-400">—</span>;
     }
-    return formatSalary(maxSalary);
+    
+    return (
+      <div className="flex items-center gap-2">
+        {formatSalary(maxSalary)}
+        {needsDecomposition && (
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <AlertTriangle size={16} className="text-[#F97316]" />
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>Роль требует декомпозиции</p>
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+        )}
+      </div>
+    );
   };
 
   const renderStandardSalaryField = () => {
