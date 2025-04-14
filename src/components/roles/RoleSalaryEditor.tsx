@@ -61,7 +61,9 @@ const RoleSalaryEditor = ({
   };
 
   const handleCancelClick = () => {
-    setEditValue(standardSalary.toString());
+    if (onStandardSalaryChange) {
+      setEditValue(standardSalary.toString());
+    }
   };
 
   return (

@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { RoleData } from "@/types";
 import { Employee } from "@/types";
 import { useRolesData } from "@/hooks/useRolesData";
@@ -25,9 +25,15 @@ const RolesTable = ({
   onStandardSalaryChange,
   incognitoMode = false
 }: RolesTableProps) => {
-  const { roles } = useRolesData(rolesData, employees);
+  const { roles: initialRoles } = useRolesData(rolesData, employees);
+  const [roles, setRoles] = useState(initialRoles);
   const [selectedRole, setSelectedRole] = useState<string | null>(null);
   const [sidebarOpen, setSidebarOpen] = useState(false);
+
+  // Update local roles state when initialRoles change
+  useEffect(() => {
+    setRoles(initialRoles);
+  }, [initialRoles]);
 
   // Calculate roles with alert status
   const alertRoles = roles.filter(role => {
@@ -46,6 +52,22 @@ const RolesTable = ({
   const handleCloseSidebar = () => {
     setSidebarOpen(false);
     setSelectedRole(null);
+  };
+
+  const handleStandardSalaryChange = (roleName: string, newStandardSalary: number) => {
+    // Update local state immediately
+    setRoles(prevRoles => 
+      prevRoles.map(role => 
+        role.roleName === roleName 
+          ? { ...role, standardSalary: newStandardSalary }
+          : role
+      )
+    );
+    
+    // Call the parent handler if provided
+    if (onStandardSalaryChange) {
+      onStandardSalaryChange(roleName, newStandardSalary);
+    }
   };
 
   if (isLoading) {
@@ -79,7 +101,7 @@ const RolesTable = ({
       
       <RolesList 
         roles={roles}
-        onStandardSalaryChange={onStandardSalaryChange}
+        onStandardSalaryChange={handleStandardSalaryChange}
         onRoleClick={handleRoleClick}
       />
       
