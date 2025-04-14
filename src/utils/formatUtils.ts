@@ -51,7 +51,7 @@ export const cleanFunctionalType = (type: string | undefined): string => {
   } else if (normalizedType.includes('sales')) {
     return 'Sales';
   } else if (normalizedType.includes('delivery') || normalizedType.includes('bot.one') || 
-             normalizedType.includes('discovery')) {
+             normalizedType.includes('discovery') || normalizedType.includes('hub')) {
     return 'Delivery & Discovery';
   }
   

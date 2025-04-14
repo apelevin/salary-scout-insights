@@ -105,6 +105,8 @@ function parseCircleRows(
         rawFunctionalType = 'Marketing';
       } else if (name.toLowerCase().includes('sales')) {
         rawFunctionalType = 'Sales';
+      } else if (name.toLowerCase().includes('discovery') || name.toLowerCase().includes('hub')) {
+        rawFunctionalType = 'Delivery & Discovery';
       } else if (name.toLowerCase().includes('bot.one') || name.toLowerCase().includes('delivery')) {
         rawFunctionalType = 'Delivery & Discovery';
       }

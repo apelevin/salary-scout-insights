@@ -86,6 +86,8 @@ export const findCircleLeadershipInfo = (
           derivedType = 'Marketing';
         } else if (circleName.toLowerCase().includes('sales')) {
           derivedType = 'Sales';
+        } else if (circleName.toLowerCase().includes('discovery') || circleName.toLowerCase().includes('hub')) {
+          derivedType = 'Delivery & Discovery';
         } else if (circleName.toLowerCase().includes('delivery') || circleName.toLowerCase().includes('bot.one')) {
           derivedType = 'Delivery & Discovery';
         }

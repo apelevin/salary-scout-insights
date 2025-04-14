@@ -66,7 +66,7 @@ export const parseFTEValue = (fteString: string): number | undefined => {
 /**
  * Normalizes functional type values to standard values from the 5th column of CSV
  * @param type Raw functional type string from CSV
- * @returns Normalized functional type: "Marketing", "Sales", "Delivery & Discovery", "Discovery (Hub)", "Delivery" or "The others"
+ * @returns Normalized functional type: "Marketing", "Sales", "Delivery & Discovery", or "The others"
  */
 export const normalizeFunctionalType = (type: string): string => {
   if (!type) return 'The others';
@@ -87,10 +87,10 @@ export const normalizeFunctionalType = (type: string): string => {
   if (cleanedType.includes('delivery') && cleanedType.includes('discovery')) {
     return 'Delivery & Discovery';
   }
-  if (cleanedType.includes('bot.one') || cleanedType.includes('discovery')) {
+  if (cleanedType.includes('discovery') || cleanedType.includes('hub')) {
     return 'Delivery & Discovery';
   }
-  if (cleanedType.includes('delivery')) {
+  if (cleanedType.includes('delivery') || cleanedType.includes('bot.one')) {
     return 'Delivery & Discovery';
   }
   
