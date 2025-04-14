@@ -2,7 +2,7 @@
 import React from "react";
 import { Users } from "lucide-react";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { formatSalary } from "@/utils/formatUtils";
+import { formatSalary, formatName } from "@/utils/formatUtils";
 
 interface EmployeeRole {
   roleName: string;
@@ -49,7 +49,7 @@ const CircleEmployeesList: React.FC<CircleEmployeesListProps> = ({ employees }) 
             >
               <div className="flex justify-between items-center mb-2">
                 <div className="font-medium">
-                  {employee.name}
+                  {formatName(employee.name)}
                   {employee.isLeader && (
                     <span className="ml-1 text-xs text-blue-600">(Лидер)</span>
                   )}
