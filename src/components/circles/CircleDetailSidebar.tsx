@@ -11,7 +11,7 @@ import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from "@
 import { Employee, EmployeeWithRoles, RoleData } from "@/types";
 import { formatSalary } from "@/utils/formatUtils";
 import { Separator } from "@/components/ui/separator";
-import { Users, PieChart, Award } from "lucide-react";
+import { Users, PieChart, Award, TrendingDown, TrendingUp } from "lucide-react";
 
 interface CircleDetailSidebarProps {
   isOpen: boolean;
@@ -106,6 +106,10 @@ const CircleDetailSidebar: React.FC<CircleDetailSidebarProps> = ({
       return sum + ((employee.standardSalary || 0) * totalFTE);
     }, 0);
 
+  // Calculate budget difference
+  const budgetDifference = totalStandardBudget - totalCurrentBudget;
+  const isPositiveDifference = budgetDifference > 0;
+
   return (
     <Sheet open={isOpen} onOpenChange={(open) => !open && onClose()}>
       <SheetContent className="w-[450px] sm:w-[550px] overflow-y-auto">
@@ -134,9 +138,23 @@ const CircleDetailSidebar: React.FC<CircleDetailSidebarProps> = ({
             <h3 className="text-sm font-medium">Стандартный бюджет:</h3>
             <span className="font-medium">{formatSalary(totalStandardBudget)}</span>
           </div>
-          <div className="flex justify-between mb-4">
+          <div className="flex justify-between mb-2">
             <h3 className="text-sm font-medium">Текущий бюджет:</h3>
             <span className="font-medium">{formatSalary(totalCurrentBudget)}</span>
+          </div>
+          
+          {/* Budget difference */}
+          <div className="flex justify-between mb-4 py-2 px-3 bg-muted rounded-md">
+            <div className="flex items-center">
+              <h3 className="text-sm font-medium">Разница:</h3>
+              {isPositiveDifference ? 
+                <TrendingUp className="h-4 w-4 ml-2 text-green-500" /> : 
+                <TrendingDown className="h-4 w-4 ml-2 text-red-500" />
+              }
+            </div>
+            <span className={`font-medium ${isPositiveDifference ? 'text-green-600' : 'text-red-600'}`}>
+              {isPositiveDifference ? '+' : ''}{formatSalary(budgetDifference)}
+            </span>
           </div>
           
           <Separator className="my-4" />
