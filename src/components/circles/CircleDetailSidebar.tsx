@@ -1,4 +1,3 @@
-
 import React from "react";
 import { 
   Sheet, 
@@ -32,18 +31,15 @@ const CircleDetailSidebar: React.FC<CircleDetailSidebarProps> = ({
 }) => {
   if (!circleName) return null;
 
-  // Get all roles within this circle
   const circleRoles = rolesData.filter(role => 
     role.circleName?.replace(/["']/g, '').trim() === circleName
   );
 
-  // Get employees in this circle
   const circleEmployeeNames = new Set<string>();
   circleRoles.forEach(role => {
     circleEmployeeNames.add(role.participantName.replace(/["']/g, '').trim());
   });
 
-  // Map employees with their roles and FTE
   const circleEmployeesData: {
     name: string;
     roles: { roleName: string; fte: number }[];
@@ -52,7 +48,6 @@ const CircleDetailSidebar: React.FC<CircleDetailSidebarProps> = ({
     isLeader: boolean;
   }[] = [];
 
-  // Process employees in this circle
   circleEmployeeNames.forEach(name => {
     const employeeWithRoles = employeesWithRoles.find(
       e => e.name.replace(/["']/g, '').trim() === name
@@ -62,7 +57,6 @@ const CircleDetailSidebar: React.FC<CircleDetailSidebarProps> = ({
       const employeeRoles: { roleName: string; fte: number }[] = [];
       let isLeader = false;
       
-      // Get roles for this employee in this circle
       circleRoles.forEach(role => {
         if (role.participantName.replace(/["']/g, '').trim() === name) {
           employeeRoles.push({
@@ -86,7 +80,6 @@ const CircleDetailSidebar: React.FC<CircleDetailSidebarProps> = ({
     }
   });
 
-  // Calculate total budget
   const totalCurrentBudget = circleEmployeesData
     .filter(employee => !employee.isLeader)
     .reduce((sum, employee) => {
@@ -103,7 +96,7 @@ const CircleDetailSidebar: React.FC<CircleDetailSidebarProps> = ({
 
   return (
     <Sheet open={isOpen} onOpenChange={(open) => !open && onClose()}>
-      <SheetContent className="w-[450px] sm:w-[550px] overflow-y-auto">
+      <SheetContent className="w-[900px] sm:w-[900px] overflow-y-auto">
         <SheetHeader>
           <SheetTitle className="text-xl flex items-center">
             <PieChart className="h-5 w-5 mr-2" />
