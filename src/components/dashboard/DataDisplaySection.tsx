@@ -82,6 +82,7 @@ const DataDisplaySection = ({
               circlesData={circlesData}
               rolesData={rolesData}
               isLoading={isProcessing}
+              employees={employees}
             />
           </TabsContent>
         </Tabs>
