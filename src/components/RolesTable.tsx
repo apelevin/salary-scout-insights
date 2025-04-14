@@ -51,8 +51,12 @@ const RolesTable = ({
     />;
   }
 
-  const selectedRoleStandardSalary = selectedRole ? 
-    roles.find(role => role.roleName === selectedRole)?.standardSalary || 0 : 0;
+  const selectedRoleData = selectedRole ? 
+    roles.find(role => role.roleName === selectedRole) : null;
+  
+  const selectedRoleStandardSalary = selectedRoleData?.standardSalary || 0;
+  const selectedRoleMinSalary = selectedRoleData?.minSalary || 0;
+  const selectedRoleMaxSalary = selectedRoleData?.maxSalary || 0;
 
   return (
     <div className="w-full">
@@ -74,6 +78,8 @@ const RolesTable = ({
         employees={employees}
         rolesData={rolesData}
         standardSalary={selectedRoleStandardSalary}
+        minSalary={selectedRoleMinSalary}
+        maxSalary={selectedRoleMaxSalary}
         incognitoMode={incognitoMode}
       />
     </div>

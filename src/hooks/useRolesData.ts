@@ -97,9 +97,13 @@ export const useRolesData = (rolesData: RoleData[] = [], employees: Employee[] =
     
     const rolesWithSalaries = uniqueRoles.map(role => {
       const salaries = findSalariesForRole(role);
+      
+      // Make sure we're calculating min and max correctly
       const minSalary = salaries.length ? Math.min(...salaries) : 0;
       const maxSalary = salaries.length ? Math.max(...salaries) : 0;
       const standardSalary = salaries.length ? calculateStandardRate(minSalary, maxSalary) : 0;
+      
+      console.log(`Role: ${role}, Min: ${minSalary}, Standard: ${standardSalary}, Max: ${maxSalary}, Salaries: ${salaries.length}`);
       
       return {
         roleName: role,
