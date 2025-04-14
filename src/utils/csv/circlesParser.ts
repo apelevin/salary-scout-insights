@@ -98,10 +98,8 @@ function parseCircleRows(
       console.warn(`Для круга "${name}" нет данных в колонке 5 (индекс ${functionalTypeColumnIndex})`);
     }
     
-    // Если функциональный тип не указан, используем значение по умолчанию
-    if (!functionalType) {
-      functionalType = 'Не указано';
-    }
+    // Нормализуем значение функционального типа к одному из четырех допустимых значений
+    functionalType = normalizeCircleType(functionalType);
     
     circles.push({
       name,
@@ -112,4 +110,32 @@ function parseCircleRows(
   console.log(`Успешно распознано ${circles.length} записей о кругах и их типах`);
   
   return circles;
+}
+
+/**
+ * Normalize the functional type to one of the allowed values
+ */
+function normalizeCircleType(type: string): string {
+  const normalizedType = type.trim().toLowerCase();
+  
+  // Check for exact matches or substring matches
+  if (normalizedType === '' || normalizedType === 'undefined' || normalizedType === 'null') {
+    return 'The others';
+  } else if (normalizedType.includes('marketing') || normalizedType.includes('маркетинг')) {
+    return 'Marketing';
+  } else if (
+    (normalizedType.includes('delivery') && normalizedType.includes('discovery')) ||
+    normalizedType.includes('delivery & discovery')
+  ) {
+    return 'Delivery & Discovery';
+  } else if (normalizedType.includes('sales') || normalizedType.includes('продажи')) {
+    return 'Sales';
+  } else if (normalizedType.includes('discovery') || normalizedType.includes('hub')) {
+    return 'Discovery (Hub)';
+  } else if (normalizedType.includes('delivery')) {
+    return 'Delivery';
+  }
+  
+  // Default case
+  return 'The others';
 }

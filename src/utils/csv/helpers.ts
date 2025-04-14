@@ -62,3 +62,22 @@ export const parseFTEValue = (fteString: string): number | undefined => {
   
   return !isNaN(cleanedFteValue) ? cleanedFteValue : undefined;
 };
+
+/**
+ * Normalizes functional type values to standard values
+ */
+export const normalizeFunctionalType = (type: string): string => {
+  const cleanedType = type.trim().replace(/["']/g, '').toLowerCase();
+  
+  if (!cleanedType || cleanedType === 'undefined' || cleanedType === 'null') {
+    return 'The others';
+  }
+  
+  if (cleanedType.includes('marketing')) return 'Marketing';
+  if (cleanedType.includes('sales')) return 'Sales';
+  if (cleanedType.includes('delivery') && cleanedType.includes('discovery')) return 'Delivery & Discovery';
+  if (cleanedType.includes('discovery')) return 'Discovery (Hub)';
+  if (cleanedType.includes('delivery')) return 'Delivery';
+  
+  return 'The others';
+};

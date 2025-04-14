@@ -34,10 +34,30 @@ export const cleanRoleName = (roleName: string): string => {
   return roleName.replace(/["']/g, '').trim();
 };
 
-// New utility function to clean functional type
+// Normalize functional type to one of the four allowed values
 export const cleanFunctionalType = (type: string | undefined): string => {
-  if (!type) return '';
-  return type.replace(/["']/g, '').trim();
+  if (!type) return 'The others';
+  
+  const normalizedType = type.replace(/["']/g, '').trim().toLowerCase();
+  
+  if (normalizedType === '' || normalizedType === 'undefined' || normalizedType === 'null') {
+    return 'The others';
+  } else if (normalizedType.includes('marketing')) {
+    return 'Marketing';
+  } else if (
+    (normalizedType.includes('delivery') && normalizedType.includes('discovery')) ||
+    normalizedType.includes('delivery & discovery')
+  ) {
+    return 'Delivery & Discovery';
+  } else if (normalizedType.includes('sales')) {
+    return 'Sales';
+  } else if (normalizedType.includes('discovery') || normalizedType.includes('hub')) {
+    return 'Discovery (Hub)';
+  } else if (normalizedType.includes('delivery')) {
+    return 'Delivery';
+  }
+  
+  return 'The others';
 };
 
 // New utility function for incognito mode name display

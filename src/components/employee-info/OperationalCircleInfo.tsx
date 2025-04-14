@@ -18,7 +18,8 @@ export const OperationalCircleInfo = ({
 }: OperationalCircleInfoProps) => {
   // Get the total count of circles led by the employee
   const circleCount = employee.operationalCircleCount || 0;
-  const functionalType = employee.operationalCircleType || "";
+  const rawFunctionalType = employee.operationalCircleType || "";
+  const functionalType = cleanFunctionalType(rawFunctionalType);
   const leadCircles = employee.leadCircles || [];
   
   // Find the standard salary for this leadership role
@@ -38,12 +39,13 @@ export const OperationalCircleInfo = ({
     : "Не определен";
 
   // Format functional type display value
-  const displayFunctionalType = functionalType || "Не указано";
+  const displayFunctionalType = functionalType || "The others";
 
   // Debug logs to track data flow
   console.log("OperationalCircleInfo received data:", {
     employeeName: employee.name,
     circleCount,
+    rawFunctionalType,
     functionalType,
     displayFunctionalType,
     standardSalary,
@@ -85,7 +87,7 @@ export const OperationalCircleInfo = ({
                 <li key={idx} className="px-2 py-1 bg-blue-50 rounded flex justify-between">
                   <span>{circle.name}</span>
                   <span className="text-blue-600 text-xs">
-                    {circle.functionalType || 'Не указано'}
+                    {cleanFunctionalType(circle.functionalType)}
                   </span>
                 </li>
               ))}
@@ -113,7 +115,7 @@ export const OperationalCircleInfo = ({
                     {circlesData.map((circle, index) => (
                       <tr key={index} className={index % 2 === 0 ? "bg-gray-50" : ""}>
                         <td className="p-1 border-t border-gray-200">{circle.name}</td>
-                        <td className="p-1 border-t border-gray-200">{circle.functionalType || "Не указано"}</td>
+                        <td className="p-1 border-t border-gray-200">{cleanFunctionalType(circle.functionalType)}</td>
                       </tr>
                     ))}
                   </tbody>
