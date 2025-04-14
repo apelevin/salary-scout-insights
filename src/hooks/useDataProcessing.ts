@@ -1,7 +1,7 @@
 
 import { useState } from "react";
 import { Employee, UploadedFile, RoleData, CircleData, LeadershipData } from "@/types";
-import { parseCSV, parseRolesCSV, parseCirclesCSV } from "@/utils/csvParser";
+import { parseCSV, parseRolesCSV, parseCirclesCSV, parseLeadershipCSV } from "@/utils/csvParser";
 import { toast } from "@/components/ui/use-toast";
 
 export const useDataProcessing = () => {
