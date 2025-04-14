@@ -62,3 +62,18 @@ export const parseFTEValue = (fteString: string): number | undefined => {
   
   return !isNaN(cleanedFteValue) ? cleanedFteValue : undefined;
 };
+
+/**
+ * Normalizes functional type to one of our standard categories
+ */
+export const normalizeFunctionalType = (type: string): string => {
+  if (!type) return "The others";
+  
+  const normalizedType = type.trim().toLowerCase();
+  
+  if (normalizedType.includes("marketing")) return "Marketing";
+  if (normalizedType.includes("sale")) return "Sales";
+  if (normalizedType.includes("discovery") || normalizedType.includes("delivery")) return "Delivery & Discovery";
+  
+  return "The others";
+};

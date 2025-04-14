@@ -83,7 +83,8 @@ function parseCircleRows(
     const name = values[circleNameColumnIndex].trim();
     
     circles.push({
-      name
+      name,
+      functionalType: "The others" // Add default functional type to satisfy the CircleData type
     });
   }
   
