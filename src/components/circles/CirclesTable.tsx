@@ -2,7 +2,7 @@
 import React from "react";
 import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from "@/components/ui/table";
 import { CircleData, RoleData, Employee, EmployeeWithRoles } from "@/types";
-import { Users, DollarSign } from "lucide-react";
+import { Users } from "lucide-react";
 import { processEmployeesWithRoles } from "@/utils/employeeUtils";
 import { formatSalary } from "@/utils/formatUtils";
 
@@ -124,10 +124,11 @@ const CirclesTable: React.FC<CirclesTableProps> = ({
     });
   }
 
-  // Remove duplicate circles
+  // Remove duplicate circles and exclude "Офис СЕО"
   const uniqueCircles = Array.from(new Set(cleanCirclesData.map(circle => circle.name)))
     .map(name => cleanCirclesData.find(circle => circle.name === name)!)
-    .filter(Boolean);
+    .filter(Boolean)
+    .filter(circle => circle.name !== "Офис СЕО");
 
   return (
     <div className="rounded-md border">
@@ -157,20 +158,10 @@ const CirclesTable: React.FC<CirclesTableProps> = ({
                 <TableCell>{circle.functionalType || "—"}</TableCell>
                 <TableCell className="text-right">{employeeCount}</TableCell>
                 <TableCell className="text-right">
-                  {standardBudget > 0 ? (
-                    <div className="flex items-center justify-end gap-1">
-                      <DollarSign className="h-4 w-4 text-green-600" />
-                      <span>{formatSalary(standardBudget)}</span>
-                    </div>
-                  ) : "—"}
+                  {standardBudget > 0 ? formatSalary(standardBudget) : "—"}
                 </TableCell>
                 <TableCell className="text-right">
-                  {currentBudget > 0 ? (
-                    <div className="flex items-center justify-end gap-1">
-                      <DollarSign className="h-4 w-4 text-blue-600" />
-                      <span>{formatSalary(currentBudget)}</span>
-                    </div>
-                  ) : "—"}
+                  {currentBudget > 0 ? formatSalary(currentBudget) : "—"}
                 </TableCell>
               </TableRow>
             );
