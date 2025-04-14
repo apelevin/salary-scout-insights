@@ -79,32 +79,18 @@ export const findCircleLeadershipInfo = (
           console.log(`Found functional type for ${lastName} ${firstName}: ${circleType} (from circle ${role.circleName})`);
         }
       } else {
-        // Better derivation of functional type from circle name
-        let derivedType = normalizeFunctionalType(circleName);
+        // Try to determine functional type from circle name if not found in data
+        let derivedType = '';
         
-        // If normalization didn't work, use our expanded detection
-        if (!derivedType) {
-          const lowerName = circleName.toLowerCase();
-          
-          // Business-related circles often go to Sales
-          if (lowerName.includes('business') || lowerName.includes('бизнес')) {
-            derivedType = 'Sales';
-          }
-          // Process-related circles often go to Delivery & Discovery
-          else if (lowerName.includes('process') || lowerName.includes('dnd')) {
-            derivedType = 'Delivery & Discovery';
-          }
-          // Check for specific patterns in the circle name
-          else if (lowerName.includes('marketing') || lowerName.includes('маркетинг') || lowerName.includes('acquisition')) {
-            derivedType = 'Marketing';
-          } 
-          else if (lowerName.includes('sales') || lowerName.includes('продаж')) {
-            derivedType = 'Sales';
-          } 
-          else if (lowerName.includes('discovery') || lowerName.includes('delivery') || 
+        // Derive the circle type based on its name
+        const lowerName = circleName.toLowerCase();
+        if (lowerName.includes('marketing') || lowerName.includes('маркетинг') || lowerName.includes('acquisition')) {
+          derivedType = 'Marketing';
+        } else if (lowerName.includes('sales') || lowerName.includes('продаж')) {
+          derivedType = 'Sales';
+        } else if (lowerName.includes('discovery') || lowerName.includes('delivery') || 
                   lowerName.includes('hub') || lowerName.includes('bot.one')) {
-            derivedType = 'Delivery & Discovery';
-          }
+          derivedType = 'Delivery & Discovery';
         }
         
         // Even if the circle is not found in circlesData, create a basic entry for it

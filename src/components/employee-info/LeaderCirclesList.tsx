@@ -3,7 +3,6 @@ import React from "react";
 import { Card, CardHeader, CardContent, CardTitle } from "@/components/ui/card";
 import { CircleAlert } from "lucide-react";
 import { CircleData } from "@/types";
-import { normalizeFunctionalType } from "@/utils/csv/helpers";
 
 interface LeaderCirclesListProps {
   leadCircles: CircleData[];
@@ -21,9 +20,7 @@ export const LeaderCirclesList: React.FC<LeaderCirclesListProps> = ({
   // Function to safely get functional type or display "na"
   const getFunctionalType = (circle: CircleData): string => {
     if (!circle.functionalType || circle.functionalType.trim() === '') {
-      // One last attempt to derive the type from the name if it's empty
-      const derivedType = normalizeFunctionalType(circle.name || "");
-      return derivedType || "na";
+      return "na";
     }
     return circle.functionalType;
   };

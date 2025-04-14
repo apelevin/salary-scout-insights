@@ -72,57 +72,36 @@ export const normalizeFunctionalType = (type: string): string => {
   
   const normalizedType = type.trim().toLowerCase();
   
-  // Enhanced detection patterns for each type
-  
-  // Marketing type detection - expanded patterns
+  // Check for Marketing type variations
   if (normalizedType.includes("market") || 
-      normalizedType.includes("маркет") ||
-      normalizedType.includes("growth") ||
-      normalizedType.includes("acquisition") ||
-      normalizedType.includes("digital") ||
-      normalizedType.includes("brand")) {
+      normalizedType.includes("маркет")) {
     return "Marketing";
   }
   
-  // Sales type detection - expanded patterns
+  // Check for Sales type variations
   if (normalizedType.includes("sale") || 
       normalizedType.includes("продаж") || 
-      normalizedType.includes("прод") ||
-      normalizedType.includes("revenue") ||
-      normalizedType.includes("business") ||
-      normalizedType.includes("deal") ||
-      normalizedType.includes("client")) {
+      normalizedType.includes("прод")) {
     return "Sales";
   }
   
-  // Delivery & Discovery type detection - expanded patterns
+  // Check for Delivery & Discovery type variations
   if (normalizedType.includes("discovery") || 
       normalizedType.includes("delivery") || 
       normalizedType.includes("диск") || 
-      normalizedType.includes("делив") ||
-      normalizedType.includes("dnd") ||
-      normalizedType.includes("process") ||
-      normalizedType.includes("product") ||
-      normalizedType.includes("hub")) {
+      normalizedType.includes("делив")) {
     return "Delivery & Discovery";
   }
   
-  // Enablement type detection - expanded patterns
+  // Check for Enablement type
   if (normalizedType.includes("enable") || 
-      normalizedType.includes("энейбл") ||
-      normalizedType.includes("hr") ||
-      normalizedType.includes("people") ||
-      normalizedType.includes("talent")) {
+      normalizedType.includes("энейбл")) {
     return "Enablement";
   }
   
-  // Platform type detection - expanded patterns
+  // Check for Platform type
   if (normalizedType.includes("platform") || 
-      normalizedType.includes("платформ") ||
-      normalizedType.includes("tech") ||
-      normalizedType.includes("engineering") ||
-      normalizedType.includes("dev") ||
-      normalizedType.includes("infrastructure")) {
+      normalizedType.includes("платформ")) {
     return "Platform";
   }
   
