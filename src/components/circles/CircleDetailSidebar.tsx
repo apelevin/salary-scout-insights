@@ -1,3 +1,4 @@
+
 import React from "react";
 import { 
   Sheet, 
@@ -6,12 +7,12 @@ import {
   SheetTitle, 
   SheetDescription 
 } from "@/components/ui/sheet";
-import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from "@/components/ui/table";
 import { Employee, EmployeeWithRoles, RoleData } from "@/types";
-import { formatSalary } from "@/utils/formatUtils";
+import { PieChart } from "lucide-react";
 import { Separator } from "@/components/ui/separator";
-import { Users, PieChart, Award, TrendingDown, TrendingUp } from "lucide-react";
-import { ScrollArea } from "@/components/ui/scroll-area";
+import CircleLeaderInfo from "./CircleLeaderInfo";
+import CircleBudgetSummary from "./CircleBudgetSummary";
+import CircleEmployeesList from "./CircleEmployeesList";
 
 interface CircleDetailSidebarProps {
   isOpen: boolean;
@@ -49,13 +50,7 @@ const CircleDetailSidebar: React.FC<CircleDetailSidebarProps> = ({
   });
 
   // Map employees with their roles and FTE
-  const circleEmployeesData: {
-    name: string;
-    roles: { roleName: string; fte: number }[];
-    currentSalary: number;
-    standardSalary: number | undefined;
-    isLeader: boolean;
-  }[] = [];
+  const circleEmployeesData = [];
 
   // Process employees in this circle
   circleEmployeeNames.forEach(name => {
@@ -64,7 +59,7 @@ const CircleDetailSidebar: React.FC<CircleDetailSidebarProps> = ({
     );
     
     if (employeeWithRoles) {
-      const employeeRoles: { roleName: string; fte: number }[] = [];
+      const employeeRoles = [];
       let isLeader = false;
       
       // Get roles for this employee in this circle
@@ -124,99 +119,18 @@ const CircleDetailSidebar: React.FC<CircleDetailSidebarProps> = ({
         </SheetHeader>
         
         <div className="mt-6">
-          {circleLeader && (
-            <div className="flex items-center mb-4 p-3 bg-muted rounded-md">
-              <Award className="h-5 w-5 text-blue-500 mr-2" />
-              <div>
-                <span className="text-sm text-muted-foreground">Лидер круга:</span>
-                <h4 className="font-medium">{circleLeader}</h4>
-              </div>
-            </div>
-          )}
+          <CircleLeaderInfo circleLeader={circleLeader} />
           
-          <div className="flex justify-between mb-2">
-            <h3 className="text-sm font-medium">Стандартный бюджет:</h3>
-            <span className="font-medium">{formatSalary(totalStandardBudget)}</span>
-          </div>
-          <div className="flex justify-between mb-2">
-            <h3 className="text-sm font-medium">Текущий бюджет:</h3>
-            <span className="font-medium">{formatSalary(totalCurrentBudget)}</span>
-          </div>
-          
-          {/* Budget difference */}
-          <div className="flex justify-between mb-4 py-2 px-3 bg-muted rounded-md">
-            <div className="flex items-center">
-              <h3 className="text-sm font-medium">Разница:</h3>
-              {isPositiveDifference ? 
-                <TrendingUp className="h-4 w-4 ml-2 text-green-500" /> : 
-                <TrendingDown className="h-4 w-4 ml-2 text-red-500" />
-              }
-            </div>
-            <span className={`font-medium ${isPositiveDifference ? 'text-green-600' : 'text-red-600'}`}>
-              {isPositiveDifference ? '+' : ''}{formatSalary(budgetDifference)}
-            </span>
-          </div>
+          <CircleBudgetSummary 
+            totalStandardBudget={totalStandardBudget}
+            totalCurrentBudget={totalCurrentBudget}
+            budgetDifference={budgetDifference}
+            isPositiveDifference={isPositiveDifference}
+          />
           
           <Separator className="my-4" />
           
-          <div className="flex items-center my-4">
-            <Users className="h-5 w-5 text-gray-500 mr-2" />
-            <h3 className="text-base font-medium">Сотрудники круга ({circleEmployeesData.length})</h3>
-          </div>
-          
-          {/* Redesigned employee list section */}
-          <div className="space-y-3">
-            {circleEmployeesData.map((employee, index) => {
-              const totalFTE = employee.roles.reduce((sum, role) => sum + role.fte, 0);
-              const currentBudget = employee.currentSalary * totalFTE;
-              const standardBudget = (employee.standardSalary || 0) * totalFTE;
-              const difference = standardBudget - currentBudget;
-              const differenceClass = difference > 0 
-                ? 'text-green-600' 
-                : difference < 0 
-                  ? 'text-red-600' 
-                  : 'text-gray-500';
-              
-              return (
-                <div 
-                  key={`${employee.name}-${index}`}
-                  className="p-3 border rounded-md hover:bg-muted/50 transition-colors"
-                >
-                  <div className="flex justify-between items-center mb-2">
-                    <div className="font-medium">
-                      {employee.name}
-                      {employee.isLeader && (
-                        <span className="ml-1 text-xs text-blue-600">(Лидер)</span>
-                      )}
-                    </div>
-                    {!employee.isLeader && (
-                      <div className="text-sm text-right">
-                        <div className="font-medium">{formatSalary(currentBudget)}</div>
-                        {difference !== 0 && (
-                          <div className={`text-xs ${differenceClass}`}>
-                            {difference > 0 ? "+" : ""}{formatSalary(difference)}
-                          </div>
-                        )}
-                      </div>
-                    )}
-                  </div>
-                  
-                  <ScrollArea className="h-auto max-h-24">
-                    <div className="space-y-1">
-                      {employee.roles.map((role, idx) => (
-                        <div key={idx} className="text-sm flex justify-between items-center">
-                          <span className="text-muted-foreground">{role.roleName}</span>
-                          <span className="text-xs bg-secondary/20 px-2 py-0.5 rounded-full">
-                            FTE: {role.fte}
-                          </span>
-                        </div>
-                      ))}
-                    </div>
-                  </ScrollArea>
-                </div>
-              );
-            })}
-          </div>
+          <CircleEmployeesList employees={circleEmployeesData} />
         </div>
       </SheetContent>
     </Sheet>
