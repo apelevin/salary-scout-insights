@@ -7,10 +7,8 @@ import {
   normalizeRolesFTE 
 } from "./fteUtils";
 
-// Direct imports of the formatters we need from formatUtils 
-// (not re-exporting to avoid circular references)
-import { formatSalary, formatFTE } from "./formatUtils";
-
+// Re-export the formatters we need from formatUtils
+export { formatName, formatSalary } from "./formatUtils";
 export { calculateStandardSalary, getSalaryDifference } from "./salaryUtils";
 export { calculateTotalFTE, normalizeRolesFTE } from "./fteUtils";
 

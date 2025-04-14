@@ -1,7 +1,7 @@
 
 import { useState, useEffect } from "react";
 import { Employee, EmployeeWithRoles } from "@/types";
-import { formatName } from "@/utils/employeeUtils";
+import { formatName } from "@/utils/formatUtils";
 
 export type SortDirection = "none" | "asc" | "desc";
 export type SortField = "name" | "difference";
