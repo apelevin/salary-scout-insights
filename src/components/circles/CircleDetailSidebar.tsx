@@ -11,7 +11,7 @@ import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from "@
 import { Employee, EmployeeWithRoles, RoleData } from "@/types";
 import { formatSalary } from "@/utils/formatUtils";
 import { Separator } from "@/components/ui/separator";
-import { Users, PieChart } from "lucide-react";
+import { Users, PieChart, Award } from "lucide-react";
 
 interface CircleDetailSidebarProps {
   isOpen: boolean;
@@ -36,6 +36,11 @@ const CircleDetailSidebar: React.FC<CircleDetailSidebarProps> = ({
   const circleRoles = rolesData.filter(role => 
     role.circleName?.replace(/["']/g, '').trim() === circleName
   );
+
+  // Find circle leader
+  const circleLeader = circleRoles.find(role => 
+    role.roleName.toLowerCase().includes('лидер')
+  )?.participantName.replace(/["']/g, '').trim();
 
   // Get employees in this circle
   const circleEmployeeNames = new Set<string>();
@@ -115,6 +120,16 @@ const CircleDetailSidebar: React.FC<CircleDetailSidebarProps> = ({
         </SheetHeader>
         
         <div className="mt-6">
+          {circleLeader && (
+            <div className="flex items-center mb-4 p-3 bg-muted rounded-md">
+              <Award className="h-5 w-5 text-blue-500 mr-2" />
+              <div>
+                <span className="text-sm text-muted-foreground">Лидер круга:</span>
+                <h4 className="font-medium">{circleLeader}</h4>
+              </div>
+            </div>
+          )}
+          
           <div className="flex justify-between mb-2">
             <h3 className="text-sm font-medium">Стандартный бюджет:</h3>
             <span className="font-medium">{formatSalary(totalStandardBudget)}</span>
