@@ -1,6 +1,7 @@
 
 import { Users } from "lucide-react";
-import RoleEmployeeCard from "./RoleEmployeeCard";
+import { formatName, formatSalary } from "@/utils/formatUtils";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 
 interface RoleEmployeeData {
   name: string;
@@ -20,6 +21,9 @@ const RoleEmployeeList = ({
   totalRoleCost,
   incognitoMode = false 
 }: RoleEmployeeListProps) => {
+  // Sort employees by salary (ascending order)
+  const sortedEmployees = [...employeesWithRole].sort((a, b) => a.salary - b.salary);
+
   return (
     <div data-testid="role-employee-list">
       <div className="flex items-center my-4">
@@ -27,25 +31,32 @@ const RoleEmployeeList = ({
         <h3 className="text-base font-medium">Сотрудники с ролью ({employeesWithRole.length})</h3>
       </div>
       
-      <div className="space-y-3">
-        {employeesWithRole && employeesWithRole.length > 0 ? (
-          employeesWithRole.map((employee, index) => (
-            <RoleEmployeeCard
-              key={`${employee.name}-${index}`}
-              name={employee.name}
-              salary={employee.salary}
-              fte={employee.fte}
-              contribution={employee.contribution}
-              totalRoleCost={totalRoleCost}
-              incognitoMode={incognitoMode}
-            />
-          ))
-        ) : (
-          <div className="text-center py-4 text-gray-500 border border-dashed border-gray-200 rounded-md">
-            Нет сотрудников с данной ролью
-          </div>
-        )}
-      </div>
+      {sortedEmployees && sortedEmployees.length > 0 ? (
+        <div className="border rounded-md">
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Имя Фамилия</TableHead>
+                <TableHead className="text-right">Оклад</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {sortedEmployees.map((employee, index) => (
+                <TableRow key={`${employee.name}-${index}`}>
+                  <TableCell>{formatName(employee.name)}</TableCell>
+                  <TableCell className="text-right">
+                    {!incognitoMode ? formatSalary(employee.salary) : '***'}
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </div>
+      ) : (
+        <div className="text-center py-4 text-gray-500 border border-dashed border-gray-200 rounded-md">
+          Нет сотрудников с данной ролью
+        </div>
+      )}
     </div>
   );
 };

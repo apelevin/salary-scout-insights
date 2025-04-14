@@ -19,6 +19,7 @@ export const formatName = (name: string): string => {
   const nameParts = cleanName.split(/\s+/);
   
   if (nameParts.length >= 2) {
+    // Return first two parts of the name (usually last name and first name in Russian naming convention)
     return `${nameParts[0]} ${nameParts[1]}`;
   }
   
