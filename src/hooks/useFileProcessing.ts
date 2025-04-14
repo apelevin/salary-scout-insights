@@ -7,9 +7,12 @@ import { useDataProcessing } from "./useDataProcessing";
 export const useFileProcessing = () => {
   const { 
     uploadedFiles, 
+    filesProcessed,
     handleFilesUploaded, 
     markFileAsParsed, 
-    updateUploadedFiles 
+    updateUploadedFiles,
+    markFilesAsProcessed,
+    resetProcessedState
   } = useUploadedFiles();
   
   const { 
@@ -33,6 +36,11 @@ export const useFileProcessing = () => {
 
   const handleProcessFiles = () => {
     processFiles(uploadedFiles, updateUploadedFiles, leadershipData, setLeadershipData);
+    markFilesAsProcessed();
+  };
+
+  const handleResetUploadControls = () => {
+    resetProcessedState();
   };
 
   return {
@@ -42,11 +50,12 @@ export const useFileProcessing = () => {
     circlesData,
     leadershipData,
     isProcessing,
+    filesProcessed,
     customStandardSalaries,
     handleFilesUploaded,
     handleStandardSalaryChange,
     handleLeadershipFileUpload,
-    processFiles: handleProcessFiles
+    processFiles: handleProcessFiles,
+    resetUploadControls: handleResetUploadControls
   };
 };
-

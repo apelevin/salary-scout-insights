@@ -5,9 +5,11 @@ import { toast } from "@/components/ui/use-toast";
 
 export const useUploadedFiles = () => {
   const [uploadedFiles, setUploadedFiles] = useState<UploadedFile[]>([]);
+  const [filesProcessed, setFilesProcessed] = useState(false);
 
   const handleFilesUploaded = (files: UploadedFile[]) => {
     setUploadedFiles(files);
+    setFilesProcessed(false);
   };
 
   const markFileAsParsed = (fileId: string) => {
@@ -19,11 +21,22 @@ export const useUploadedFiles = () => {
   const updateUploadedFiles = (files: UploadedFile[]) => {
     setUploadedFiles(files);
   };
+  
+  const markFilesAsProcessed = () => {
+    setFilesProcessed(true);
+  };
+  
+  const resetProcessedState = () => {
+    setFilesProcessed(false);
+  };
 
   return {
     uploadedFiles,
+    filesProcessed,
     handleFilesUploaded,
     markFileAsParsed,
-    updateUploadedFiles
+    updateUploadedFiles,
+    markFilesAsProcessed,
+    resetProcessedState
   };
 };

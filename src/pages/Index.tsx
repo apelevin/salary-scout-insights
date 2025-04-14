@@ -18,11 +18,13 @@ const Index = () => {
     circlesData,
     leadershipData,
     isProcessing,
+    filesProcessed,
     customStandardSalaries,
     handleFilesUploaded,
     handleStandardSalaryChange,
     handleLeadershipFileUpload,
-    processFiles
+    processFiles,
+    resetUploadControls
   } = useFileProcessing();
 
   return (
@@ -44,8 +46,10 @@ const Index = () => {
             <FileUploadSection 
               uploadedFiles={uploadedFiles}
               isProcessing={isProcessing}
+              filesProcessed={filesProcessed}
               onFilesUploaded={handleFilesUploaded}
               onProcessFiles={processFiles}
+              onResetUploadControls={resetUploadControls}
               onLeadershipFileUpload={handleLeadershipFileUpload}
               maxFiles={4}
             />
