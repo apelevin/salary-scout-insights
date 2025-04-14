@@ -17,6 +17,7 @@ interface DataDisplaySectionProps {
   isProcessing: boolean;
   customStandardSalaries: Map<string, number>;
   onStandardSalaryChange: (roleName: string, newStandardSalary: number) => void;
+  onLeadershipDataChange?: (updatedData: LeadershipData[]) => void;
   incognitoMode?: boolean;
 }
 
@@ -30,6 +31,7 @@ const DataDisplaySection = ({
   isProcessing,
   customStandardSalaries,
   onStandardSalaryChange,
+  onLeadershipDataChange,
   incognitoMode = false
 }: DataDisplaySectionProps) => {
   return (
@@ -73,6 +75,7 @@ const DataDisplaySection = ({
             <LeadershipTable 
               leadershipData={leadershipData}
               isLoading={isProcessing}
+              onLeadershipDataChange={onLeadershipDataChange}
             />
           </TabsContent>
         </Tabs>

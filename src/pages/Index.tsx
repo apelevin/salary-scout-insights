@@ -22,6 +22,7 @@ const Index = () => {
     handleFilesUploaded,
     handleStandardSalaryChange,
     handleLeadershipFileUpload,
+    handleLeadershipDataChange,
     processFiles
   } = useFileProcessing();
 
@@ -62,6 +63,7 @@ const Index = () => {
               isProcessing={isProcessing}
               customStandardSalaries={customStandardSalaries}
               onStandardSalaryChange={handleStandardSalaryChange}
+              onLeadershipDataChange={handleLeadershipDataChange}
               incognitoMode={incognitoMode}
             />
           </div>

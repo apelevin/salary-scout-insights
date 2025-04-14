@@ -50,9 +50,14 @@ export const useLeadershipData = (
     }
   };
 
+  const handleLeadershipDataChange = (updatedData: LeadershipData[]) => {
+    setLeadershipData(updatedData);
+  };
+
   return {
     leadershipData,
     setLeadershipData,
-    handleLeadershipFileUpload
+    handleLeadershipFileUpload,
+    handleLeadershipDataChange
   };
 };

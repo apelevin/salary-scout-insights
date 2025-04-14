@@ -23,7 +23,8 @@ export const useFileProcessing = () => {
   const { 
     leadershipData, 
     setLeadershipData, 
-    handleLeadershipFileUpload 
+    handleLeadershipFileUpload,
+    handleLeadershipDataChange
   } = useLeadershipData(markFileAsParsed, setIsProcessing);
 
   const { 
@@ -52,6 +53,7 @@ export const useFileProcessing = () => {
     handleFilesUploaded,
     handleStandardSalaryChange,
     handleLeadershipFileUpload,
+    handleLeadershipDataChange,
     processFiles
   };
 };
