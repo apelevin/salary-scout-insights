@@ -94,38 +94,6 @@ export const OperationalCircleInfo = ({
             </ul>
           </div>
         )}
-        
-        {/* Debug section - can be hidden in production */}
-        {process.env.NODE_ENV !== 'production' && (
-          <div className="mt-4 p-3 bg-gray-50 rounded-md">
-            <div className="font-medium mb-1 text-sm text-blue-600">Отладочная информация:</div>
-            <div className="max-h-60 overflow-y-auto text-xs">
-              <div className="mb-2 text-gray-700">
-                Всего кругов в данных: {circlesData?.length || 0}
-              </div>
-              {circlesData && circlesData.length > 0 ? (
-                <table className="w-full text-left text-xs">
-                  <thead>
-                    <tr className="bg-gray-100">
-                      <th className="p-1">Название круга</th>
-                      <th className="p-1">Функциональная принадлежность</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {circlesData.map((circle, index) => (
-                      <tr key={index} className={index % 2 === 0 ? "bg-gray-50" : ""}>
-                        <td className="p-1 border-t border-gray-200">{circle.name}</td>
-                        <td className="p-1 border-t border-gray-200">{cleanFunctionalType(circle.functionalType)}</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              ) : (
-                <div className="p-2 text-red-500">Данные о кругах отсутствуют</div>
-              )}
-            </div>
-          </div>
-        )}
       </CardContent>
     </Card>
   );

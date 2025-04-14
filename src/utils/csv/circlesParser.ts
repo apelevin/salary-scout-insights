@@ -3,7 +3,8 @@ import { CircleData } from "@/types";
 import { 
   normalizeCSVContent, 
   detectDelimiter, 
-  findColumnIndex 
+  findColumnIndex,
+  normalizeFunctionalType 
 } from "./helpers";
 import {
   CIRCLE_NAME_ALIASES,
@@ -88,18 +89,29 @@ function parseCircleRows(
     
     const name = values[circleNameColumnIndex].trim();
     
-    let functionalType = "";
+    // Извлекаем функциональную принадлежность из пятой колонки (индекс 4)
+    let rawFunctionalType = "";
     
-    // Пытаемся получить функциональную принадлежность из колонки 5 (индекс 4)
     if (values.length > functionalTypeColumnIndex) {
-      functionalType = values[functionalTypeColumnIndex].trim();
-      console.log(`Круг "${name}": найден тип в колонке 5: "${functionalType}"`);
+      rawFunctionalType = values[functionalTypeColumnIndex].trim();
+      console.log(`Круг "${name}": найден тип в колонке 5: "${rawFunctionalType}"`);
     } else {
       console.warn(`Для круга "${name}" нет данных в колонке 5 (индекс ${functionalTypeColumnIndex})`);
     }
     
+    // Используем название круга для определения функционального типа, если не указано явно
+    if (!rawFunctionalType) {
+      if (name.toLowerCase().includes('marketing') || name.toLowerCase().includes('acquisition')) {
+        rawFunctionalType = 'Marketing';
+      } else if (name.toLowerCase().includes('sales')) {
+        rawFunctionalType = 'Sales';
+      } else if (name.toLowerCase().includes('bot.one') || name.toLowerCase().includes('delivery')) {
+        rawFunctionalType = 'Delivery & Discovery';
+      }
+    }
+    
     // Нормализуем значение функционального типа к одному из четырех допустимых значений
-    functionalType = normalizeCircleType(functionalType);
+    const functionalType = normalizeFunctionalType(rawFunctionalType || name);
     
     circles.push({
       name,
@@ -110,32 +122,4 @@ function parseCircleRows(
   console.log(`Успешно распознано ${circles.length} записей о кругах и их типах`);
   
   return circles;
-}
-
-/**
- * Normalize the functional type to one of the allowed values
- */
-function normalizeCircleType(type: string): string {
-  const normalizedType = type.trim().toLowerCase();
-  
-  // Check for exact matches or substring matches
-  if (normalizedType === '' || normalizedType === 'undefined' || normalizedType === 'null') {
-    return 'The others';
-  } else if (normalizedType.includes('marketing') || normalizedType.includes('маркетинг')) {
-    return 'Marketing';
-  } else if (
-    (normalizedType.includes('delivery') && normalizedType.includes('discovery')) ||
-    normalizedType.includes('delivery & discovery')
-  ) {
-    return 'Delivery & Discovery';
-  } else if (normalizedType.includes('sales') || normalizedType.includes('продажи')) {
-    return 'Sales';
-  } else if (normalizedType.includes('discovery') || normalizedType.includes('hub')) {
-    return 'Discovery (Hub)';
-  } else if (normalizedType.includes('delivery')) {
-    return 'Delivery';
-  }
-  
-  // Default case
-  return 'The others';
 }

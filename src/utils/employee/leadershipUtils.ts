@@ -75,13 +75,30 @@ export const findCircleLeadershipInfo = (
         leadCircles.push(circle);
         if (circle.functionalType && !circleType) {
           // Use the normalized functional type
-          circleType = circle.functionalType;
+          circleType = cleanFunctionalType(circle.functionalType);
           console.log(`Found functional type for ${lastName} ${firstName}: ${circleType} (from circle ${role.circleName})`);
         }
       } else {
+        // Try to determine functional type from circle name if not found in data
+        let derivedType = 'The others';
+        
+        if (circleName.toLowerCase().includes('marketing') || circleName.toLowerCase().includes('acquisition')) {
+          derivedType = 'Marketing';
+        } else if (circleName.toLowerCase().includes('sales')) {
+          derivedType = 'Sales';
+        } else if (circleName.toLowerCase().includes('delivery') || circleName.toLowerCase().includes('bot.one')) {
+          derivedType = 'Delivery & Discovery';
+        }
+        
         // Even if the circle is not found in circlesData, create a basic entry for it
-        leadCircles.push({ name: circleName, functionalType: 'The others' });
-        console.log(`Circle "${circleName}" not found in circles data, creating basic entry`);
+        leadCircles.push({ name: circleName, functionalType: derivedType });
+        
+        // Set the circle type if not already set
+        if (!circleType) {
+          circleType = derivedType;
+        }
+        
+        console.log(`Circle "${circleName}" not found in circles data, creating basic entry with derived type: ${derivedType}`);
       }
     }
   }

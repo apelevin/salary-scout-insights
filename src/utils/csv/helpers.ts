@@ -64,20 +64,36 @@ export const parseFTEValue = (fteString: string): number | undefined => {
 };
 
 /**
- * Normalizes functional type values to standard values
+ * Normalizes functional type values to standard values from the 5th column of CSV
+ * @param type Raw functional type string from CSV
+ * @returns Normalized functional type: "Marketing", "Sales", "Delivery & Discovery", "Discovery (Hub)", "Delivery" or "The others"
  */
 export const normalizeFunctionalType = (type: string): string => {
+  if (!type) return 'The others';
+  
   const cleanedType = type.trim().replace(/["']/g, '').toLowerCase();
   
-  if (!cleanedType || cleanedType === 'undefined' || cleanedType === 'null') {
+  if (cleanedType === '' || cleanedType === 'undefined' || cleanedType === 'null') {
     return 'The others';
   }
   
-  if (cleanedType.includes('marketing')) return 'Marketing';
-  if (cleanedType.includes('sales')) return 'Sales';
-  if (cleanedType.includes('delivery') && cleanedType.includes('discovery')) return 'Delivery & Discovery';
-  if (cleanedType.includes('discovery')) return 'Discovery (Hub)';
-  if (cleanedType.includes('delivery')) return 'Delivery';
+  // Normalize according to the allowed values from the specification
+  if (cleanedType.includes('marketing') || cleanedType === 'acquisition') {
+    return 'Marketing';
+  } 
+  if (cleanedType.includes('sales')) {
+    return 'Sales';
+  }
+  if (cleanedType.includes('delivery') && cleanedType.includes('discovery')) {
+    return 'Delivery & Discovery';
+  }
+  if (cleanedType.includes('bot.one') || cleanedType.includes('discovery')) {
+    return 'Delivery & Discovery';
+  }
+  if (cleanedType.includes('delivery')) {
+    return 'Delivery & Discovery';
+  }
   
+  // Default case
   return 'The others';
 };
