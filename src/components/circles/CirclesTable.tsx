@@ -29,21 +29,21 @@ const CirclesTable = ({
     />;
   }
 
-  // Sort circles by name for consistent display
-  const sortedCircles = [...circlesData].sort((a, b) => 
-    a.name.localeCompare(b.name, "ru")
-  );
+  // Remove duplicates and sort circles by name
+  const uniqueCircles = Array.from(
+    new Map(circlesData.map(circle => [circle.name, circle])).values()
+  ).sort((a, b) => a.name.localeCompare(b.name, "ru"));
 
   return (
     <div className="w-full">
-      <CirclesTableActions circlesCount={sortedCircles.length} />
+      <CirclesTableActions circlesCount={uniqueCircles.length} />
       <div className="border rounded-md overflow-x-auto">
         <Table>
           <CirclesTableHeader />
           <TableBody>
-            {sortedCircles.map((circle, index) => (
+            {uniqueCircles.map((circle, index) => (
               <CircleRow
-                key={index}
+                key={circle.name}
                 index={index}
                 circleName={circle.name}
                 functionalType={circle.functionalType}
@@ -57,3 +57,4 @@ const CirclesTable = ({
 };
 
 export default CirclesTable;
+
