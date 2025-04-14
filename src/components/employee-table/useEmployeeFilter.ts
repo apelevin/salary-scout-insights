@@ -1,7 +1,7 @@
 
 import { useState, useEffect, useMemo, useCallback } from "react";
 import { Employee, RoleData, CircleData, LeadershipData } from "@/types";
-import { processEmployeesWithRoles } from "@/utils/employeeUtils";
+import { processEmployeesWithRoles } from "@/utils/employee";
 
 export interface UseEmployeeFilterParams {
   employees: Employee[];
