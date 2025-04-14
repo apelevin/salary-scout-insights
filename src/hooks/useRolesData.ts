@@ -12,6 +12,7 @@ interface RoleWithSalaries {
   salaries: number[];
   isEditing: boolean;
   editValue: string;
+  functionalType?: string;  // Add this new property
 }
 
 export const useRolesData = (rolesData: RoleData[] = [], employees: Employee[] = []) => {
@@ -98,12 +99,19 @@ export const useRolesData = (rolesData: RoleData[] = [], employees: Employee[] =
     const rolesWithSalaries = uniqueRoles.map(role => {
       const salaries = findSalariesForRole(role);
       
+      // Find functional type for this role
+      const roleEntries = rolesData.filter(entry => 
+        cleanRoleName(entry.roleName).toLowerCase() === role.toLowerCase()
+      );
+      
+      const functionalType = roleEntries[0]?.circleName || "Не указано";
+      
       // Make sure we're calculating min and max correctly
       const minSalary = salaries.length ? Math.min(...salaries) : 0;
       const maxSalary = salaries.length ? Math.max(...salaries) : 0;
       const standardSalary = salaries.length ? calculateStandardRate(minSalary, maxSalary) : 0;
       
-      console.log(`Role: ${role}, Min: ${minSalary}, Standard: ${standardSalary}, Max: ${maxSalary}, Salaries: ${salaries.length}`);
+      console.log(`Role: ${role}, Functional Type: ${functionalType}, Min: ${minSalary}, Standard: ${standardSalary}, Max: ${maxSalary}, Salaries: ${salaries.length}`);
       
       return {
         roleName: role,
@@ -112,7 +120,8 @@ export const useRolesData = (rolesData: RoleData[] = [], employees: Employee[] =
         standardSalary,
         salaries,
         isEditing: false,
-        editValue: standardSalary.toString()
+        editValue: standardSalary.toString(),
+        functionalType  // Include the functional type
       };
     });
 
