@@ -1,6 +1,6 @@
 
 import { Users } from "lucide-react";
-import { formatName, formatSalary } from "@/utils/formatUtils";
+import { formatName, formatSalary, formatNameIncognito } from "@/utils/formatUtils";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 
 interface RoleEmployeeData {
@@ -43,7 +43,7 @@ const RoleEmployeeList = ({
             <TableBody>
               {sortedEmployees.map((employee, index) => (
                 <TableRow key={`${employee.name}-${index}`}>
-                  <TableCell>{formatName(employee.name)}</TableCell>
+                  <TableCell>{formatNameIncognito(employee.name, incognitoMode)}</TableCell>
                   <TableCell className="text-right">
                     {!incognitoMode ? formatSalary(employee.salary) : '***'}
                   </TableCell>
