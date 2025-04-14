@@ -1,4 +1,4 @@
-import { ScrollArea } from "@/components/ui/scroll-area";
+
 import { formatSalary } from "@/utils/formatUtils";
 
 interface RoleEmployeeCardProps {
@@ -23,23 +23,12 @@ const RoleEmployeeCard = ({
   
   return (
     <div className="p-3 border rounded-md hover:bg-muted/50 transition-colors">
-      <div className="flex justify-between items-center mb-2">
+      <div className="flex justify-between items-center">
         <div className="font-medium">{name}</div>
         <div className="text-sm font-medium">
           {!incognitoMode ? formatSalary(contribution) : '***'}
         </div>
       </div>
-      
-      <ScrollArea className="h-auto">
-        <div className="space-y-2">
-          
-          
-          
-          
-        </div>
-      </ScrollArea>
-      
-      
     </div>
   );
 };
