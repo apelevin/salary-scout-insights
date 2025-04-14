@@ -3,7 +3,7 @@ import { BarChart } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import EmployeeTable from "@/components/employee-table/EmployeeTable";
-import RolesTable from "@/components/RolesTable";
+import RolesTable from "@/components/roles/RolesTable";
 import LeadershipTable from "@/components/leadership/LeadershipTable";
 import { Employee, RoleData, CircleData, LeadershipData } from "@/types";
 
