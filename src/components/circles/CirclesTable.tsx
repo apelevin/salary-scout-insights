@@ -1,10 +1,11 @@
 
-import React from "react";
+import React, { useState } from "react";
 import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from "@/components/ui/table";
 import { CircleData, RoleData, Employee, EmployeeWithRoles } from "@/types";
-import { Users } from "lucide-react";
+import { Users, ChevronRight } from "lucide-react";
 import { processEmployeesWithRoles } from "@/utils/employeeUtils";
 import { formatSalary } from "@/utils/formatUtils";
+import CircleDetailSidebar from "./CircleDetailSidebar";
 
 interface CirclesTableProps {
   circlesData: CircleData[];
@@ -19,6 +20,9 @@ const CirclesTable: React.FC<CirclesTableProps> = ({
   isLoading,
   employees = [] 
 }) => {
+  const [selectedCircle, setSelectedCircle] = useState<string | null>(null);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  
   if (isLoading) {
     return (
       <div className="flex flex-col items-center justify-center py-8">
@@ -142,43 +146,70 @@ const CirclesTable: React.FC<CirclesTableProps> = ({
     }
   };
 
+  const handleCircleClick = (circleName: string) => {
+    setSelectedCircle(circleName);
+    setIsSidebarOpen(true);
+  };
+
   return (
-    <div className="rounded-md border">
-      <Table>
-        <TableHeader>
-          <TableRow>
-            <TableHead className="w-[300px]">Название круга</TableHead>
-            <TableHead className="text-right">Стандартный бюджет</TableHead>
-            <TableHead className="text-right">Текущий бюджет</TableHead>
-            <TableHead className="text-right">Разница</TableHead>
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {uniqueCircles.map((circle, index) => {
-            const standardBudget = circleBudgets.get(circle.name) || 0;
-            const currentBudget = currentSalaryBudgets.get(circle.name) || 0;
-            const budgetDifference = getBudgetDifference(standardBudget, currentBudget);
-            
-            return (
-              <TableRow key={`${circle.name}-${index}`}>
-                <TableCell className="font-medium">{circle.name}</TableCell>
-                <TableCell className="text-right">
-                  {standardBudget > 0 ? formatSalary(standardBudget) : "—"}
-                </TableCell>
-                <TableCell className="text-right">
-                  {currentBudget > 0 ? formatSalary(currentBudget) : "—"}
-                </TableCell>
-                <TableCell className={`text-right ${budgetDifference.className}`}>
-                  {budgetDifference.value !== 0 
-                    ? formatSalary(budgetDifference.value) 
-                    : "—"}
-                </TableCell>
-              </TableRow>
-            );
-          })}
-        </TableBody>
-      </Table>
-    </div>
+    <>
+      <div className="rounded-md border">
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead className="w-[300px]">Название круга</TableHead>
+              <TableHead className="text-right">Стандартный бюджет</TableHead>
+              <TableHead className="text-right">Текущий бюджет</TableHead>
+              <TableHead className="text-right">Разница</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {uniqueCircles.map((circle, index) => {
+              const standardBudget = circleBudgets.get(circle.name) || 0;
+              const currentBudget = currentSalaryBudgets.get(circle.name) || 0;
+              const budgetDifference = getBudgetDifference(standardBudget, currentBudget);
+              
+              return (
+                <TableRow key={`${circle.name}-${index}`}>
+                  <TableCell>
+                    <button 
+                      onClick={() => handleCircleClick(circle.name)} 
+                      className="font-medium flex items-center text-blue-600 hover:text-blue-800 hover:underline"
+                    >
+                      {circle.name}
+                      <ChevronRight className="h-4 w-4 ml-1" />
+                    </button>
+                  </TableCell>
+                  <TableCell className="text-right">
+                    {standardBudget > 0 ? formatSalary(standardBudget) : "—"}
+                  </TableCell>
+                  <TableCell className="text-right">
+                    {currentBudget > 0 ? formatSalary(currentBudget) : "—"}
+                  </TableCell>
+                  <TableCell className={`text-right ${budgetDifference.className}`}>
+                    {budgetDifference.value !== 0 
+                      ? formatSalary(budgetDifference.value) 
+                      : "—"}
+                  </TableCell>
+                </TableRow>
+              );
+            })}
+          </TableBody>
+        </Table>
+      </div>
+
+      <CircleDetailSidebar
+        isOpen={isSidebarOpen}
+        onClose={() => {
+          setIsSidebarOpen(false);
+          setSelectedCircle(null);
+        }}
+        circleName={selectedCircle}
+        employees={employees}
+        employeesWithRoles={employeesWithRoles}
+        rolesData={rolesData}
+      />
+    </>
   );
 };
 
