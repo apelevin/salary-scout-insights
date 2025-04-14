@@ -21,14 +21,14 @@ const RoleEmployeeList = ({
   incognitoMode = false 
 }: RoleEmployeeListProps) => {
   return (
-    <div>
+    <div data-testid="role-employee-list">
       <div className="flex items-center my-4">
         <Users className="h-5 w-5 text-gray-500 mr-2" />
         <h3 className="text-base font-medium">Сотрудники с ролью ({employeesWithRole.length})</h3>
       </div>
       
       <div className="space-y-3">
-        {employeesWithRole.length > 0 ? (
+        {employeesWithRole && employeesWithRole.length > 0 ? (
           employeesWithRole.map((employee, index) => (
             <RoleEmployeeCard
               key={`${employee.name}-${index}`}
@@ -41,7 +41,7 @@ const RoleEmployeeList = ({
             />
           ))
         ) : (
-          <div className="text-center py-4 text-gray-500">
+          <div className="text-center py-4 text-gray-500 border border-dashed border-gray-200 rounded-md">
             Нет сотрудников с данной ролью
           </div>
         )}

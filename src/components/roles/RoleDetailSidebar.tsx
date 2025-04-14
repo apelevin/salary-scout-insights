@@ -1,5 +1,5 @@
 
-import React from "react";
+import React, { memo } from "react";
 import { 
   Sheet, 
   SheetContent, 
@@ -24,7 +24,7 @@ interface RoleDetailSidebarProps {
   incognitoMode?: boolean;
 }
 
-const RoleDetailSidebar: React.FC<RoleDetailSidebarProps> = ({
+const RoleDetailSidebar = ({
   isOpen,
   onClose,
   roleName,
@@ -32,9 +32,11 @@ const RoleDetailSidebar: React.FC<RoleDetailSidebarProps> = ({
   rolesData,
   standardSalary,
   incognitoMode = false
-}) => {
+}: RoleDetailSidebarProps) => {
+  // Return null only after all props have been destructured
   if (!roleName) return null;
 
+  // Move hook call here to avoid React errors
   const { employeesWithRole, totalRoleCost } = useRoleEmployees(roleName, employees, rolesData);
   
   return (
@@ -73,4 +75,5 @@ const RoleDetailSidebar: React.FC<RoleDetailSidebarProps> = ({
   );
 };
 
-export default RoleDetailSidebar;
+// Мемоизируем компонент для оптимизации производительности
+export default memo(RoleDetailSidebar);
