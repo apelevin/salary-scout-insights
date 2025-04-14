@@ -7,6 +7,7 @@ const CirclesTableHeader: React.FC = () => {
     <TableHeader>
       <TableRow>
         <TableHead className="w-[300px]">Название круга</TableHead>
+        <TableHead>Функциональная принадлежность</TableHead>
         <TableHead className="text-right">Стандартный бюджет</TableHead>
         <TableHead className="text-right">Текущий бюджет</TableHead>
         <TableHead className="text-right">Разница</TableHead>

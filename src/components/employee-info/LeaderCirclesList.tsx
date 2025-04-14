@@ -17,10 +17,10 @@ export const LeaderCirclesList: React.FC<LeaderCirclesListProps> = ({
     return null;
   }
 
-  // Function to safely get functional type or display "na"
+  // Function to safely get functional type or display "n/a"
   const getFunctionalType = (circle: CircleData): string => {
     if (!circle.functionalType || circle.functionalType.trim() === '') {
-      return "na";
+      return "n/a";
     }
     return circle.functionalType;
   };

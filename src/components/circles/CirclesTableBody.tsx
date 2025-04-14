@@ -29,6 +29,7 @@ const CirclesTableBody: React.FC<CirclesTableBodyProps> = ({
           <CirclesTableRow
             key={`${circle.name}-${index}`}
             circleName={circle.name}
+            functionalType={circle.functionalType || ""}
             standardBudget={standardBudget}
             currentBudget={currentBudget}
             budgetDifferenceValue={budgetDifference.value}

@@ -6,6 +6,7 @@ import { formatSalary } from "@/utils/formatUtils";
 
 interface CirclesTableRowProps {
   circleName: string;
+  functionalType: string;
   standardBudget: number;
   currentBudget: number;
   budgetDifferenceValue: number;
@@ -15,12 +16,18 @@ interface CirclesTableRowProps {
 
 const CirclesTableRow: React.FC<CirclesTableRowProps> = ({
   circleName,
+  functionalType,
   standardBudget,
   currentBudget,
   budgetDifferenceValue,
   budgetDifferenceClass,
   onCircleClick
 }) => {
+  // Display "n/a" if functional type is empty
+  const displayFunctionalType = functionalType && functionalType.trim() !== "" 
+    ? functionalType 
+    : "n/a";
+  
   return (
     <TableRow>
       <TableCell>
@@ -31,6 +38,9 @@ const CirclesTableRow: React.FC<CirclesTableRowProps> = ({
           {circleName}
           <ChevronRight className="h-4 w-4 ml-1" />
         </button>
+      </TableCell>
+      <TableCell>
+        <span className="text-blue-600">{displayFunctionalType}</span>
       </TableCell>
       <TableCell className="text-right">
         {standardBudget > 0 ? formatSalary(standardBudget) : "—"}
