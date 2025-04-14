@@ -1,4 +1,3 @@
-
 import React from "react";
 import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from "@/components/ui/table";
 import { CircleData, RoleData, Employee, EmployeeWithRoles } from "@/types";
@@ -40,24 +39,20 @@ const CirclesTable: React.FC<CirclesTableProps> = ({
     );
   }
 
-  // Process employees with roles if we have employees data
   const employeesWithRoles: EmployeeWithRoles[] = employees.length > 0 
     ? processEmployeesWithRoles(employees, rolesData, new Map())
     : [];
 
-  // Count employees per circle and clean circle names
   const employeesPerCircle = new Map<string, Set<string>>();
   const circleBudgets = new Map<string, number>();
   const currentSalaryBudgets = new Map<string, number>();
 
-  // Clean circle data first
   const cleanCirclesData = circlesData.map(circle => ({
     ...circle,
     name: circle.name.replace(/["']/g, '').trim(),
     functionalType: circle.functionalType?.replace(/["']/g, '').trim() || ''
   }));
 
-  // First pass: Collect all employees per circle
   rolesData.forEach(role => {
     const cleanCircleName = role.circleName?.replace(/["']/g, '').trim() || '';
     const cleanParticipantName = role.participantName.replace(/["']/g, '').trim();
@@ -71,16 +66,13 @@ const CirclesTable: React.FC<CirclesTableProps> = ({
     }
   });
 
-  // Calculate budget for each circle (both standard and current)
   if (employees.length > 0) {
-    // Create a map of employee name to their data for quick lookup
     const employeeMap = new Map<string, EmployeeWithRoles>();
     employeesWithRoles.forEach(emp => {
       const fullName = emp.name.replace(/["']/g, '').trim();
       employeeMap.set(fullName, emp);
     });
 
-    // For each circle, calculate both budgets
     employeesPerCircle.forEach((employeeSet, circleName) => {
       let totalStandardBudget = 0;
       let totalCurrentBudget = 0;
@@ -88,7 +80,6 @@ const CirclesTable: React.FC<CirclesTableProps> = ({
       employeeSet.forEach(employeeName => {
         const employee = employeeMap.get(employeeName);
         if (employee) {
-          // Check if this employee is a leader for this circle
           const isLeader = rolesData.some(role => {
             const roleCircleName = role.circleName?.replace(/["']/g, '').trim() || '';
             return roleCircleName === circleName && 
@@ -96,7 +87,6 @@ const CirclesTable: React.FC<CirclesTableProps> = ({
                    role.roleName.toLowerCase().includes('лидер');
           });
 
-          // Calculate FTE for this employee in this specific circle
           let employeeCircleFTE = 0;
           rolesData.forEach(role => {
             if (role.circleName?.replace(/["']/g, '').trim() === circleName && 
@@ -106,14 +96,11 @@ const CirclesTable: React.FC<CirclesTableProps> = ({
             }
           });
 
-          // Include in budget if not a leader, or if no specific FTE, use a portion based on number of circles
           if (!isLeader && employeeCircleFTE > 0) {
-            // Add to standard salary budget
             if (employee.standardSalary) {
               totalStandardBudget += employee.standardSalary * employeeCircleFTE;
             }
             
-            // Add to current salary budget
             totalCurrentBudget += employee.salary * employeeCircleFTE;
           }
         }
@@ -124,11 +111,13 @@ const CirclesTable: React.FC<CirclesTableProps> = ({
     });
   }
 
-  // Remove duplicate circles and exclude "Офис СЕО"
   const uniqueCircles = Array.from(new Set(cleanCirclesData.map(circle => circle.name)))
     .map(name => cleanCirclesData.find(circle => circle.name === name)!)
     .filter(Boolean)
-    .filter(circle => circle.name !== "Офис СЕО");
+    .filter(circle => 
+      circle.name !== "Офис СЕО" && 
+      circle.name !== "Otherside"
+    );
 
   return (
     <div className="rounded-md border">
@@ -144,11 +133,9 @@ const CirclesTable: React.FC<CirclesTableProps> = ({
         </TableHeader>
         <TableBody>
           {uniqueCircles.map((circle, index) => {
-            // Get the count of unique employees in this circle
             const employees = employeesPerCircle.get(circle.name) || new Set();
             const employeeCount = employees.size;
             
-            // Get budgets for this circle
             const standardBudget = circleBudgets.get(circle.name) || 0;
             const currentBudget = currentSalaryBudgets.get(circle.name) || 0;
             
