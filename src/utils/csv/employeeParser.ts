@@ -76,7 +76,11 @@ function parseEmployeeRows(
     }
     
     const employee = createEmployeeFromValues(values, headers, nameColumnIndex, salaryColumnIndex);
-    employees.push(employee);
+    
+    // Only add non-empty employees
+    if (employee.name && employee.name !== 'Без имени') {
+      employees.push(employee);
+    }
   }
   
   console.log(`Успешно распознано ${employees.length} сотрудников`);
@@ -103,8 +107,12 @@ function createEmployeeFromValues(
     console.warn(`Некорректное значение зарплаты. Устанавливаем значение 0.`);
   }
   
+  // Clean and normalize the name
+  const rawName = values[nameColumnIndex] || '';
+  const cleanName = rawName.trim().replace(/["']/g, '');
+  
   const employee: Employee = {
-    name: values[nameColumnIndex] || 'Без имени',
+    name: cleanName || 'Без имени',
     salary: isNaN(salary) ? 0 : salary,
   };
   

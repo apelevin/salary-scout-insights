@@ -14,7 +14,7 @@ const EmployeeSearch: React.FC<EmployeeSearchProps> = ({ searchTerm, setSearchTe
       <Search className="absolute left-3 top-2.5 h-5 w-5 text-gray-400" />
       <Input
         type="text"
-        placeholder="Поиск по имени сотрудника..."
+        placeholder="Поиск по имени или фамилии сотрудника..."
         className="pl-10"
         value={searchTerm}
         onChange={(e) => setSearchTerm(e.target.value)}

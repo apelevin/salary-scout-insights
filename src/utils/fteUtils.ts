@@ -7,12 +7,12 @@ export const findRolesWithFTEForEmployee = (
   firstName: string, 
   rolesData: RoleData[]
 ): Map<string, number> => {
-  if (!lastName || !firstName || !rolesData.length) return new Map();
+  if (!lastName || !rolesData.length) return new Map();
   
   const rolesWithFTE = new Map<string, number>();
   
   const normalizedLastName = lastName.toLowerCase();
-  const normalizedFirstName = firstName.toLowerCase();
+  const normalizedFirstName = firstName ? firstName.toLowerCase() : '';
 
   // Constants for the circle leader role names
   const OPERATIONAL_CIRCLE_LEADER = "лидер операционного круга";
@@ -28,10 +28,14 @@ export const findRolesWithFTEForEmployee = (
       .split(/\s+/)
       .map(part => part.toLowerCase());
     
-    if (
-      participantNameParts.some(part => part === normalizedLastName) && 
-      participantNameParts.some(part => part === normalizedFirstName)
-    ) {
+    // Check if the last name matches
+    const lastNameMatches = participantNameParts.some(part => part === normalizedLastName);
+    
+    // If first name is provided, check that too, otherwise just match on last name
+    const firstNameMatches = !normalizedFirstName || 
+                             participantNameParts.some(part => part === normalizedFirstName);
+    
+    if (lastNameMatches && firstNameMatches) {
       // Check if the role is a leader role and normalize it to "Лидер"
       let roleName = entry.roleName.toLowerCase();
       const isLeaderRole = roleName === GENERIC_LEADER_ROLE.toLowerCase() || 
