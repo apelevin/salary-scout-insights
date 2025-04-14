@@ -34,10 +34,16 @@ export const parseCirclesCSV = (csvContent: string): CircleData[] => {
     console.log("Индекс колонки с названием круга:", circleNameColumnIndex);
     console.log("Индекс колонки с функциональным типом:", functionalTypeColumnIndex);
     
-    if (circleNameColumnIndex === -1 || functionalTypeColumnIndex === -1) {
-      console.error("CSV файл с кругами должен содержать колонки 'название круга' и 'функциональная принадлежность'");
+    if (circleNameColumnIndex === -1) {
+      console.error("CSV файл с кругами должен содержать колонку 'название круга'");
       console.error("Доступные заголовки:", headers);
       return [];
+    }
+    
+    // We can still parse circles even without functional type column
+    if (functionalTypeColumnIndex === -1) {
+      console.warn("В CSV файле не найдена колонка 'функциональная принадлежность'");
+      console.warn("Будет выполнена попытка извлечь тип из названия круга");
     }
     
     return parseCircleRows(lines, delimiter, circleNameColumnIndex, functionalTypeColumnIndex);
@@ -68,23 +74,53 @@ function parseCircleRows(
       continue;
     }
     
-    // Skip rows with insufficient values
-    if (values.length < Math.max(circleNameColumnIndex, functionalTypeColumnIndex) + 1) {
-      console.warn(`Строка ${i + 1} в файле кругов имеет недостаточно значений. Пропускаем.`);
+    // Skip rows with insufficient values for circle name
+    if (values.length <= circleNameColumnIndex || !values[circleNameColumnIndex]) {
+      console.warn(`Строка ${i + 1} не содержит названия круга. Пропускаем.`);
       continue;
     }
     
-    const name = values[circleNameColumnIndex];
-    const functionalType = values[functionalTypeColumnIndex];
+    const name = values[circleNameColumnIndex].trim();
+    let functionalType = "";
     
-    if (name && functionalType) {
-      circles.push({
-        name: name.trim(),
-        functionalType: functionalType.trim()
-      });
+    // Get functional type from column if available
+    if (functionalTypeColumnIndex !== -1 && values.length > functionalTypeColumnIndex && values[functionalTypeColumnIndex]) {
+      functionalType = values[functionalTypeColumnIndex].trim();
     }
+    
+    // If no functional type specified, try to extract from name
+    if (!functionalType) {
+      const lowerName = name.toLowerCase();
+      
+      if (lowerName.includes('delivery') && lowerName.includes('discovery')) {
+        functionalType = 'Delivery & Discovery';
+      } else if (lowerName.includes('delivery')) {
+        functionalType = 'Delivery';
+      } else if (lowerName.includes('discovery')) {
+        functionalType = 'Discovery';
+      } else if (lowerName.includes('platform')) {
+        functionalType = 'Platform';
+      } else if (lowerName.includes('enablement')) {
+        functionalType = 'Enablement';
+      } else {
+        functionalType = 'Не указано';
+      }
+      
+      console.log(`Извлечён функциональный тип из названия круга "${name}": ${functionalType}`);
+    }
+    
+    circles.push({
+      name,
+      functionalType
+    });
   }
   
   console.log(`Успешно распознано ${circles.length} записей о кругах и их типах`);
+  
+  // Log all circles and their types for debugging
+  circles.forEach(circle => {
+    console.log(`Круг: "${circle.name}", Тип: "${circle.functionalType}"`);
+  });
+  
   return circles;
 }

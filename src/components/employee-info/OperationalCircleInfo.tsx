@@ -38,7 +38,7 @@ export const OperationalCircleInfo = ({ employee, leadershipData }: OperationalC
     circleCount,
     leadershipDataLength: leadershipData?.length || 0,
     foundSalary: standardSalary,
-    firstLeadershipEntries: leadershipData?.slice(0, 3)
+    leadershipTypes: leadershipData?.map(d => `${d.leadershipType} (${d.circleCount})`)?.slice(0, 10)
   });
 
   // Format functional type display value

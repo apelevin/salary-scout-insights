@@ -106,6 +106,7 @@ export const findCircleLeadershipInfo = (
   }
   
   console.log(`Found ${leaderRoles.length} leadership roles for: ${lastName} ${firstName}`);
+  console.log(`Leadership roles:`, leaderRoles.map(r => ({ role: r.roleName, circle: r.circleName })));
   
   // Count the total number of circles led
   const circleCount = leaderRoles.length;
@@ -115,35 +116,53 @@ export const findCircleLeadershipInfo = (
   
   // First try to find an operational circle with functional type
   for (const role of leaderRoles) {
-    if (role.roleName?.toLowerCase().includes(OPERATIONAL_CIRCLE_LEADER.toLowerCase()) && role.circleName) {
+    if (role.circleName) {
+      console.log(`Looking for circle "${role.circleName}" in circles data (${circlesData.length} entries)`);
+      
+      // Find the circle with matching name in circles data
       const circle = circlesData.find(circle => 
-        circle.name && circle.name.toLowerCase() === role.circleName?.toLowerCase()
+        circle.name && 
+        circle.name.toLowerCase().trim() === role.circleName?.toLowerCase().trim()
       );
       
       if (circle?.functionalType) {
         circleType = cleanFunctionalType(circle.functionalType);
         console.log(`Found functional type for ${lastName} ${firstName}: ${circleType} (from circle ${role.circleName})`);
         break;
+      } else if (circle) {
+        console.log(`Circle "${role.circleName}" found but has no functional type`);
       }
     }
   }
   
   // If no functional type was found, try to extract it from the circle name
   if (!circleType) {
+    console.log(`No functional type found in circles data, trying to extract from circle names`);
+    
     for (const role of leaderRoles) {
       if (role.circleName) {
         const circleName = role.circleName.toLowerCase();
-        if (circleName.includes('delivery')) {
+        console.log(`Analyzing circle name: "${circleName}"`);
+        
+        if (circleName.includes('delivery') && circleName.includes('discovery')) {
+          circleType = 'Delivery & Discovery';
+          console.log(`Circle name contains "Delivery & Discovery"`);
+          break;
+        } else if (circleName.includes('delivery')) {
           circleType = 'Delivery';
+          console.log(`Circle name contains "Delivery"`);
           break;
         } else if (circleName.includes('discovery')) {
           circleType = 'Discovery';
+          console.log(`Circle name contains "Discovery"`);
           break;
         } else if (circleName.includes('platform')) {
           circleType = 'Platform';
+          console.log(`Circle name contains "Platform"`);
           break;
         } else if (circleName.includes('enablement')) {
           circleType = 'Enablement';
+          console.log(`Circle name contains "Enablement"`);
           break;
         }
       }
@@ -151,6 +170,8 @@ export const findCircleLeadershipInfo = (
     
     if (circleType) {
       console.log(`Extracted functional type from circle name for ${lastName} ${firstName}: ${circleType}`);
+    } else {
+      console.log(`Could not extract functional type from circle names`);
     }
   }
   
