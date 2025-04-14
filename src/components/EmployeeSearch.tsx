@@ -1,5 +1,5 @@
 
-import React from "react";
+import React, { memo } from "react";
 import { Input } from "@/components/ui/input";
 import { Search } from "lucide-react";
 
@@ -8,7 +8,7 @@ interface EmployeeSearchProps {
   setSearchTerm: (term: string) => void;
 }
 
-const EmployeeSearch: React.FC<EmployeeSearchProps> = ({ searchTerm, setSearchTerm }) => {
+const EmployeeSearch: React.FC<EmployeeSearchProps> = memo(({ searchTerm, setSearchTerm }) => {
   return (
     <div className="flex mb-4 relative">
       <Search className="absolute left-3 top-2.5 h-5 w-5 text-gray-400" />
@@ -21,6 +21,9 @@ const EmployeeSearch: React.FC<EmployeeSearchProps> = ({ searchTerm, setSearchTe
       />
     </div>
   );
-};
+});
+
+// Задаем displayName для улучшения отладки
+EmployeeSearch.displayName = 'EmployeeSearch';
 
 export default EmployeeSearch;

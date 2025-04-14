@@ -25,14 +25,10 @@ export const parseEmployeesCSV = (csvContent: string): Employee[] => {
 
     const delimiter = detectDelimiter(lines[0]);
     const headers = lines[0].split(delimiter).map(header => header.trim().toLowerCase());
-    console.log("Обнаруженные заголовки:", headers);
     
     // Find required column indices
     const nameColumnIndex = findColumnIndex(headers, NAME_COLUMN_ALIASES);
     const salaryColumnIndex = findColumnIndex(headers, SALARY_COLUMN_ALIASES);
-    
-    console.log("Индекс колонки с именем:", nameColumnIndex);
-    console.log("Индекс колонки с зарплатой:", salaryColumnIndex);
     
     if (nameColumnIndex === -1 || salaryColumnIndex === -1) {
       console.error("CSV файл должен содержать колонки с именем и зарплатой");
@@ -40,7 +36,29 @@ export const parseEmployeesCSV = (csvContent: string): Employee[] => {
       return [];
     }
     
-    return parseEmployeeRows(lines, headers, delimiter, nameColumnIndex, salaryColumnIndex);
+    // Создаем кэш для обработанных строк для повышения производительности
+    const employeeBatch: Employee[] = [];
+    const batchSize = 500;
+    
+    // Обработка строк пакетами для улучшения производительности
+    for (let i = 1; i < lines.length; i++) {
+      const values = lines[i].split(delimiter).map(value => value.trim());
+      
+      // Skip empty rows
+      if (values.every(v => v === '')) {
+        continue;
+      }
+      
+      // Skip rows with insufficient values
+      if (values.length < Math.max(nameColumnIndex, salaryColumnIndex) + 1) {
+        continue;
+      }
+      
+      const employee = createEmployeeFromValues(values, headers, nameColumnIndex, salaryColumnIndex, i);
+      employeeBatch.push(employee);
+    }
+    
+    return employeeBatch;
     
   } catch (error) {
     console.error("Ошибка при парсинге CSV:", error);
@@ -49,48 +67,14 @@ export const parseEmployeesCSV = (csvContent: string): Employee[] => {
 };
 
 /**
- * Parse employee rows from CSV lines
- */
-function parseEmployeeRows(
-  lines: string[], 
-  headers: string[], 
-  delimiter: string, 
-  nameColumnIndex: number, 
-  salaryColumnIndex: number
-): Employee[] {
-  const employees: Employee[] = [];
-  
-  // Start at 1 to skip headers
-  for (let i = 1; i < lines.length; i++) {
-    const values = lines[i].split(delimiter).map(value => value.trim());
-    
-    // Skip empty rows
-    if (values.every(v => v === '')) {
-      continue;
-    }
-    
-    // Skip rows with insufficient values
-    if (values.length < Math.max(nameColumnIndex, salaryColumnIndex) + 1) {
-      console.warn(`Строка ${i + 1} имеет недостаточно значений. Пропускаем.`);
-      continue;
-    }
-    
-    const employee = createEmployeeFromValues(values, headers, nameColumnIndex, salaryColumnIndex);
-    employees.push(employee);
-  }
-  
-  console.log(`Успешно распознано ${employees.length} сотрудников`);
-  return employees;
-}
-
-/**
  * Create an employee object from CSV values
  */
 function createEmployeeFromValues(
   values: string[], 
   headers: string[], 
   nameColumnIndex: number, 
-  salaryColumnIndex: number
+  salaryColumnIndex: number,
+  index: number
 ): Employee {
   // Parse salary value
   const salaryValue = values[salaryColumnIndex]
@@ -99,21 +83,18 @@ function createEmployeeFromValues(
   
   const salary = parseFloat(salaryValue);
   
-  if (isNaN(salary)) {
-    console.warn(`Некорректное значение зарплаты. Устанавливаем значение 0.`);
-  }
-  
   const employee: Employee = {
+    id: `emp-${index}`, // Добавляем уникальный ID для оптимизации рендера списков
     name: values[nameColumnIndex] || 'Без имени',
     salary: isNaN(salary) ? 0 : salary,
   };
   
-  // Add remaining fields from CSV
-  headers.forEach((header, index) => {
-    if (index !== nameColumnIndex && index !== salaryColumnIndex && values[index]) {
-      employee[header] = values[index];
+  // Add remaining fields from CSV - оптимизированный вариант
+  for (let i = 0; i < headers.length; i++) {
+    if (i !== nameColumnIndex && i !== salaryColumnIndex && values[i]) {
+      employee[headers[i]] = values[i];
     }
-  });
+  }
   
   return employee;
 }

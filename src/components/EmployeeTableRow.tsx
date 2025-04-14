@@ -1,5 +1,5 @@
 
-import React from "react";
+import React, { memo } from "react";
 import { TableCell, TableRow } from "@/components/ui/table";
 import { Employee, EmployeeWithRoles } from "@/types";
 import { formatName, formatSalary } from "@/utils/formatUtils";
@@ -10,15 +10,16 @@ interface EmployeeTableRowProps {
   incognitoMode?: boolean;
 }
 
-const EmployeeTableRow: React.FC<EmployeeTableRowProps> = ({ 
+// Используем React.memo для предотвращения лишних перерендеров
+const EmployeeTableRow: React.FC<EmployeeTableRowProps> = memo(({ 
   employee, 
   onClick,
   incognitoMode = false
 }) => {
-  // Check if it's an EmployeeWithRoles that has standardSalary
+  // Проверка типа сотрудника
   const hasStandardSalary = 'standardSalary' in employee && employee.standardSalary && employee.standardSalary > 0;
   
-  // Calculate the difference as standardSalary - salary
+  // Рассчитываем разницу между стандартной и текущей зарплатой
   const getDifference = () => {
     if (!hasStandardSalary) return { text: '—', className: 'text-gray-400' };
     
@@ -69,6 +70,9 @@ const EmployeeTableRow: React.FC<EmployeeTableRowProps> = ({
       </TableCell>
     </TableRow>
   );
-};
+});
+
+// Задаем displayName для улучшения отладки
+EmployeeTableRow.displayName = 'EmployeeTableRow';
 
 export default EmployeeTableRow;

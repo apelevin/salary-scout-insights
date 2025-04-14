@@ -1,5 +1,5 @@
 
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useCallback } from "react";
 import { Employee, RoleData, CircleData, LeadershipData } from "@/types";
 import { processEmployeesWithRoles } from "@/utils/employeeUtils";
 
@@ -20,9 +20,7 @@ export const useEmployeeFilter = (
   searchTerm: string = "",
   leadershipData: LeadershipData[] = []
 ) => {
-  const [filteredEmployees, setFilteredEmployees] = useState(employees);
-
-  // Process employees with roles and calculate derived data
+  // Мемоизируем обработку сотрудников с ролями для избежания лишних вычислений
   const processedEmployees = useMemo(() => {
     if (!employees.length) return [];
     
@@ -35,24 +33,24 @@ export const useEmployeeFilter = (
     );
   }, [employees, rolesData, customStandardSalaries, circlesData, leadershipData]);
 
-  // Apply search filter
-  useEffect(() => {
-    if (!searchTerm) {
-      setFilteredEmployees(processedEmployees);
-      return;
-    }
-
+  // Мемоизированная функция поиска для повышения производительности
+  const filterEmployees = useCallback((searchTerm: string, employees: any[]) => {
+    if (!searchTerm) return employees;
+    
     const lowerSearchTerm = searchTerm.toLowerCase();
-    const filtered = processedEmployees.filter(employee =>
+    return employees.filter(employee =>
       employee.name.toLowerCase().includes(lowerSearchTerm) ||
       (employee.position && employee.position.toLowerCase().includes(lowerSearchTerm)) ||
-      (employee.roles && employee.roles.some(role => 
+      (employee.roles && employee.roles.some((role: string) => 
         role.toLowerCase().includes(lowerSearchTerm)
       ))
     );
-    
-    setFilteredEmployees(filtered);
-  }, [processedEmployees, searchTerm]);
+  }, []);
+
+  // Применяем поиск к обработанным сотрудникам с мемоизацией результата
+  const filteredEmployees = useMemo(() => 
+    filterEmployees(searchTerm, processedEmployees),
+  [searchTerm, processedEmployees, filterEmployees]);
 
   return { filteredEmployees };
 };
