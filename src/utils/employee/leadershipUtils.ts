@@ -63,7 +63,7 @@ export const findCircleLeadershipInfo = (
       const circleName = role.circleName.trim().replace(/["']/g, '');
       console.log(`Looking for circle "${circleName}" in circles data (${circlesData.length} entries)`);
       
-      // Find the circle with matching name in circles data
+      // Find exact circle with matching name in circles data
       const circle = circlesData.find(circle => 
         circle.name && 
         circle.name.toLowerCase().trim() === circleName.toLowerCase().trim()
@@ -71,33 +71,16 @@ export const findCircleLeadershipInfo = (
       
       if (circle) {
         console.log(`Found circle "${circleName}" with functional type: "${circle.functionalType || 'Not specified'}"`);
+        // Use the EXACT functional type from the circles tab
         leadCircles.push({...circle}); // Clone the circle object to avoid reference issues
         if (circle.functionalType && !circleType) {
           // Use the functional type
           circleType = circle.functionalType;
         }
       } else {
-        // Try to determine functional type from circle name if not found in data
-        let derivedType = '';
-        
-        // Derive the circle type based on its name
-        const lowerName = circleName.toLowerCase();
-        if (lowerName.includes('marketing') || lowerName.includes('маркетинг') || lowerName.includes('acquisition')) {
-          derivedType = 'Marketing';
-        } else if (lowerName.includes('sales') || lowerName.includes('продаж')) {
-          derivedType = 'Sales';
-        } else if (lowerName.includes('discovery') || lowerName.includes('delivery') || 
-                  lowerName.includes('hub') || lowerName.includes('bot.one')) {
-          derivedType = 'Delivery & Discovery';
-        }
-        
-        // Even if the circle is not found in circlesData, create a basic entry for it
-        leadCircles.push({ name: circleName, functionalType: derivedType });
-        
-        // Set the circle type if not already set
-        if (!circleType && derivedType) {
-          circleType = derivedType;
-        }
+        // Create a basic entry for this circle with unknown functional type
+        // This ensures the circle name is shown even if it's not in the circles data
+        leadCircles.push({ name: circleName, functionalType: "" });
       }
     }
   }
