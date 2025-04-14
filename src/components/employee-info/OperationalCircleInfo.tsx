@@ -84,11 +84,9 @@ export const OperationalCircleInfo = ({
               {leadCircles.map((circle, idx) => (
                 <li key={idx} className="px-2 py-1 bg-blue-50 rounded flex justify-between">
                   <span>{circle.name}</span>
-                  {circle.functionalType && (
-                    <span className="text-blue-600 text-xs">
-                      {circle.functionalType}
-                    </span>
-                  )}
+                  <span className="text-blue-600 text-xs">
+                    {circle.functionalType || 'Не указано'}
+                  </span>
                 </li>
               ))}
             </ul>
