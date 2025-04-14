@@ -1,3 +1,4 @@
+
 import React from "react";
 import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from "@/components/ui/table";
 import { CircleData, RoleData, Employee, EmployeeWithRoles } from "@/types";
@@ -118,6 +119,28 @@ const CirclesTable: React.FC<CirclesTableProps> = ({
       circle.name !== "Офис СЕО" && 
       circle.name !== "Otherside"
     );
+    
+  // Helper function to get budget difference with color styling
+  const getBudgetDifference = (standard: number, current: number) => {
+    const difference = standard - current;
+    
+    if (difference > 0) {
+      return { 
+        value: difference, 
+        className: 'text-green-600 font-medium' 
+      };
+    } else if (difference < 0) {
+      return { 
+        value: difference, 
+        className: 'text-red-600 font-medium' 
+      };
+    } else {
+      return { 
+        value: 0, 
+        className: 'text-gray-500' 
+      };
+    }
+  };
 
   return (
     <div className="rounded-md border">
@@ -125,30 +148,30 @@ const CirclesTable: React.FC<CirclesTableProps> = ({
         <TableHeader>
           <TableRow>
             <TableHead className="w-[300px]">Название круга</TableHead>
-            <TableHead>Функциональный тип</TableHead>
-            <TableHead className="text-right">Количество сотрудников</TableHead>
             <TableHead className="text-right">Стандартный бюджет</TableHead>
             <TableHead className="text-right">Текущий бюджет</TableHead>
+            <TableHead className="text-right">Разница</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
           {uniqueCircles.map((circle, index) => {
-            const employees = employeesPerCircle.get(circle.name) || new Set();
-            const employeeCount = employees.size;
-            
             const standardBudget = circleBudgets.get(circle.name) || 0;
             const currentBudget = currentSalaryBudgets.get(circle.name) || 0;
+            const budgetDifference = getBudgetDifference(standardBudget, currentBudget);
             
             return (
               <TableRow key={`${circle.name}-${index}`}>
                 <TableCell className="font-medium">{circle.name}</TableCell>
-                <TableCell>{circle.functionalType || "—"}</TableCell>
-                <TableCell className="text-right">{employeeCount}</TableCell>
                 <TableCell className="text-right">
                   {standardBudget > 0 ? formatSalary(standardBudget) : "—"}
                 </TableCell>
                 <TableCell className="text-right">
                   {currentBudget > 0 ? formatSalary(currentBudget) : "—"}
+                </TableCell>
+                <TableCell className={`text-right ${budgetDifference.className}`}>
+                  {budgetDifference.value !== 0 
+                    ? formatSalary(budgetDifference.value) 
+                    : "—"}
                 </TableCell>
               </TableRow>
             );
