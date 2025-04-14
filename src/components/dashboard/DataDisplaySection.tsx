@@ -5,6 +5,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import EmployeeTable from "@/components/employee-table/EmployeeTable";
 import RolesTable from "@/components/roles/RolesTable";
 import LeadershipTable from "@/components/leadership/LeadershipTable";
+import CirclesTable from "@/components/circles/CirclesTable";
 import { Employee, RoleData, CircleData, LeadershipData } from "@/types";
 
 interface DataDisplaySectionProps {
@@ -48,9 +49,10 @@ const DataDisplaySection = ({
           onValueChange={setActiveTab}
           className="w-full"
         >
-          <TabsList className="w-full grid grid-cols-3 mb-4">
+          <TabsList className="w-full grid grid-cols-4 mb-4">
             <TabsTrigger value="employees">Сотрудники</TabsTrigger>
             <TabsTrigger value="roles">Роли</TabsTrigger>
+            <TabsTrigger value="circles">Круги</TabsTrigger>
             <TabsTrigger value="leadership">Лидерство</TabsTrigger>
           </TabsList>
           <TabsContent value="employees" className="w-full">
@@ -72,6 +74,12 @@ const DataDisplaySection = ({
               onStandardSalaryChange={onStandardSalaryChange}
               customStandardSalaries={customStandardSalaries}
               incognitoMode={incognitoMode}
+            />
+          </TabsContent>
+          <TabsContent value="circles" className="w-full">
+            <CirclesTable
+              circlesData={circlesData}
+              isLoading={isProcessing}
             />
           </TabsContent>
           <TabsContent value="leadership" className="w-full">

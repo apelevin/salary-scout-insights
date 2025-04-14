@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import DashboardHeader from "@/components/dashboard/DashboardHeader";
 import FileUploadSection from "@/components/dashboard/FileUploadSection";
@@ -27,13 +26,11 @@ const Index = () => {
     processFiles
   } = useFileProcessing();
 
-  // Обработчик, вызывающийся после успешной обработки файлов
   const handleProcessFiles = () => {
     processFiles();
     setFilesUploaded(true);
   };
 
-  // Обновленный обработчик загрузки файлов
   const handleUploadFiles = (files) => {
     handleFilesUploaded(files);
     if (files.length > 0) {
