@@ -87,9 +87,10 @@ const CirclesTable: React.FC<CirclesTableProps> = ({
         if (employee) {
           const isLeader = rolesData.some(role => {
             const roleCircleName = role.circleName?.replace(/["']/g, '').trim() || '';
+            const roleName = role.roleName.toLowerCase();
             return roleCircleName === circleName && 
                    role.participantName.replace(/["']/g, '').trim() === employeeName && 
-                   role.roleName.toLowerCase().includes('лидер');
+                   (roleName === "лидер" || roleName.includes("лидер операционного круга"));
           });
 
           let employeeCircleFTE = 0;
@@ -101,6 +102,7 @@ const CirclesTable: React.FC<CirclesTableProps> = ({
             }
           });
 
+          // Exclude leader roles from budget calculations
           if (!isLeader && employeeCircleFTE > 0) {
             if (employee.standardSalary) {
               totalStandardBudget += employee.standardSalary * employeeCircleFTE;
@@ -214,3 +216,4 @@ const CirclesTable: React.FC<CirclesTableProps> = ({
 };
 
 export default CirclesTable;
+
