@@ -31,10 +31,6 @@ const RoleBudgetSummary = ({
   return (
     <div className="mb-4">
       <div className="flex justify-between mb-2">
-        <h3 className="text-sm font-medium">Стандартный оклад:</h3>
-        <span className="font-medium">{formatSalary(standardSalary)}</span>
-      </div>
-      <div className="flex justify-between mb-2">
         <h3 className="text-sm font-medium">Текущая стоимость роли:</h3>
         <span className="font-medium">{formatSalary(totalRoleCost)}</span>
       </div>

@@ -13,6 +13,7 @@ import { Separator } from "@/components/ui/separator";
 import { useRoleEmployees } from "./sidebar/useRoleEmployees";
 import RoleBudgetSummary from "./sidebar/RoleBudgetSummary";
 import RoleEmployeeList from "./sidebar/RoleEmployeeList";
+import { formatSalary } from "@/utils/formatUtils";
 
 interface RoleDetailSidebarProps {
   isOpen: boolean;
@@ -22,6 +23,8 @@ interface RoleDetailSidebarProps {
   rolesData: any[];
   standardSalary: number;
   incognitoMode?: boolean;
+  minSalary?: number;
+  maxSalary?: number;
 }
 
 const RoleDetailSidebar = ({
@@ -31,7 +34,9 @@ const RoleDetailSidebar = ({
   employees,
   rolesData,
   standardSalary,
-  incognitoMode = false
+  incognitoMode = false,
+  minSalary = 0,
+  maxSalary = 0
 }: RoleDetailSidebarProps) => {
   // Return null only after all props have been destructured
   if (!roleName) return null;
@@ -53,6 +58,22 @@ const RoleDetailSidebar = ({
         </SheetHeader>
         
         <div className="mt-6">
+          {/* Role salary info: Min, Standard, Max */}
+          <div className="grid grid-cols-3 gap-4 mb-4 bg-muted/50 p-3 rounded-md">
+            <div>
+              <h4 className="text-xs text-muted-foreground">Минимальный оклад:</h4>
+              <p className="font-medium">{formatSalary(minSalary)}</p>
+            </div>
+            <div>
+              <h4 className="text-xs text-muted-foreground">Стандартный оклад:</h4>
+              <p className="font-medium">{formatSalary(standardSalary)}</p>
+            </div>
+            <div>
+              <h4 className="text-xs text-muted-foreground">Максимальный оклад:</h4>
+              <p className="font-medium">{formatSalary(maxSalary)}</p>
+            </div>
+          </div>
+          
           {/* Role budget summary */}
           <RoleBudgetSummary
             standardSalary={standardSalary}
