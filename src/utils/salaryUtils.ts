@@ -5,7 +5,7 @@ export const calculateStandardRate = (min: number, max: number): number => {
   if (min === max) {
     return max;
   }
-  return min + (max - min) * 0.3;
+  return min + (max - min) * 0.5;
 };
 
 export const findStandardRateForRole = (
@@ -114,7 +114,6 @@ export const getSalaryDifference = (standardSalary: number | undefined, actualSa
     return { text: '—', className: 'text-gray-400' };
   }
   
-  // Changed direction of calculation: standardSalary - actualSalary
   const difference = standardSalary - actualSalary;
   
   if (difference > 0) {
@@ -160,10 +159,8 @@ export const findLeadershipStandardSalary = (
     return null;
   }
   
-  // Clean and normalize the functional type
   const cleanedType = cleanFunctionalType(functionalType).toLowerCase();
   
-  // Look for exact match first
   for (const entry of leadershipData) {
     if (
       entry.leadershipType && 
@@ -174,7 +171,6 @@ export const findLeadershipStandardSalary = (
     }
   }
   
-  // If no exact match, look for a partial match (type might include multiple functions)
   for (const entry of leadershipData) {
     if (
       entry.leadershipType && 
