@@ -1,4 +1,3 @@
-
 import { FileType, FileText, RotateCcw } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import FileUpload from "@/components/FileUpload";
@@ -77,6 +76,11 @@ const FileUploadSection = ({
     }
   };
 
+  // Only render the component if files are not processed
+  if (filesProcessed) {
+    return null;
+  }
+
   return (
     <>
       <Card>
@@ -123,36 +127,35 @@ const FileUploadSection = ({
         </CardContent>
       </Card>
 
-      {!filesProcessed && (
-        <Card className="mt-6">
-          <CardContent className="p-6">
-            <div className="flex items-center space-x-2 mb-4">
-              <FileText className="h-5 w-5 text-blue-500" />
-              <h2 className="text-xl font-semibold text-foreground">Инструкция</h2>
-            </div>
-            <div className="space-y-3 text-sm text-muted-foreground">
-              <p>
-                1. Загрузите до 4 файлов в формате CSV с данными о сотрудниках, ролях и лидерстве.
-              </p>
-              <p>
-                2. CSV файлы сотрудников должны содержать колонки "name" (имя) и "salary" (зарплата).
-              </p>
-              <p>
-                3. CSV файлы ролей должны содержать колонки "участник роли" и "название роли".
-              </p>
-              <p>
-                4. CSV файл лидерства должен содержать тип лидерства в первой колонке и количество кругов с окладами в последующих колонках.
-              </p>
-              <p>
-                5. Нажмите "Обработать данные" для анализа загруженных файлов.
-              </p>
-              <p>
-                6. Вы можете редактировать стандартные оклады для ролей на соответствующей вкладке.
-              </p>
-            </div>
-          </CardContent>
-        </Card>
-      )}
+      {/* Only render the instruction card if files are not processed */}
+      <Card className="mt-6">
+        <CardContent className="p-6">
+          <div className="flex items-center space-x-2 mb-4">
+            <FileText className="h-5 w-5 text-blue-500" />
+            <h2 className="text-xl font-semibold text-foreground">Инструкция</h2>
+          </div>
+          <div className="space-y-3 text-sm text-muted-foreground">
+            <p>
+              1. Загрузите до 4 файлов в формате CSV с данными о сотрудниках, ролях и лидерстве.
+            </p>
+            <p>
+              2. CSV файлы сотрудников должны содержать колонки "name" (имя) и "salary" (зарплата).
+            </p>
+            <p>
+              3. CSV файлы ролей должны содержать колонки "участник роли" и "название роли".
+            </p>
+            <p>
+              4. CSV файл лидерства должен содержать тип лидерства в первой колонке и количество кругов с окладами в последующих колонках.
+            </p>
+            <p>
+              5. Нажмите "Обработать данные" для анализа загруженных файлов.
+            </p>
+            <p>
+              6. Вы можете редактировать стандартные оклады для ролей на соответствующей вкладке.
+            </p>
+          </div>
+        </CardContent>
+      </Card>
     </>
   );
 };
