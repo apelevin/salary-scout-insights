@@ -3,7 +3,6 @@ import React from "react";
 import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from "@/components/ui/table";
 import { CircleData, RoleData } from "@/types";
 import { Users } from "lucide-react";
-import { cleanRoleName } from "@/utils/formatUtils";
 
 interface CirclesTableProps {
   circlesData: CircleData[];
@@ -37,7 +36,8 @@ const CirclesTable: React.FC<CirclesTableProps> = ({ circlesData, rolesData, isL
   const employeesPerCircle = new Map<string, Set<string>>();
   const cleanCirclesData = circlesData.map(circle => ({
     ...circle,
-    name: circle.name.replace(/["']/g, '').trim()
+    name: circle.name.replace(/["']/g, '').trim(),
+    functionalType: circle.functionalType?.replace(/["']/g, '').trim() || ''
   }));
   
   rolesData.forEach(role => {
