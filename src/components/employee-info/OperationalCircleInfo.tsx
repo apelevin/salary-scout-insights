@@ -31,6 +31,16 @@ export const OperationalCircleInfo = ({ employee, leadershipData }: OperationalC
       }).format(standardSalary)
     : "Не определен";
 
+  // Add debug logging to see what values we're using for the lookup
+  console.log("Leadership data for employee:", {
+    employeeName: employee.name,
+    functionalType,
+    circleCount,
+    leadershipDataLength: leadershipData?.length || 0,
+    foundSalary: standardSalary,
+    firstLeadershipEntries: leadershipData?.slice(0, 3)
+  });
+
   return (
     <Card>
       <CardHeader className="pb-2">

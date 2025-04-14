@@ -1,3 +1,4 @@
+
 import { Employee, RoleData, LeadershipData } from "@/types";
 import { cleanRoleName, cleanFunctionalType } from "./formatUtils";
 
@@ -156,12 +157,15 @@ export const findLeadershipStandardSalary = (
   circleCount: string,
   leadershipData: LeadershipData[]
 ): number | null => {
-  if (!functionalType || !circleCount || !leadershipData.length) {
+  if (!functionalType || !circleCount || !leadershipData?.length) {
+    console.log("Missing leadership data for lookup:", { functionalType, circleCount, hasLeadershipData: Boolean(leadershipData?.length) });
     return null;
   }
   
   // Clean and normalize the functional type
   const cleanedType = cleanFunctionalType(functionalType).toLowerCase();
+  
+  console.log(`Looking for leadership salary: type="${cleanedType}", circles=${circleCount}, data entries=${leadershipData.length}`);
   
   // Look for exact match first
   for (const entry of leadershipData) {
@@ -170,6 +174,7 @@ export const findLeadershipStandardSalary = (
       cleanFunctionalType(entry.leadershipType).toLowerCase() === cleanedType &&
       entry.circleCount === circleCount
     ) {
+      console.log(`Found exact leadership match: ${entry.leadershipType} (${entry.circleCount}) = ${entry.standardSalary}`);
       return entry.standardSalary;
     }
   }
@@ -181,9 +186,33 @@ export const findLeadershipStandardSalary = (
       cleanFunctionalType(entry.leadershipType).toLowerCase().includes(cleanedType) &&
       entry.circleCount === circleCount
     ) {
+      console.log(`Found partial leadership match: ${entry.leadershipType} (${entry.circleCount}) = ${entry.standardSalary}`);
       return entry.standardSalary;
     }
   }
   
+  // Additional fallback: try with case-insensitive match and without cleaning
+  for (const entry of leadershipData) {
+    if (
+      entry.leadershipType && 
+      entry.leadershipType.toLowerCase().includes(functionalType.toLowerCase()) &&
+      entry.circleCount === circleCount
+    ) {
+      console.log(`Found fallback leadership match: ${entry.leadershipType} (${entry.circleCount}) = ${entry.standardSalary}`);
+      return entry.standardSalary;
+    }
+  }
+  
+  // Final fallback: just look for any match with the right circle count
+  if (circleCount !== "0") {
+    for (const entry of leadershipData) {
+      if (entry.circleCount === circleCount) {
+        console.log(`Found circle-count-only match: ${entry.leadershipType} (${entry.circleCount}) = ${entry.standardSalary}`);
+        return entry.standardSalary;
+      }
+    }
+  }
+  
+  console.log(`No leadership salary found for: type="${cleanedType}", circles=${circleCount}`);
   return null;
 };

@@ -1,3 +1,4 @@
+
 import { Employee, RoleData, EmployeeWithRoles, CircleData, LeadershipData } from "@/types";
 import { formatName, cleanRoleName, cleanFunctionalType } from "./formatUtils";
 import { calculateStandardSalary } from "./salaryUtils";
@@ -33,6 +34,13 @@ export const processEmployeesWithRoles = (
     // Find circle leadership info
     const { circleType, circleCount } = findCircleLeadershipInfo(lastName, firstName, rolesData, circlesData);
     
+    // Log leadership data for debugging
+    console.log(`Processing employee ${emp.name} with leadership:`, { 
+      circleType, 
+      circleCount, 
+      leadershipDataEntries: leadershipData?.length || 0 
+    });
+    
     const standardSalary = calculateStandardSalary(
       normalizedRolesFTE, 
       rolesData, 
@@ -66,17 +74,25 @@ export const findCircleLeadershipInfo = (
   // Constants for the circle leader role names
   const OPERATIONAL_CIRCLE_LEADER = "лидер операционного круга";
   const STRATEGIC_CIRCLE_LEADER = "лидер стратегического круга";
-  const GENERIC_LEADER_ROLE = "Лидер"; // Capitalized
+  const GENERIC_LEADER_ROLE = "лидер";
   
   // Find the employee by name
   const employeeRoles = rolesData.filter(role => {
+    if (!role.participantName) return false;
+    
     const participantName = formatName(role.participantName);
     return participantName.toLowerCase().includes(lastName.toLowerCase()) &&
            (!firstName || participantName.toLowerCase().includes(firstName.toLowerCase()));
   });
   
+  if (employeeRoles.length === 0) {
+    console.log(`No roles found for employee: ${lastName} ${firstName}`);
+    return { circleType: undefined, circleCount: 0 };
+  }
+  
   // Check if the employee has any leader roles (operational or strategic)
   const leaderRoles = employeeRoles.filter(role => {
+    if (!role.roleName) return false;
     const roleName = role.roleName.toLowerCase();
     return roleName.includes(OPERATIONAL_CIRCLE_LEADER.toLowerCase()) || 
            roleName.includes(STRATEGIC_CIRCLE_LEADER.toLowerCase()) ||
@@ -85,8 +101,11 @@ export const findCircleLeadershipInfo = (
   
   // If the employee is not a leader of any kind, return empty values
   if (leaderRoles.length === 0) {
+    console.log(`No leadership roles found for: ${lastName} ${firstName}`);
     return { circleType: undefined, circleCount: 0 };
   }
+  
+  console.log(`Found ${leaderRoles.length} leadership roles for: ${lastName} ${firstName}`);
   
   // Count the total number of circles led
   const circleCount = leaderRoles.length;
@@ -95,18 +114,50 @@ export const findCircleLeadershipInfo = (
   let circleType: string | undefined = undefined;
   
   // First try to find an operational circle with functional type
-  const operationalCircle = leaderRoles.find(role => 
-    role.roleName.toLowerCase().includes(OPERATIONAL_CIRCLE_LEADER.toLowerCase())
-  );
-  
-  if (operationalCircle?.circleName) {
-    const circle = circlesData.find(circle => 
-      circle.name.toLowerCase() === operationalCircle.circleName?.toLowerCase()
-    );
-    
-    if (circle) {
-      circleType = cleanFunctionalType(circle.functionalType);
+  for (const role of leaderRoles) {
+    if (role.roleName?.toLowerCase().includes(OPERATIONAL_CIRCLE_LEADER.toLowerCase()) && role.circleName) {
+      const circle = circlesData.find(circle => 
+        circle.name && circle.name.toLowerCase() === role.circleName?.toLowerCase()
+      );
+      
+      if (circle?.functionalType) {
+        circleType = cleanFunctionalType(circle.functionalType);
+        console.log(`Found functional type for ${lastName} ${firstName}: ${circleType} (from circle ${role.circleName})`);
+        break;
+      }
     }
+  }
+  
+  // If no functional type was found, try to extract it from the circle name
+  if (!circleType) {
+    for (const role of leaderRoles) {
+      if (role.circleName) {
+        const circleName = role.circleName.toLowerCase();
+        if (circleName.includes('delivery')) {
+          circleType = 'Delivery';
+          break;
+        } else if (circleName.includes('discovery')) {
+          circleType = 'Discovery';
+          break;
+        } else if (circleName.includes('platform')) {
+          circleType = 'Platform';
+          break;
+        } else if (circleName.includes('enablement')) {
+          circleType = 'Enablement';
+          break;
+        }
+      }
+    }
+    
+    if (circleType) {
+      console.log(`Extracted functional type from circle name for ${lastName} ${firstName}: ${circleType}`);
+    }
+  }
+  
+  // Fallback: If still no type, just return "General" as the type
+  if (!circleType && circleCount > 0) {
+    circleType = "General";
+    console.log(`Using fallback type "General" for ${lastName} ${firstName}`);
   }
   
   return { 

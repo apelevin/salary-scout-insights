@@ -18,6 +18,13 @@ export const useLeadershipData = (markFileAsParsed: (fileId: string) => void) =>
       const parsedLeadership = parseLeadershipCSV(file.content);
       console.log("Результат парсинга лидерства:", parsedLeadership.length, "записей");
       
+      // Basic validation of parsed leadership data
+      parsedLeadership.forEach((entry, index) => {
+        if (!entry.leadershipType || !entry.circleCount || entry.standardSalary === undefined) {
+          console.warn(`Неполная запись лидерства #${index}:`, entry);
+        }
+      });
+      
       if (parsedLeadership.length > 0) {
         setLeadershipData(parsedLeadership);
         

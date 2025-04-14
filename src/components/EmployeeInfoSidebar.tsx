@@ -34,6 +34,12 @@ const EmployeeInfoSidebar = ({
   // Check if the employee has the properties of EmployeeWithRoles
   const hasRoles = 'roles' in employee && 'totalFTE' in employee && 'normalizedRolesFTE' in employee;
 
+  // Log leadership data to help with debugging
+  console.log("EmployeeInfoSidebar received leadership data:", {
+    count: leadershipData?.length || 0,
+    sample: leadershipData?.slice(0, 2) || []
+  });
+
   return (
     <Sheet open={open} onOpenChange={(isOpen) => {
       if (!isOpen) onClose();
@@ -43,6 +49,7 @@ const EmployeeInfoSidebar = ({
 
         <div className="space-y-6">
           <FinancialInfo employee={employee} />
+          
           {hasRoles && (
             <SalaryCalculation employee={employee as EmployeeWithRoles} />
           )}
