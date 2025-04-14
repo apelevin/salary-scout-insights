@@ -33,21 +33,30 @@ const CirclesTable: React.FC<CirclesTableProps> = ({ circlesData, rolesData, isL
     );
   }
 
-  // Count employees per circle
+  // Count employees per circle and clean circle names
   const employeesPerCircle = new Map<string, Set<string>>();
+  const cleanCirclesData = circlesData.map(circle => ({
+    ...circle,
+    name: circle.name.replace(/["']/g, '').trim()
+  }));
   
   rolesData.forEach(role => {
-    if (role.circleName) {
-      const circleName = role.circleName;
-      const participantName = role.participantName;
-      
-      if (!employeesPerCircle.has(circleName)) {
-        employeesPerCircle.set(circleName, new Set());
+    const cleanCircleName = role.circleName?.replace(/["']/g, '').trim() || '';
+    const cleanParticipantName = role.participantName.replace(/["']/g, '').trim();
+    
+    if (cleanCircleName) {
+      if (!employeesPerCircle.has(cleanCircleName)) {
+        employeesPerCircle.set(cleanCircleName, new Set());
       }
       
-      employeesPerCircle.get(circleName)?.add(participantName);
+      employeesPerCircle.get(cleanCircleName)?.add(cleanParticipantName);
     }
   });
+
+  // Remove duplicate circles
+  const uniqueCircles = Array.from(new Set(cleanCirclesData.map(circle => circle.name)))
+    .map(name => cleanCirclesData.find(circle => circle.name === name)!)
+    .filter(Boolean);
 
   return (
     <div className="rounded-md border">
@@ -60,7 +69,7 @@ const CirclesTable: React.FC<CirclesTableProps> = ({ circlesData, rolesData, isL
           </TableRow>
         </TableHeader>
         <TableBody>
-          {circlesData.map((circle, index) => {
+          {uniqueCircles.map((circle, index) => {
             // Get the count of unique employees in this circle
             const employees = employeesPerCircle.get(circle.name) || new Set();
             const employeeCount = employees.size;
