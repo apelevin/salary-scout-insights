@@ -20,6 +20,11 @@ export const processEmployeesWithRoles = (
   circlesData: CircleData[] = [],
   leadershipData: LeadershipData[] = []
 ) => {
+  // Log circles data for debugging
+  console.log(`Starting to process ${employees.length} employees with ${circlesData.length} circles:`, 
+    circlesData.slice(0, 5).map(c => ({ name: c.name, type: c.functionalType }))
+  );
+
   return employees.map(emp => {
     const nameParts = formatName(emp.name).split(' ');
     const lastName = nameParts[0];
@@ -128,10 +133,11 @@ export const findCircleLeadershipInfo = (
       // Find the circle with matching name in circles data
       const circle = circlesData.find(circle => 
         circle.name && 
-        circle.name.toLowerCase().trim() === circleName.toLowerCase()
+        circle.name.toLowerCase().trim() === circleName.toLowerCase().trim()
       );
       
       if (circle) {
+        console.log(`Found circle "${circleName}" with functional type: "${circle.functionalType || 'Not specified'}"`);
         leadCircles.push(circle);
         if (circle.functionalType && !circleType) {
           circleType = cleanFunctionalType(circle.functionalType);
@@ -203,3 +209,4 @@ export const findCircleLeadershipInfo = (
 // These functions are kept for backwards compatibility but are no longer used directly
 export const findOperationalCircleInfo = findCircleLeadershipInfo;
 export const findStrategicCircleCount = () => undefined;
+

@@ -40,13 +40,22 @@ export const parseCirclesCSV = (csvContent: string): CircleData[] => {
       return [];
     }
     
-    // We can still parse circles even without functional type column
-    if (functionalTypeColumnIndex === -1) {
-      console.warn("В CSV файле не найдена колонка 'функциональная принадлежность'");
-      console.warn("Будет выполнена попытка извлечь тип из названия круга");
+    // Also check for "функциональная принадлежность" column explicitly
+    let functionalTypeColIndex = functionalTypeColumnIndex;
+    if (functionalTypeColIndex === -1) {
+      functionalTypeColIndex = headers.findIndex(h => 
+        h === "функциональная принадлежность" || 
+        h === "функциональная принадлежность "
+      );
+      if (functionalTypeColIndex !== -1) {
+        console.log("Найдена точная колонка 'функциональная принадлежность' по индексу:", functionalTypeColIndex);
+      } else {
+        console.warn("В CSV файле не найдена колонка 'функциональная принадлежность'");
+        console.warn("Будет выполнена попытка извлечь тип из названия круга");
+      }
     }
     
-    const circles = parseCircleRows(lines, delimiter, circleNameColumnIndex, functionalTypeColumnIndex);
+    const circles = parseCircleRows(lines, delimiter, circleNameColumnIndex, functionalTypeColIndex);
     
     // Add more detailed debug logging
     console.log(`Распознанные круги и их функциональные принадлежности (${circles.length} записей):`);
