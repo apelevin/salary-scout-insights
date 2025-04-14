@@ -3,7 +3,7 @@ import { Card, CardHeader, CardContent, CardTitle } from "@/components/ui/card";
 import { CircleAlert } from "lucide-react";
 import { EmployeeWithRoles, LeadershipData } from "@/types";
 import { cleanFunctionalType } from "@/utils/formatUtils";
-import { findLeadershipStandardSalary } from "@/utils/salaryUtils";
+import { findLeadershipStandardSalary } from "@/utils/salary";
 
 interface OperationalCircleInfoProps {
   employee: EmployeeWithRoles;
