@@ -1,3 +1,4 @@
+
 import { CircleData, RoleData } from "@/types";
 import { formatName } from "../formatUtils";
 import { normalizeFunctionalType } from "../csv/helpers";
@@ -111,10 +112,6 @@ export const findCircleLeadershipInfo = (
     leadCircles
   };
 };
-
-// Helper function to format names (imported from formatUtils)
-// Keep this internal reference for backward compatibility
-import { formatName } from "../formatUtils";
 
 // These functions are kept for backwards compatibility but are no longer used directly
 export const findOperationalCircleInfo = findCircleLeadershipInfo;
