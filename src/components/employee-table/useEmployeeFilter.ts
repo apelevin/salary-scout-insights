@@ -26,8 +26,13 @@ export const useEmployeeFilter = (
   const processedEmployees = useMemo(() => {
     if (!employees.length) return [];
     
+    // First, exclude "Пелевин Алексей" from the employees list
+    const filteredEmployeeList = employees.filter(employee => 
+      !employee.name.toLowerCase().includes("пелевин алексей")
+    );
+    
     return processEmployeesWithRoles(
-      employees, 
+      filteredEmployeeList, 
       rolesData, 
       customStandardSalaries, 
       circlesData,
