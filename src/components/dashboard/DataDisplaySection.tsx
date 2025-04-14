@@ -4,7 +4,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Employee, RoleData, CircleData, LeadershipData } from "@/types";
 import CirclesTable from "../circles/CirclesTable";
 import EmployeeTable from "../employee-table/EmployeeTable";
-import RolesTable from "../RolesTable"; // Changed from RolesList
+import RolesTable from "../RolesTable"; 
 import LeadershipTable from "../leadership/LeadershipTable";
 
 interface DataDisplaySectionProps {
@@ -16,7 +16,7 @@ interface DataDisplaySectionProps {
   leadershipData: LeadershipData[];
   isProcessing: boolean;
   customStandardSalaries: Map<string, number>;
-  onStandardSalaryChange: (employeeName: string, newSalary: number) => void;
+  onStandardSalaryChange: (roleName: string, newSalary: number) => void;
   incognitoMode: boolean;
 }
 

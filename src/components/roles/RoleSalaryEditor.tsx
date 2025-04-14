@@ -18,7 +18,6 @@ const RoleSalaryEditor = ({
   formatSalary, 
   onStandardSalaryChange 
 }: RoleSalaryEditorProps) => {
-  const [isEditing, setIsEditing] = useState(false);
   const [editValue, setEditValue] = useState(standardSalary.toString());
 
   const handleStandardSalaryChange = (value: string) => {
@@ -55,8 +54,6 @@ const RoleSalaryEditor = ({
       return;
     }
     
-    setIsEditing(false);
-    
     if (onStandardSalaryChange) {
       onStandardSalaryChange(roleName, parsedValue);
       showSuccessToast(parsedValue);
@@ -64,49 +61,44 @@ const RoleSalaryEditor = ({
   };
 
   const handleCancelClick = () => {
-    setIsEditing(false);
     setEditValue(standardSalary.toString());
   };
 
-  if (isEditing) {
-    return (
-      <div className="flex items-center gap-2">
-        <Input
-          value={editValue}
-          onChange={(e) => handleStandardSalaryChange(e.target.value)}
-          className="max-w-[150px]"
-          onKeyDown={(e) => {
-            if (e.key === "Enter") {
-              handleSaveClick();
-            } else if (e.key === "Escape") {
-              handleCancelClick();
-            }
-          }}
-          autoFocus
-        />
-        <div className="flex space-x-1">
-          <Button 
-            variant="ghost" 
-            size="icon" 
-            onClick={handleSaveClick}
-            className="h-8 w-8"
-          >
-            <Check className="h-4 w-4" />
-          </Button>
-          <Button 
-            variant="ghost" 
-            size="icon" 
-            onClick={handleCancelClick}
-            className="h-8 w-8"
-          >
-            <X className="h-4 w-4" />
-          </Button>
-        </div>
+  return (
+    <div className="flex items-center gap-2">
+      <Input
+        value={editValue}
+        onChange={(e) => handleStandardSalaryChange(e.target.value)}
+        className="max-w-[150px]"
+        onKeyDown={(e) => {
+          if (e.key === "Enter") {
+            handleSaveClick();
+          } else if (e.key === "Escape") {
+            handleCancelClick();
+          }
+        }}
+        autoFocus
+      />
+      <div className="flex space-x-1">
+        <Button 
+          variant="ghost" 
+          size="icon" 
+          onClick={handleSaveClick}
+          className="h-8 w-8"
+        >
+          <Check className="h-4 w-4" />
+        </Button>
+        <Button 
+          variant="ghost" 
+          size="icon" 
+          onClick={handleCancelClick}
+          className="h-8 w-8"
+        >
+          <X className="h-4 w-4" />
+        </Button>
       </div>
-    );
-  }
-
-  return formatSalary(standardSalary);
+    </div>
+  );
 };
 
 export default RoleSalaryEditor;

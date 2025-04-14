@@ -100,4 +100,3 @@ const RolesTable = ({
 };
 
 export default RolesTable;
-
