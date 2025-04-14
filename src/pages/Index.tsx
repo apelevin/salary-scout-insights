@@ -41,21 +41,23 @@ const Index = () => {
           />
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-          <div className="lg:col-span-4">
-            <FileUploadSection 
-              uploadedFiles={uploadedFiles}
-              isProcessing={isProcessing}
-              filesProcessed={filesProcessed}
-              onFilesUploaded={handleFilesUploaded}
-              onProcessFiles={processFiles}
-              onResetUploadControls={resetUploadControls}
-              onLeadershipFileUpload={handleLeadershipFileUpload}
-              maxFiles={4}
-            />
-          </div>
+        <div className={`grid ${filesProcessed ? 'grid-cols-1' : 'grid-cols-1 lg:grid-cols-12 gap-6'}`}>
+          {!filesProcessed && (
+            <div className="lg:col-span-4">
+              <FileUploadSection 
+                uploadedFiles={uploadedFiles}
+                isProcessing={isProcessing}
+                filesProcessed={filesProcessed}
+                onFilesUploaded={handleFilesUploaded}
+                onProcessFiles={processFiles}
+                onResetUploadControls={resetUploadControls}
+                onLeadershipFileUpload={handleLeadershipFileUpload}
+                maxFiles={4}
+              />
+            </div>
+          )}
 
-          <div className="lg:col-span-8">
+          <div className={`${filesProcessed ? 'col-span-full' : 'lg:col-span-8'}`}>
             <DataDisplaySection 
               activeTab={activeTab}
               setActiveTab={setActiveTab}
