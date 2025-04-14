@@ -43,7 +43,7 @@ const RolesTable = ({
   return (
     <div className="w-full">
       <TableActions roles={roles} />
-      <div className="border rounded-md">
+      <div className="border rounded-md overflow-x-auto">
         <Table>
           <RolesTableHeader />
           <TableBody>

@@ -10,6 +10,7 @@ import { EyeOff } from "lucide-react";
 const Index = () => {
   const [activeTab, setActiveTab] = useState("employees");
   const [incognitoMode, setIncognitoMode] = useState(false);
+  const [filesUploaded, setFilesUploaded] = useState(false);
   
   const {
     uploadedFiles,
@@ -26,6 +27,20 @@ const Index = () => {
     processFiles
   } = useFileProcessing();
 
+  // Обработчик, вызывающийся после успешной обработки файлов
+  const handleProcessFiles = () => {
+    processFiles();
+    setFilesUploaded(true);
+  };
+
+  // Обновленный обработчик загрузки файлов
+  const handleUploadFiles = (files) => {
+    handleFilesUploaded(files);
+    if (files.length > 0) {
+      setFilesUploaded(false);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-background py-8">
       <div className="container mx-auto px-4">
@@ -40,19 +55,19 @@ const Index = () => {
           />
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-          <div className="lg:col-span-4">
+        <div className="grid grid-cols-1 gap-6">
+          {!filesUploaded && (
             <FileUploadSection 
               uploadedFiles={uploadedFiles}
               isProcessing={isProcessing}
-              onFilesUploaded={handleFilesUploaded}
-              onProcessFiles={processFiles}
+              onFilesUploaded={handleUploadFiles}
+              onProcessFiles={handleProcessFiles}
               onLeadershipFileUpload={handleLeadershipFileUpload}
               maxFiles={4}
             />
-          </div>
+          )}
 
-          <div className="lg:col-span-8">
+          {(filesUploaded || uploadedFiles.length > 0) && (
             <DataDisplaySection 
               activeTab={activeTab}
               setActiveTab={setActiveTab}
@@ -65,8 +80,9 @@ const Index = () => {
               onStandardSalaryChange={handleStandardSalaryChange}
               onLeadershipDataChange={handleLeadershipDataChange}
               incognitoMode={incognitoMode}
+              fullWidth={filesUploaded}
             />
-          </div>
+          )}
         </div>
       </div>
     </div>

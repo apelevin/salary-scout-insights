@@ -19,6 +19,7 @@ interface DataDisplaySectionProps {
   onStandardSalaryChange: (roleName: string, newStandardSalary: number) => void;
   onLeadershipDataChange?: (updatedData: LeadershipData[]) => void;
   incognitoMode?: boolean;
+  fullWidth?: boolean;
 }
 
 const DataDisplaySection = ({
@@ -32,10 +33,11 @@ const DataDisplaySection = ({
   customStandardSalaries,
   onStandardSalaryChange,
   onLeadershipDataChange,
-  incognitoMode = false
+  incognitoMode = false,
+  fullWidth = false
 }: DataDisplaySectionProps) => {
   return (
-    <Card>
+    <Card className={fullWidth ? "w-full" : ""}>
       <CardContent className="p-6">
         <div className="flex items-center space-x-2 mb-4">
           <BarChart className="h-5 w-5 text-blue-500" />
@@ -51,7 +53,7 @@ const DataDisplaySection = ({
             <TabsTrigger value="roles">Роли</TabsTrigger>
             <TabsTrigger value="leadership">Лидерство</TabsTrigger>
           </TabsList>
-          <TabsContent value="employees">
+          <TabsContent value="employees" className="w-full">
             <EmployeeTable 
               employees={employees} 
               rolesData={rolesData}
@@ -62,7 +64,7 @@ const DataDisplaySection = ({
               incognitoMode={incognitoMode}
             />
           </TabsContent>
-          <TabsContent value="roles">
+          <TabsContent value="roles" className="w-full">
             <RolesTable
               rolesData={rolesData}
               employees={employees}
@@ -72,7 +74,7 @@ const DataDisplaySection = ({
               incognitoMode={incognitoMode}
             />
           </TabsContent>
-          <TabsContent value="leadership">
+          <TabsContent value="leadership" className="w-full">
             <LeadershipTable 
               leadershipData={leadershipData}
               isLoading={isProcessing}
