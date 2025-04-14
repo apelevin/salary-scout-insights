@@ -29,6 +29,16 @@ const RolesTable = ({
   const [selectedRole, setSelectedRole] = useState<string | null>(null);
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
+  // Calculate roles with alert status (you can define the logic for this)
+  const alertRoles = roles.filter(role => {
+    // Example conditions for alert status
+    return (
+      role.standardSalary === 0 || 
+      role.salaries.length === 0 ||
+      role.maxSalary - role.minSalary > 10000  // Large salary disparity
+    );
+  });
+
   const handleRoleClick = (roleName: string) => {
     setSelectedRole(roleName);
     setSidebarOpen(true);
@@ -61,7 +71,10 @@ const RolesTable = ({
   return (
     <div className="w-full">
       <div className="flex justify-between items-center mb-4">
-        <RolesSummary count={roles.length} />
+        <RolesSummary 
+          count={roles.length} 
+          alertCount={alertRoles.length}
+        />
         <RolesExportButton roles={roles} />
       </div>
       
@@ -87,3 +100,4 @@ const RolesTable = ({
 };
 
 export default RolesTable;
+
