@@ -101,7 +101,8 @@ export const parseLeadershipCSV = (csvContent: string): LeadershipData[] => {
     console.log("Данные о лидерстве не найдены, добавляем базовые записи");
     
     // Add some basic leadership entries to ensure functionality
-    const defaultTypes = ["Delivery", "Discovery", "Enablement", "Platform"];
+    // Include "Delivery & Discovery" type for Discovery roles
+    const defaultTypes = ["Delivery", "Discovery", "Delivery & Discovery", "Enablement", "Platform"];
     const defaultCircleCounts = ["1", "2", "3"];
     const baseSalary = 100000;
     

@@ -47,6 +47,7 @@ export const findLeadershipStandardSalary = (
     return null;
   }
   
+  // First try: exact match
   for (const entry of leadershipData) {
     if (
       entry.leadershipType && 
@@ -58,6 +59,21 @@ export const findLeadershipStandardSalary = (
     }
   }
   
+  // Special case for "Discovery" to match "Delivery & Discovery"
+  if (cleanedType === "discovery") {
+    for (const entry of leadershipData) {
+      if (
+        entry.leadershipType &&
+        entry.leadershipType.toLowerCase().includes("discovery") &&
+        entry.circleCount === circleCount
+      ) {
+        console.log(`Found Discovery in combined type match: ${entry.leadershipType} (${entry.circleCount}) = ${entry.standardSalary}`);
+        return entry.standardSalary;
+      }
+    }
+  }
+  
+  // Second try: partial match (type is included in entry)
   for (const entry of leadershipData) {
     if (
       entry.leadershipType && 
@@ -69,6 +85,7 @@ export const findLeadershipStandardSalary = (
     }
   }
   
+  // Third try: type is included in entry (unclean comparison)
   for (const entry of leadershipData) {
     if (
       entry.leadershipType && 
@@ -80,6 +97,7 @@ export const findLeadershipStandardSalary = (
     }
   }
   
+  // Last try: match only by circle count if not zero
   if (circleCount !== "0") {
     for (const entry of leadershipData) {
       if (entry.circleCount === circleCount) {
