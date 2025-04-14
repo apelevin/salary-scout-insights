@@ -16,6 +16,7 @@ interface RoleRowProps {
   index: number;
   formatSalary: (salary: number) => string;
   onStandardSalaryChange?: (roleName: string, newStandardSalary: number) => void;
+  onRoleClick?: (roleName: string) => void;
 }
 
 const RoleRow = ({ 
@@ -26,7 +27,8 @@ const RoleRow = ({
   salaries,
   index,
   formatSalary,
-  onStandardSalaryChange
+  onStandardSalaryChange,
+  onRoleClick
 }: RoleRowProps) => {
   const [isEditing, setIsEditing] = useState(false);
   const [editValue, setEditValue] = useState(standardSalary.toString());
@@ -186,7 +188,18 @@ const RoleRow = ({
 
   return (
     <TableRow>
-      <TableCell className="font-medium">{roleName}</TableCell>
+      <TableCell className="font-medium">
+        {salaries.length > 0 && onRoleClick ? (
+          <button 
+            onClick={() => onRoleClick(roleName)}
+            className="text-left hover:text-blue-600 hover:underline transition-colors"
+          >
+            {roleName}
+          </button>
+        ) : (
+          roleName
+        )}
+      </TableCell>
       <TableCell>{renderSalaryValue()}</TableCell>
       <TableCell>{renderMaxSalaryValue()}</TableCell>
       <TableCell>{renderStandardSalaryField()}</TableCell>

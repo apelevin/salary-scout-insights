@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Table, TableBody } from "@/components/ui/table";
 import { RoleData } from "@/types";
@@ -12,6 +11,7 @@ import EmptyState from "@/components/roles/EmptyState";
 import { Button } from "@/components/ui/button";
 import { Download } from "lucide-react";
 import { toast } from "@/components/ui/use-toast";
+import RoleDetailSidebar from "@/components/roles/RoleDetailSidebar";
 
 interface RolesTableProps {
   rolesData: RoleData[];
@@ -39,6 +39,8 @@ const RolesTable = ({
   incognitoMode = false
 }: RolesTableProps) => {
   const [roles, setRoles] = useState<RoleWithSalaries[]>([]);
+  const [selectedRole, setSelectedRole] = useState<string | null>(null);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
 
   const OPERATIONAL_CIRCLE_LEADER = "лидер операционного круга";
   const STRATEGIC_CIRCLE_LEADER = "лидер стратегического круга";
@@ -148,10 +150,8 @@ const RolesTable = ({
       return;
     }
 
-    // Prepare CSV content
     const headers = ["Название роли", "Стандартный оклад"];
     
-    // Convert role data to CSV rows
     const rows = roles.map(role => {
       const salary = role.standardSalary ? 
         role.standardSalary.toString().replace('.', ',') : 
@@ -159,23 +159,19 @@ const RolesTable = ({
       return [role.roleName, salary];
     });
     
-    // Combine headers and rows into CSV string
     const csvContent = [
       headers.join(';'),
       ...rows.map(row => row.join(';'))
     ].join('\n');
     
-    // Create blob and download
     const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
     
-    // Set link attributes
     link.setAttribute('href', url);
     link.setAttribute('download', `roles-export-${new Date().toISOString().split('T')[0]}.csv`);
     link.style.visibility = 'hidden';
     
-    // Add to document, trigger download and clean up
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -185,6 +181,16 @@ const RolesTable = ({
       title: "Экспорт завершен",
       description: `Файл со списком ${roles.length} ролей успешно скачан.`,
     });
+  };
+
+  const handleRoleClick = (roleName: string) => {
+    setSelectedRole(roleName);
+    setSidebarOpen(true);
+  };
+
+  const handleCloseSidebar = () => {
+    setSidebarOpen(false);
+    setSelectedRole(null);
   };
 
   if (isLoading) {
@@ -198,6 +204,9 @@ const RolesTable = ({
       description="Загрузите файл с данными о ролях, чтобы увидеть информацию."
     />;
   }
+
+  const selectedRoleStandardSalary = selectedRole ? 
+    roles.find(role => role.roleName === selectedRole)?.standardSalary || 0 : 0;
 
   return (
     <div className="w-full">
@@ -230,11 +239,22 @@ const RolesTable = ({
                 salaries={role.salaries}
                 formatSalary={formatSalary}
                 onStandardSalaryChange={onStandardSalaryChange}
+                onRoleClick={handleRoleClick}
               />
             ))}
           </TableBody>
         </Table>
       </div>
+      
+      <RoleDetailSidebar
+        isOpen={sidebarOpen}
+        onClose={handleCloseSidebar}
+        roleName={selectedRole}
+        employees={employees}
+        rolesData={rolesData}
+        standardSalary={selectedRoleStandardSalary}
+        incognitoMode={incognitoMode}
+      />
     </div>
   );
 };
