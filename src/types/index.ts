@@ -16,6 +16,7 @@ export interface EmployeeWithRoles extends Employee {
   operationalCircleType?: string;
   operationalCircleCount?: number;
   strategicCircleCount?: number;
+  leadCircles?: CircleData[];
 }
 
 export interface UploadedFile {

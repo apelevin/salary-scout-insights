@@ -7,6 +7,7 @@ import {
   calculateTotalFTE, 
   normalizeRolesFTE 
 } from "../fteUtils";
+import { findCircleLeadershipInfo } from "./leadershipUtils";
 
 /**
  * Process employees data with roles to create enriched employee objects
@@ -36,12 +37,22 @@ export const processEmployeesWithRoles = (
       customStandardSalaries
     );
     
+    // Find leadership information for this employee
+    const { circleCount, leadCircles } = findCircleLeadershipInfo(
+      lastName,
+      firstName,
+      rolesData,
+      circlesData
+    );
+    
     return {
       ...emp,
       roles,
       totalFTE,
       normalizedRolesFTE,
-      standardSalary
+      standardSalary,
+      operationalCircleCount: circleCount,
+      leadCircles
     };
   });
 };

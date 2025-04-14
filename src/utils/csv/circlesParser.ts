@@ -3,7 +3,8 @@ import { CircleData } from "@/types";
 import { 
   normalizeCSVContent, 
   detectDelimiter, 
-  findColumnIndex
+  findColumnIndex,
+  normalizeFunctionalType
 } from "./helpers";
 import {
   CIRCLE_NAME_ALIASES
@@ -28,8 +29,10 @@ export const parseCirclesCSV = (csvContent: string): CircleData[] => {
     
     // Find column indices
     const circleNameColumnIndex = findColumnIndex(headers, CIRCLE_NAME_ALIASES);
+    const functionalTypeColumnIndex = findColumnIndex(headers, ['функциональная принадлежность', 'тип', 'type', 'functional type']);
     
     console.log("Индекс колонки с названием круга:", circleNameColumnIndex);
+    console.log("Индекс колонки с функциональной принадлежностью:", functionalTypeColumnIndex);
     
     if (circleNameColumnIndex === -1) {
       console.error("CSV файл с кругами должен содержать колонку 'название круга'");
@@ -37,13 +40,13 @@ export const parseCirclesCSV = (csvContent: string): CircleData[] => {
       return [];
     }
     
-    const circles = parseCircleRows(lines, delimiter, circleNameColumnIndex);
+    const circles = parseCircleRows(lines, delimiter, circleNameColumnIndex, functionalTypeColumnIndex);
     
     // Add more detailed debug logging
     console.log(`Распознанные круги (${circles.length} записей):`);
     circles.forEach((circle, index) => {
       if (index < 10) { // Limit logging to avoid console flooding
-        console.log(`${index + 1}. Круг: "${circle.name}"`);
+        console.log(`${index + 1}. Круг: "${circle.name}", Тип: "${circle.functionalType}"`);
       }
     });
     
@@ -61,7 +64,8 @@ export const parseCirclesCSV = (csvContent: string): CircleData[] => {
 function parseCircleRows(
   lines: string[],
   delimiter: string,
-  circleNameColumnIndex: number
+  circleNameColumnIndex: number,
+  functionalTypeColumnIndex: number = -1
 ): CircleData[] {
   const circles: CircleData[] = [];
   
@@ -81,10 +85,16 @@ function parseCircleRows(
     }
     
     const name = values[circleNameColumnIndex].trim();
+    let functionalType = "The others"; // Default value
+    
+    // Try to get functional type if column exists
+    if (functionalTypeColumnIndex !== -1 && values.length > functionalTypeColumnIndex && values[functionalTypeColumnIndex]) {
+      functionalType = normalizeFunctionalType(values[functionalTypeColumnIndex]);
+    }
     
     circles.push({
       name,
-      functionalType: "The others" // Add default functional type to satisfy the CircleData type
+      functionalType
     });
   }
   
