@@ -1,4 +1,3 @@
-
 import { CircleData } from "@/types";
 import { 
   normalizeCSVContent, 
@@ -84,49 +83,34 @@ function parseCircleRows(
 ): CircleData[] {
   const circles: CircleData[] = [];
   
-  // Start at 1 to skip headers
+  // Начинаем с 1, чтобы пропустить заголовки
   for (let i = 1; i < lines.length; i++) {
     const values = lines[i].split(delimiter).map(value => value.trim());
     
-    // Skip empty rows
+    // Пропускаем пустые строки
     if (values.every(v => v === '')) {
       continue;
     }
     
-    // Skip rows with insufficient values for circle name
+    // Пропускаем строки без названия круга
     if (values.length <= circleNameColumnIndex || !values[circleNameColumnIndex]) {
       console.warn(`Строка ${i + 1} не содержит названия круга. Пропускаем.`);
       continue;
     }
     
     const name = values[circleNameColumnIndex].trim();
-    let functionalType = "";
     
-    // Get functional type from column if available
-    if (functionalTypeColumnIndex !== -1 && values.length > functionalTypeColumnIndex && values[functionalTypeColumnIndex]) {
-      functionalType = values[functionalTypeColumnIndex].trim();
-      console.log(`Круг "${name}": найден тип в колонке: "${functionalType}"`);
+    // Используем последнюю колонку для функционального типа
+    let functionalType = "";
+    if (values.length > 0) {
+      // Берем последнюю колонку
+      functionalType = values[values.length - 1].trim();
+      console.log(`Круг "${name}": найден тип в последней колонке: "${functionalType}"`);
     }
     
-    // If no functional type specified, try to extract from name
+    // Если функциональный тип не указан, используем значение по умолчанию
     if (!functionalType) {
-      const lowerName = name.toLowerCase();
-      
-      if (lowerName.includes('delivery') && lowerName.includes('discovery')) {
-        functionalType = 'Delivery & Discovery';
-      } else if (lowerName.includes('delivery')) {
-        functionalType = 'Delivery';
-      } else if (lowerName.includes('discovery')) {
-        functionalType = 'Discovery';
-      } else if (lowerName.includes('platform')) {
-        functionalType = 'Platform';
-      } else if (lowerName.includes('enablement')) {
-        functionalType = 'Enablement';
-      } else {
-        functionalType = 'Не указано';
-      }
-      
-      console.log(`Круг "${name}": извлечён функциональный тип из названия: "${functionalType}"`);
+      functionalType = 'Не указано';
     }
     
     circles.push({
