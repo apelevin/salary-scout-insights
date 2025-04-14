@@ -11,6 +11,7 @@ interface RolesListProps {
     maxSalary: number;
     standardSalary: number;
     salaries: number[];
+    functionalType?: string;
   }>;
   onStandardSalaryChange?: (roleName: string, newStandardSalary: number) => void;
   onRoleClick?: (roleName: string) => void;
@@ -38,6 +39,7 @@ const RolesList = ({
               formatSalary={formatSalary}
               onStandardSalaryChange={onStandardSalaryChange}
               onRoleClick={onRoleClick}
+              functionalType={role.functionalType}
             />
           ))}
         </TableBody>
