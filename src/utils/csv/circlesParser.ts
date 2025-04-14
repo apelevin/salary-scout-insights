@@ -40,20 +40,9 @@ export const parseCirclesCSV = (csvContent: string): CircleData[] => {
       return [];
     }
     
-    // Specifically check for "функциональная принадлежность" column
-    let functionalTypeColIndex = functionalTypeColumnIndex;
-    if (functionalTypeColIndex === -1) {
-      functionalTypeColIndex = headers.findIndex(h => 
-        h === "функциональная принадлежность" || 
-        h === "функциональная принадлежность "
-      );
-      
-      if (functionalTypeColIndex !== -1) {
-        console.log("Найдена точная колонка 'функциональная принадлежность' по индексу:", functionalTypeColIndex);
-      } else {
-        console.warn("В CSV файле не найдена колонка 'функциональная принадлежность'");
-      }
-    }
+    // Specifically use column 5 (index 4) for functional type, as requested by the user
+    const functionalTypeColIndex = 4; // Explicitly using column 5 (index 4)
+    console.log("Используем колонку 5 (индекс 4) для функциональной принадлежности");
     
     const circles = parseCircleRows(lines, delimiter, circleNameColumnIndex, functionalTypeColIndex);
     
@@ -103,12 +92,12 @@ function parseCircleRows(
     
     let functionalType = "";
     
-    // Пытаемся получить функциональную принадлежность из указанной колонки
-    if (functionalTypeColumnIndex !== -1 && values.length > functionalTypeColumnIndex) {
+    // Пытаемся получить функциональную принадлежность из колонки 5 (индекс 4)
+    if (values.length > functionalTypeColumnIndex) {
       functionalType = values[functionalTypeColumnIndex].trim();
-      console.log(`Круг "${name}": найден тип в колонке 'функциональная принадлежность': "${functionalType}"`);
+      console.log(`Круг "${name}": найден тип в колонке 5: "${functionalType}"`);
     } else {
-      console.warn(`Для круга "${name}" не найдена функциональная принадлежность в колонке`);
+      console.warn(`Для круга "${name}" нет данных в колонке 5 (индекс ${functionalTypeColumnIndex})`);
     }
     
     // Если функциональный тип не указан, используем значение по умолчанию
