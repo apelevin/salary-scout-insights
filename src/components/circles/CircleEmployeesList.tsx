@@ -2,7 +2,7 @@
 import React from "react";
 import { Users } from "lucide-react";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { formatSalary, formatName } from "@/utils/formatUtils";
+import { formatSalary, formatName, formatNameIncognito } from "@/utils/formatUtils";
 
 interface EmployeeRole {
   roleName: string;
@@ -19,9 +19,13 @@ interface CircleEmployeeData {
 
 interface CircleEmployeesListProps {
   employees: CircleEmployeeData[];
+  incognitoMode?: boolean;
 }
 
-const CircleEmployeesList: React.FC<CircleEmployeesListProps> = ({ employees }) => {
+const CircleEmployeesList: React.FC<CircleEmployeesListProps> = ({ 
+  employees,
+  incognitoMode = false
+}) => {
   return (
     <>
       <div className="flex items-center my-4">
@@ -49,15 +53,17 @@ const CircleEmployeesList: React.FC<CircleEmployeesListProps> = ({ employees }) 
             >
               <div className="flex justify-between items-center mb-2">
                 <div className="font-medium">
-                  {formatName(employee.name)}
+                  {formatNameIncognito(employee.name, incognitoMode)}
                   {employee.isLeader && (
                     <span className="ml-1 text-xs text-blue-600">(Лидер)</span>
                   )}
                 </div>
                 {!employee.isLeader && (
                   <div className="text-sm text-right">
-                    <div className="font-medium">{formatSalary(currentBudget)}</div>
-                    {difference !== 0 && (
+                    <div className="font-medium">
+                      {incognitoMode ? '***' : formatSalary(currentBudget)}
+                    </div>
+                    {difference !== 0 && !incognitoMode && (
                       <div className={`text-xs ${differenceClass}`}>
                         {difference > 0 ? "+" : ""}{formatSalary(difference)}
                       </div>

@@ -12,13 +12,15 @@ interface CirclesTableProps {
   rolesData: RoleData[];
   isLoading: boolean;
   employees?: Employee[];
+  incognitoMode?: boolean;
 }
 
 const CirclesTable: React.FC<CirclesTableProps> = ({ 
   circlesData, 
   rolesData, 
   isLoading,
-  employees = [] 
+  employees = [],
+  incognitoMode = false
 }) => {
   const [selectedCircle, setSelectedCircle] = useState<string | null>(null);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
@@ -210,10 +212,10 @@ const CirclesTable: React.FC<CirclesTableProps> = ({
         employees={employees}
         employeesWithRoles={employeesWithRoles}
         rolesData={rolesData}
+        incognitoMode={incognitoMode}
       />
     </>
   );
 };
 
 export default CirclesTable;
-

@@ -21,6 +21,7 @@ interface CircleDetailSidebarProps {
   employees: Employee[];
   employeesWithRoles: EmployeeWithRoles[];
   rolesData: RoleData[];
+  incognitoMode?: boolean;
 }
 
 const CircleDetailSidebar: React.FC<CircleDetailSidebarProps> = ({
@@ -29,7 +30,8 @@ const CircleDetailSidebar: React.FC<CircleDetailSidebarProps> = ({
   circleName,
   employees,
   employeesWithRoles,
-  rolesData
+  rolesData,
+  incognitoMode = false
 }) => {
   if (!circleName) return null;
 
@@ -119,7 +121,7 @@ const CircleDetailSidebar: React.FC<CircleDetailSidebarProps> = ({
         </SheetHeader>
         
         <div className="mt-6">
-          <CircleLeaderInfo circleLeader={circleLeader} />
+          <CircleLeaderInfo circleLeader={circleLeader} incognitoMode={incognitoMode} />
           
           <CircleBudgetSummary 
             totalStandardBudget={totalStandardBudget}
@@ -130,7 +132,10 @@ const CircleDetailSidebar: React.FC<CircleDetailSidebarProps> = ({
           
           <Separator className="my-4" />
           
-          <CircleEmployeesList employees={circleEmployeesData} />
+          <CircleEmployeesList 
+            employees={circleEmployeesData} 
+            incognitoMode={incognitoMode}
+          />
         </div>
       </SheetContent>
     </Sheet>
