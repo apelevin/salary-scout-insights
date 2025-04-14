@@ -1,4 +1,3 @@
-
 import React from "react";
 import { 
   Sheet, 
@@ -12,6 +11,7 @@ import { Employee, EmployeeWithRoles, RoleData } from "@/types";
 import { formatSalary } from "@/utils/formatUtils";
 import { Separator } from "@/components/ui/separator";
 import { Users, PieChart, Award, TrendingDown, TrendingUp } from "lucide-react";
+import { ScrollArea } from "@/components/ui/scroll-area";
 
 interface CircleDetailSidebarProps {
   isOpen: boolean;
@@ -164,62 +164,59 @@ const CircleDetailSidebar: React.FC<CircleDetailSidebarProps> = ({
             <h3 className="text-base font-medium">Сотрудники круга ({circleEmployeesData.length})</h3>
           </div>
           
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead className="w-[180px]">Сотрудник</TableHead>
-                <TableHead>Роли (FTE)</TableHead>
-                <TableHead className="text-right">Текущий</TableHead>
-                <TableHead className="text-right">Стандартный</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {circleEmployeesData.map((employee, index) => {
-                const totalFTE = employee.roles.reduce((sum, role) => sum + role.fte, 0);
-                const currentBudget = employee.currentSalary * totalFTE;
-                const standardBudget = (employee.standardSalary || 0) * totalFTE;
-                const difference = standardBudget - currentBudget;
-                const differenceClass = difference > 0 
-                  ? 'text-green-600' 
-                  : difference < 0 
-                    ? 'text-red-600' 
-                    : 'text-gray-500';
-                
-                return (
-                  <TableRow key={`${employee.name}-${index}`}>
-                    <TableCell className="font-medium">
+          {/* Redesigned employee list section */}
+          <div className="space-y-3">
+            {circleEmployeesData.map((employee, index) => {
+              const totalFTE = employee.roles.reduce((sum, role) => sum + role.fte, 0);
+              const currentBudget = employee.currentSalary * totalFTE;
+              const standardBudget = (employee.standardSalary || 0) * totalFTE;
+              const difference = standardBudget - currentBudget;
+              const differenceClass = difference > 0 
+                ? 'text-green-600' 
+                : difference < 0 
+                  ? 'text-red-600' 
+                  : 'text-gray-500';
+              
+              return (
+                <div 
+                  key={`${employee.name}-${index}`}
+                  className="p-3 border rounded-md hover:bg-muted/50 transition-colors"
+                >
+                  <div className="flex justify-between items-center mb-2">
+                    <div className="font-medium">
                       {employee.name}
                       {employee.isLeader && (
                         <span className="ml-1 text-xs text-blue-600">(Лидер)</span>
                       )}
-                    </TableCell>
-                    <TableCell>
+                    </div>
+                    {!employee.isLeader && (
+                      <div className="text-sm text-right">
+                        <div className="font-medium">{formatSalary(currentBudget)}</div>
+                        {difference !== 0 && (
+                          <div className={`text-xs ${differenceClass}`}>
+                            {difference > 0 ? "+" : ""}{formatSalary(difference)}
+                          </div>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                  
+                  <ScrollArea className="h-auto max-h-24">
+                    <div className="space-y-1">
                       {employee.roles.map((role, idx) => (
-                        <div key={idx} className="text-sm">
-                          {role.roleName} ({role.fte})
+                        <div key={idx} className="text-sm flex justify-between items-center">
+                          <span className="text-muted-foreground">{role.roleName}</span>
+                          <span className="text-xs bg-secondary/20 px-2 py-0.5 rounded-full">
+                            FTE: {role.fte}
+                          </span>
                         </div>
                       ))}
-                    </TableCell>
-                    <TableCell className="text-right">
-                      {formatSalary(currentBudget)}
-                    </TableCell>
-                    <TableCell className="text-right">
-                      {!employee.isLeader ? (
-                        <div>
-                          {formatSalary(standardBudget)}
-                          {difference !== 0 && (
-                            <div className={`text-xs ${differenceClass}`}>
-                              {difference > 0 ? "+" : ""}{formatSalary(difference)}
-                            </div>
-                          )}
-                        </div>
-                      ) : "—"}
-                    </TableCell>
-                  </TableRow>
-                );
-              })}
-            </TableBody>
-          </Table>
+                    </div>
+                  </ScrollArea>
+                </div>
+              );
+            })}
+          </div>
         </div>
       </SheetContent>
     </Sheet>
