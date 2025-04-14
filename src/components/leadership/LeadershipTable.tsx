@@ -1,3 +1,4 @@
+
 import { Table, TableBody } from "@/components/ui/table";
 import { LeadershipData } from "@/types";
 import LeadershipTableHeader from "./LeadershipTableHeader";

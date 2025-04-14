@@ -1,4 +1,3 @@
-
 import { Employee, RoleData, EmployeeWithRoles, CircleData, LeadershipData } from "@/types";
 import { formatName, cleanRoleName, cleanFunctionalType } from "./formatUtils";
 import { calculateStandardSalary } from "./salaryUtils";
@@ -8,24 +7,12 @@ import {
   normalizeRolesFTE 
 } from "./fteUtils";
 
-// Re-export formatters and utilities that are used elsewhere
-export { 
-  formatSalary, 
-  formatName, 
-  formatFTE, 
-  cleanRoleName,
-  cleanFunctionalType
-} from "./formatUtils";
+// Direct imports of the formatters we need from formatUtils 
+// (not re-exporting to avoid circular references)
+import { formatSalary, formatFTE } from "./formatUtils";
 
-export { 
-  calculateStandardSalary,
-  getSalaryDifference
-} from "./salaryUtils";
-
-export { 
-  calculateTotalFTE, 
-  normalizeRolesFTE 
-} from "./fteUtils";
+export { calculateStandardSalary, getSalaryDifference } from "./salaryUtils";
+export { calculateTotalFTE, normalizeRolesFTE } from "./fteUtils";
 
 export const processEmployeesWithRoles = (
   employees: Employee[], 

@@ -37,7 +37,7 @@ export const SalaryCalculation = ({ employee }: SalaryCalculationProps) => {
           </div>
           
           <div className="space-y-3">
-            {Array.from(employee.normalizedRolesFTE.entries()).map(([role, fte], index) => {
+            {Array.from(employee.normalizedRolesFTE).map(([role, fte], index) => {
               const roleContribution = employee.standardSalary 
                 ? employee.standardSalary * fte
                 : 0;

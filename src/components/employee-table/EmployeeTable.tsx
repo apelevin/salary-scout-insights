@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Table } from "@/components/ui/table";
-import { Employee, RoleData, CircleData, LeadershipData, EmployeeWithRoles, Map } from "@/types";
+import { Employee, RoleData, CircleData, LeadershipData, EmployeeWithRoles } from "@/types";
 import EmployeeInfoSidebar from "../EmployeeInfoSidebar";
 import EmployeeSearch from "../EmployeeSearch";
 import { LoadingState, EmptyState } from "../EmployeeTableStates";

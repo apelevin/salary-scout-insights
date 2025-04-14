@@ -10,6 +10,7 @@ interface LeadershipTableRowProps {
   circleCounts: string[];
   formatSalary: (salary: number) => string;
   onSalaryChange: (leadershipType: string, circleCount: string, newSalary: number) => void;
+  incognitoMode?: boolean;
 }
 
 const LeadershipTableRow = ({ 
@@ -17,12 +18,14 @@ const LeadershipTableRow = ({
   circleSalaries,
   circleCounts,
   formatSalary,
-  onSalaryChange
+  onSalaryChange,
+  incognitoMode = false
 }: LeadershipTableRowProps) => {
   const [editingCell, setEditingCell] = useState<string | null>(null);
   const [editValue, setEditValue] = useState<string>("");
 
   const startEditing = (circleCount: string, currentValue: number) => {
+    if (incognitoMode) return; // Prevent editing in incognito mode
     setEditingCell(`${leadershipType}-${circleCount}`);
     setEditValue(currentValue.toString());
   };
@@ -66,11 +69,11 @@ const LeadershipTableRow = ({
             <div className="flex items-center justify-center">
               {circleSalaries.has(count) ? (
                 <div 
-                  className="cursor-pointer flex items-center gap-1"
+                  className={`flex items-center gap-1 ${!incognitoMode ? 'cursor-pointer' : ''}`}
                   onClick={() => startEditing(count, circleSalaries.get(count) || 0)}
                 >
-                  <span>{formatSalary(circleSalaries.get(count) || 0)}</span>
-                  <Edit2 className="h-3 w-3 text-gray-400 opacity-0 group-hover:opacity-100 transition-opacity" />
+                  <span>{incognitoMode ? '***' : formatSalary(circleSalaries.get(count) || 0)}</span>
+                  {!incognitoMode && <Edit2 className="h-3 w-3 text-gray-400 opacity-0 group-hover:opacity-100 transition-opacity" />}
                 </div>
               ) : (
                 <span className="text-gray-400">—</span>

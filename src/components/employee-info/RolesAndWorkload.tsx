@@ -20,7 +20,7 @@ export const RolesAndWorkload = ({ employee }: RolesAndWorkloadProps) => {
       <CardContent>
         {employee.roles.length > 0 ? (
           <div className="space-y-4">
-            {Array.from(employee.normalizedRolesFTE.entries()).map(([role, fte], index) => {
+            {Array.from(employee.normalizedRolesFTE).map(([role, fte], index) => {
               const originalFTE = employee.totalFTE > 0 
                 ? fte * employee.totalFTE 
                 : 0;

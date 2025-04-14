@@ -1,7 +1,7 @@
 
 import React from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Employee, RoleData, CircleData, LeadershipData, Map } from "@/types";
+import { Employee, RoleData, CircleData, LeadershipData } from "@/types";
 import CirclesTable from "../circles/CirclesTable";
 import EmployeeTable from "../employee-table/EmployeeTable";
 import RolesTable from "../RolesTable"; // Changed from RolesList
