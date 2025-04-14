@@ -48,6 +48,7 @@ const CirclesTable: React.FC<CirclesTableProps> = ({
   // Count employees per circle and clean circle names
   const employeesPerCircle = new Map<string, Set<string>>();
   const circleBudgets = new Map<string, number>();
+  const currentSalaryBudgets = new Map<string, number>();
 
   // Clean circle data first
   const cleanCirclesData = circlesData.map(circle => ({
@@ -70,7 +71,7 @@ const CirclesTable: React.FC<CirclesTableProps> = ({
     }
   });
 
-  // Calculate budget for each circle
+  // Calculate budget for each circle (both standard and current)
   if (employees.length > 0) {
     // Create a map of employee name to their data for quick lookup
     const employeeMap = new Map<string, EmployeeWithRoles>();
@@ -79,13 +80,14 @@ const CirclesTable: React.FC<CirclesTableProps> = ({
       employeeMap.set(fullName, emp);
     });
 
-    // For each circle, calculate the budget
+    // For each circle, calculate both budgets
     employeesPerCircle.forEach((employeeSet, circleName) => {
-      let totalBudget = 0;
+      let totalStandardBudget = 0;
+      let totalCurrentBudget = 0;
 
       employeeSet.forEach(employeeName => {
         const employee = employeeMap.get(employeeName);
-        if (employee?.standardSalary) {
+        if (employee) {
           // Check if this employee is a leader for this circle
           const isLeader = rolesData.some(role => {
             const roleCircleName = role.circleName?.replace(/["']/g, '').trim() || '';
@@ -106,12 +108,19 @@ const CirclesTable: React.FC<CirclesTableProps> = ({
 
           // Include in budget if not a leader, or if no specific FTE, use a portion based on number of circles
           if (!isLeader && employeeCircleFTE > 0) {
-            totalBudget += employee.standardSalary * employeeCircleFTE;
+            // Add to standard salary budget
+            if (employee.standardSalary) {
+              totalStandardBudget += employee.standardSalary * employeeCircleFTE;
+            }
+            
+            // Add to current salary budget
+            totalCurrentBudget += employee.salary * employeeCircleFTE;
           }
         }
       });
 
-      circleBudgets.set(circleName, totalBudget);
+      circleBudgets.set(circleName, totalStandardBudget);
+      currentSalaryBudgets.set(circleName, totalCurrentBudget);
     });
   }
 
@@ -128,7 +137,8 @@ const CirclesTable: React.FC<CirclesTableProps> = ({
             <TableHead className="w-[300px]">Название круга</TableHead>
             <TableHead>Функциональный тип</TableHead>
             <TableHead className="text-right">Количество сотрудников</TableHead>
-            <TableHead className="text-right">Бюджет</TableHead>
+            <TableHead className="text-right">Стандартный бюджет</TableHead>
+            <TableHead className="text-right">Текущий бюджет</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -137,8 +147,9 @@ const CirclesTable: React.FC<CirclesTableProps> = ({
             const employees = employeesPerCircle.get(circle.name) || new Set();
             const employeeCount = employees.size;
             
-            // Get budget for this circle
-            const budget = circleBudgets.get(circle.name) || 0;
+            // Get budgets for this circle
+            const standardBudget = circleBudgets.get(circle.name) || 0;
+            const currentBudget = currentSalaryBudgets.get(circle.name) || 0;
             
             return (
               <TableRow key={`${circle.name}-${index}`}>
@@ -146,10 +157,18 @@ const CirclesTable: React.FC<CirclesTableProps> = ({
                 <TableCell>{circle.functionalType || "—"}</TableCell>
                 <TableCell className="text-right">{employeeCount}</TableCell>
                 <TableCell className="text-right">
-                  {budget > 0 ? (
+                  {standardBudget > 0 ? (
                     <div className="flex items-center justify-end gap-1">
                       <DollarSign className="h-4 w-4 text-green-600" />
-                      <span>{formatSalary(budget)}</span>
+                      <span>{formatSalary(standardBudget)}</span>
+                    </div>
+                  ) : "—"}
+                </TableCell>
+                <TableCell className="text-right">
+                  {currentBudget > 0 ? (
+                    <div className="flex items-center justify-end gap-1">
+                      <DollarSign className="h-4 w-4 text-blue-600" />
+                      <span>{formatSalary(currentBudget)}</span>
                     </div>
                   ) : "—"}
                 </TableCell>
