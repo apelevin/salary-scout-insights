@@ -24,18 +24,20 @@ const RoleStandardSalary = ({
     return <span className="text-gray-400">—</span>;
   }
 
+  const handleSalaryChange = (role: string, value: number) => {
+    if (onStandardSalaryChange) {
+      onStandardSalaryChange(role, value);
+      setIsEditing(false);
+    }
+  };
+
   if (isEditing) {
     return (
       <RoleSalaryEditor
         roleName={roleName}
         standardSalary={standardSalary}
         formatSalary={formatSalary}
-        onStandardSalaryChange={(role, value) => {
-          if (onStandardSalaryChange) {
-            onStandardSalaryChange(role, value);
-          }
-          setIsEditing(false);
-        }}
+        onStandardSalaryChange={handleSalaryChange}
       />
     );
   }

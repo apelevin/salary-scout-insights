@@ -1,6 +1,5 @@
 
 import { Table, TableBody } from "@/components/ui/table";
-import { Employee, RoleData } from "@/types";
 import { formatSalary } from "@/utils/formatUtils";
 import RoleRow from "@/components/roles/RoleRow";
 import RolesTableHeader from "@/components/roles/RolesTableHeader";
