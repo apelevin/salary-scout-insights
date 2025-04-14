@@ -34,6 +34,12 @@ export const useFileProcessing = () => {
     processFiles 
   } = useDataProcessing();
 
+  // Add debug logging to track circles data
+  console.log("useFileProcessing has circles data:", {
+    count: circlesData?.length || 0,
+    sample: circlesData?.slice(0, 3) || []
+  });
+
   const handleProcessFiles = () => {
     processFiles(uploadedFiles, updateUploadedFiles, leadershipData, setLeadershipData);
     markFilesAsProcessed();

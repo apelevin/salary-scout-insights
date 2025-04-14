@@ -36,44 +36,18 @@ export const OperationalCircleInfo = ({
       }).format(standardSalary)
     : "Не определен";
 
-  // Add debug logging to see what values we're using for the lookup
-  console.log("Leadership data for employee:", {
-    employeeName: employee.name,
-    functionalType,
-    circleCount,
-    leadershipDataLength: leadershipData?.length || 0,
-    foundSalary: standardSalary,
-    leadershipTypes: leadershipData?.map(d => `${d.leadershipType} (${d.circleCount})`)?.slice(0, 10)
-  });
-
   // Format functional type display value
   const displayFunctionalType = functionalType || "Не указано";
 
-  // Debug information about circles data
-  const circlesDebugInfo = circlesData?.length > 0 ? (
-    <div className="mt-4 p-3 bg-gray-50 rounded-md">
-      <div className="font-medium mb-1 text-sm text-blue-600">Отладочная информация:</div>
-      <div className="max-h-60 overflow-y-auto text-xs">
-        <div className="mb-2 text-gray-700">Всего кругов: {circlesData.length}</div>
-        <table className="w-full text-left text-xs">
-          <thead>
-            <tr className="bg-gray-100">
-              <th className="p-1">Название круга</th>
-              <th className="p-1">Функциональная принадлежность</th>
-            </tr>
-          </thead>
-          <tbody>
-            {circlesData.map((circle, index) => (
-              <tr key={index} className={index % 2 === 0 ? "bg-gray-50" : ""}>
-                <td className="p-1 border-t border-gray-200">{circle.name}</td>
-                <td className="p-1 border-t border-gray-200">{circle.functionalType || "Не указано"}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-    </div>
-  ) : null;
+  // Debug logs to track data flow
+  console.log("OperationalCircleInfo received data:", {
+    employeeName: employee.name,
+    circleCount,
+    functionalType,
+    displayFunctionalType,
+    standardSalary,
+    circlesDataLength: circlesData?.length || 0
+  });
 
   return (
     <Card>
@@ -99,7 +73,35 @@ export const OperationalCircleInfo = ({
           </div>
         </div>
         
-        {circlesDebugInfo}
+        {/* Always show the debug section, even if circlesData is empty */}
+        <div className="mt-4 p-3 bg-gray-50 rounded-md">
+          <div className="font-medium mb-1 text-sm text-blue-600">Отладочная информация:</div>
+          <div className="max-h-60 overflow-y-auto text-xs">
+            <div className="mb-2 text-gray-700">
+              Всего кругов в данных: {circlesData?.length || 0}
+            </div>
+            {circlesData && circlesData.length > 0 ? (
+              <table className="w-full text-left text-xs">
+                <thead>
+                  <tr className="bg-gray-100">
+                    <th className="p-1">Название круга</th>
+                    <th className="p-1">Функциональная принадлежность</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {circlesData.map((circle, index) => (
+                    <tr key={index} className={index % 2 === 0 ? "bg-gray-50" : ""}>
+                      <td className="p-1 border-t border-gray-200">{circle.name}</td>
+                      <td className="p-1 border-t border-gray-200">{circle.functionalType || "Не указано"}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            ) : (
+              <div className="p-2 text-red-500">Данные о кругах отсутствуют</div>
+            )}
+          </div>
+        </div>
       </CardContent>
     </Card>
   );

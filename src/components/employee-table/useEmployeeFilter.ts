@@ -30,6 +30,8 @@ export const useEmployeeFilter = (
   const processedEmployees = useMemo(() => {
     if (!employees.length) return [];
     
+    console.log(`Processing ${employees.length} employees with ${circlesData?.length || 0} circles data`);
+    
     return processEmployeesWithRoles(
       employees, 
       rolesData, 

@@ -49,9 +49,11 @@ export const parseCirclesCSV = (csvContent: string): CircleData[] => {
     const circles = parseCircleRows(lines, delimiter, circleNameColumnIndex, functionalTypeColumnIndex);
     
     // Add more detailed debug logging
-    console.log(`Распознанные круги и их функциональные принадлежности:`);
+    console.log(`Распознанные круги и их функциональные принадлежности (${circles.length} записей):`);
     circles.forEach((circle, index) => {
-      console.log(`${index + 1}. Круг: "${circle.name}", Тип: "${circle.functionalType || 'Не указано'}"`);
+      if (index < 10) { // Limit logging to avoid console flooding
+        console.log(`${index + 1}. Круг: "${circle.name}", Тип: "${circle.functionalType || 'Не указано'}"`);
+      }
     });
     
     return circles;
