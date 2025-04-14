@@ -1,16 +1,21 @@
 
 import { Card, CardHeader, CardContent, CardTitle } from "@/components/ui/card";
 import { CircleAlert } from "lucide-react";
-import { EmployeeWithRoles, LeadershipData } from "@/types";
+import { EmployeeWithRoles, LeadershipData, CircleData } from "@/types";
 import { cleanFunctionalType } from "@/utils/formatUtils";
 import { findLeadershipStandardSalary } from "@/utils/salary";
 
 interface OperationalCircleInfoProps {
   employee: EmployeeWithRoles;
   leadershipData: LeadershipData[];
+  circlesData?: CircleData[];
 }
 
-export const OperationalCircleInfo = ({ employee, leadershipData }: OperationalCircleInfoProps) => {
+export const OperationalCircleInfo = ({ 
+  employee, 
+  leadershipData, 
+  circlesData = [] 
+}: OperationalCircleInfoProps) => {
   // Get the total count of circles led by the employee
   const circleCount = employee.operationalCircleCount || 0;
   const functionalType = employee.operationalCircleType || "";
@@ -44,6 +49,32 @@ export const OperationalCircleInfo = ({ employee, leadershipData }: OperationalC
   // Format functional type display value
   const displayFunctionalType = functionalType || "Не указано";
 
+  // Debug information about circles data
+  const circlesDebugInfo = circlesData?.length > 0 ? (
+    <div className="mt-4 p-3 bg-gray-50 rounded-md">
+      <div className="font-medium mb-1 text-sm text-blue-600">Отладочная информация:</div>
+      <div className="max-h-60 overflow-y-auto text-xs">
+        <div className="mb-2 text-gray-700">Всего кругов: {circlesData.length}</div>
+        <table className="w-full text-left text-xs">
+          <thead>
+            <tr className="bg-gray-100">
+              <th className="p-1">Название круга</th>
+              <th className="p-1">Функциональная принадлежность</th>
+            </tr>
+          </thead>
+          <tbody>
+            {circlesData.map((circle, index) => (
+              <tr key={index} className={index % 2 === 0 ? "bg-gray-50" : ""}>
+                <td className="p-1 border-t border-gray-200">{circle.name}</td>
+                <td className="p-1 border-t border-gray-200">{circle.functionalType || "Не указано"}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  ) : null;
+
   return (
     <Card>
       <CardHeader className="pb-2">
@@ -67,6 +98,8 @@ export const OperationalCircleInfo = ({ employee, leadershipData }: OperationalC
             <span className="font-medium">{formattedStandardSalary}</span>
           </div>
         </div>
+        
+        {circlesDebugInfo}
       </CardContent>
     </Card>
   );

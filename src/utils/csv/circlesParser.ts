@@ -46,7 +46,15 @@ export const parseCirclesCSV = (csvContent: string): CircleData[] => {
       console.warn("Будет выполнена попытка извлечь тип из названия круга");
     }
     
-    return parseCircleRows(lines, delimiter, circleNameColumnIndex, functionalTypeColumnIndex);
+    const circles = parseCircleRows(lines, delimiter, circleNameColumnIndex, functionalTypeColumnIndex);
+    
+    // Add more detailed debug logging
+    console.log(`Распознанные круги и их функциональные принадлежности:`);
+    circles.forEach((circle, index) => {
+      console.log(`${index + 1}. Круг: "${circle.name}", Тип: "${circle.functionalType || 'Не указано'}"`);
+    });
+    
+    return circles;
     
   } catch (error) {
     console.error("Ошибка при парсинге CSV с кругами:", error);
@@ -86,6 +94,7 @@ function parseCircleRows(
     // Get functional type from column if available
     if (functionalTypeColumnIndex !== -1 && values.length > functionalTypeColumnIndex && values[functionalTypeColumnIndex]) {
       functionalType = values[functionalTypeColumnIndex].trim();
+      console.log(`Круг "${name}": найден тип в колонке: "${functionalType}"`);
     }
     
     // If no functional type specified, try to extract from name
@@ -106,7 +115,7 @@ function parseCircleRows(
         functionalType = 'Не указано';
       }
       
-      console.log(`Извлечён функциональный тип из названия круга "${name}": ${functionalType}`);
+      console.log(`Круг "${name}": извлечён функциональный тип из названия: "${functionalType}"`);
     }
     
     circles.push({
@@ -116,11 +125,6 @@ function parseCircleRows(
   }
   
   console.log(`Успешно распознано ${circles.length} записей о кругах и их типах`);
-  
-  // Log all circles and their types for debugging
-  circles.forEach(circle => {
-    console.log(`Круг: "${circle.name}", Тип: "${circle.functionalType}"`);
-  });
   
   return circles;
 }

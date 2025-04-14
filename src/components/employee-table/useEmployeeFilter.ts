@@ -20,6 +20,12 @@ export const useEmployeeFilter = (
   searchTerm: string = "",
   leadershipData: LeadershipData[] = []
 ) => {
+  // Debug log about circles data
+  console.log("useEmployeeFilter received circles data:", {
+    count: circlesData?.length || 0,
+    sample: circlesData?.slice(0, 3).map(c => ({ name: c.name, type: c.functionalType })) || []
+  });
+
   // Мемоизируем обработку сотрудников с ролями для избежания лишних вычислений
   const processedEmployees = useMemo(() => {
     if (!employees.length) return [];
@@ -52,5 +58,5 @@ export const useEmployeeFilter = (
     filterEmployees(searchTerm, processedEmployees),
   [searchTerm, processedEmployees, filterEmployees]);
 
-  return { filteredEmployees };
+  return { filteredEmployees, circlesData };
 };
