@@ -19,6 +19,7 @@ export const OperationalCircleInfo = ({
   // Get the total count of circles led by the employee
   const circleCount = employee.operationalCircleCount || 0;
   const functionalType = employee.operationalCircleType || "";
+  const leadCircles = employee.leadCircles || [];
   
   // Find the standard salary for this leadership role
   const standardSalary = findLeadershipStandardSalary(
@@ -46,6 +47,8 @@ export const OperationalCircleInfo = ({
     functionalType,
     displayFunctionalType,
     standardSalary,
+    leadCirclesCount: leadCircles?.length || 0,
+    leadCircles: leadCircles?.map(c => c.name) || [],
     circlesDataLength: circlesData?.length || 0
   });
 
@@ -73,7 +76,26 @@ export const OperationalCircleInfo = ({
           </div>
         </div>
         
-        {/* Always show the debug section, even if circlesData is empty */}
+        {/* Display employee's lead circles */}
+        {leadCircles && leadCircles.length > 0 && (
+          <div className="mt-3">
+            <h4 className="text-sm font-medium mb-2">Управляемые круги:</h4>
+            <ul className="text-sm space-y-1">
+              {leadCircles.map((circle, idx) => (
+                <li key={idx} className="px-2 py-1 bg-blue-50 rounded flex justify-between">
+                  <span>{circle.name}</span>
+                  {circle.functionalType && (
+                    <span className="text-blue-600 text-xs">
+                      {circle.functionalType}
+                    </span>
+                  )}
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
+        
+        {/* Debug section */}
         <div className="mt-4 p-3 bg-gray-50 rounded-md">
           <div className="font-medium mb-1 text-sm text-blue-600">Отладочная информация:</div>
           <div className="max-h-60 overflow-y-auto text-xs">

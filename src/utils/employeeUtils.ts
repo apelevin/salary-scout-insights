@@ -32,12 +32,13 @@ export const processEmployeesWithRoles = (
     const normalizedRolesFTE = normalizeRolesFTE(rolesFTEMap, totalFTE);
     
     // Find circle leadership info
-    const { circleType, circleCount } = findCircleLeadershipInfo(lastName, firstName, rolesData, circlesData);
+    const { circleType, circleCount, leadCircles } = findCircleLeadershipInfo(lastName, firstName, rolesData, circlesData);
     
     // Log leadership data for debugging
     console.log(`Processing employee ${emp.name} with leadership:`, { 
       circleType, 
-      circleCount, 
+      circleCount,
+      leadCircles: leadCircles.length > 0 ? leadCircles.map(c => c.name) : [],
       leadershipDataEntries: leadershipData?.length || 0 
     });
     
@@ -59,6 +60,7 @@ export const processEmployeesWithRoles = (
       standardSalary,
       operationalCircleType: circleType,
       operationalCircleCount: circleCount,
+      leadCircles: leadCircles,
       strategicCircleCount: undefined // no longer needed as separate count
     };
   });
@@ -70,7 +72,7 @@ export const findCircleLeadershipInfo = (
   firstName: string,
   rolesData: RoleData[],
   circlesData: CircleData[]
-): { circleType?: string, circleCount: number } => {
+): { circleType?: string, circleCount: number, leadCircles: CircleData[] } => {
   // Constants for the circle leader role names
   const OPERATIONAL_CIRCLE_LEADER = "лидер операционного круга";
   const STRATEGIC_CIRCLE_LEADER = "лидер стратегического круга";
@@ -87,7 +89,7 @@ export const findCircleLeadershipInfo = (
   
   if (employeeRoles.length === 0) {
     console.log(`No roles found for employee: ${lastName} ${firstName}`);
-    return { circleType: undefined, circleCount: 0 };
+    return { circleType: undefined, circleCount: 0, leadCircles: [] };
   }
   
   // Check if the employee has any leader roles (operational or strategic)
@@ -102,7 +104,7 @@ export const findCircleLeadershipInfo = (
   // If the employee is not a leader of any kind, return empty values
   if (leaderRoles.length === 0) {
     console.log(`No leadership roles found for: ${lastName} ${firstName}`);
-    return { circleType: undefined, circleCount: 0 };
+    return { circleType: undefined, circleCount: 0, leadCircles: [] };
   }
   
   console.log(`Found ${leaderRoles.length} leadership roles for: ${lastName} ${firstName}`);
@@ -110,6 +112,9 @@ export const findCircleLeadershipInfo = (
   
   // Count the total number of circles led
   const circleCount = leaderRoles.length;
+
+  // Track circles that the employee leads
+  const leadCircles: CircleData[] = [];
   
   // Get the functional type from the first operational circle found (if any)
   let circleType: string | undefined = undefined;
@@ -117,20 +122,27 @@ export const findCircleLeadershipInfo = (
   // First try to find an operational circle with functional type
   for (const role of leaderRoles) {
     if (role.circleName) {
-      console.log(`Looking for circle "${role.circleName}" in circles data (${circlesData.length} entries)`);
+      const circleName = role.circleName.trim().replace(/["']/g, '');
+      console.log(`Looking for circle "${circleName}" in circles data (${circlesData.length} entries)`);
       
       // Find the circle with matching name in circles data
       const circle = circlesData.find(circle => 
         circle.name && 
-        circle.name.toLowerCase().trim() === role.circleName?.toLowerCase().trim()
+        circle.name.toLowerCase().trim() === circleName.toLowerCase()
       );
       
-      if (circle?.functionalType) {
-        circleType = cleanFunctionalType(circle.functionalType);
-        console.log(`Found functional type for ${lastName} ${firstName}: ${circleType} (from circle ${role.circleName})`);
-        break;
-      } else if (circle) {
-        console.log(`Circle "${role.circleName}" found but has no functional type`);
+      if (circle) {
+        leadCircles.push(circle);
+        if (circle.functionalType && !circleType) {
+          circleType = cleanFunctionalType(circle.functionalType);
+          console.log(`Found functional type for ${lastName} ${firstName}: ${circleType} (from circle ${role.circleName})`);
+        } else if (circle) {
+          console.log(`Circle "${role.circleName}" found but has no functional type`);
+        }
+      } else {
+        // Even if the circle is not found in circlesData, create a basic entry for it
+        leadCircles.push({ name: circleName, functionalType: '' });
+        console.log(`Circle "${circleName}" not found in circles data, creating basic entry`);
       }
     }
   }
@@ -183,7 +195,8 @@ export const findCircleLeadershipInfo = (
   
   return { 
     circleType, 
-    circleCount
+    circleCount,
+    leadCircles
   };
 };
 

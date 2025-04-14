@@ -23,14 +23,16 @@ export const useEmployeeFilter = (
   // Debug log about circles data
   console.log("useEmployeeFilter received circles data:", {
     count: circlesData?.length || 0,
-    sample: circlesData?.slice(0, 3).map(c => ({ name: c.name, type: c.functionalType })) || []
+    sample: circlesData?.slice(0, 3).map(c => ({ name: c.name, type: c.functionalType })) || [],
+    employeesCount: employees?.length || 0,
+    rolesCount: rolesData?.length || 0
   });
 
   // Мемоизируем обработку сотрудников с ролями для избежания лишних вычислений
   const processedEmployees = useMemo(() => {
     if (!employees.length) return [];
     
-    console.log(`Processing ${employees.length} employees with ${circlesData?.length || 0} circles data`);
+    console.log(`Processing ${employees.length} employees with ${circlesData?.length || 0} circles data and ${rolesData?.length || 0} roles`);
     
     return processEmployeesWithRoles(
       employees, 
