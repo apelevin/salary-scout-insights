@@ -3,8 +3,7 @@ import { CircleData } from "@/types";
 import { 
   normalizeCSVContent, 
   detectDelimiter, 
-  findColumnIndex,
-  normalizeFunctionalType
+  findColumnIndex 
 } from "./helpers";
 import {
   CIRCLE_NAME_ALIASES,
@@ -28,30 +27,20 @@ export const parseCirclesCSV = (csvContent: string): CircleData[] => {
     const headers = lines[0].split(delimiter).map(header => header.trim().toLowerCase());
     console.log("Обнаруженные заголовки кругов:", headers);
     
-    // Find column indices with improved aliases
+    // Find column indices
     const circleNameColumnIndex = findColumnIndex(headers, CIRCLE_NAME_ALIASES);
     const functionalTypeColumnIndex = findColumnIndex(headers, FUNCTIONAL_TYPE_ALIASES);
     
     console.log("Индекс колонки с названием круга:", circleNameColumnIndex);
-    console.log("Индекс колонки с функциональной принадлежностью:", functionalTypeColumnIndex);
+    console.log("Индекс колонки с функциональным типом:", functionalTypeColumnIndex);
     
-    if (circleNameColumnIndex === -1) {
-      console.error("CSV файл с кругами должен содержать колонку 'название круга'");
+    if (circleNameColumnIndex === -1 || functionalTypeColumnIndex === -1) {
+      console.error("CSV файл с кругами должен содержать колонки 'название круга' и 'функциональная принадлежность'");
       console.error("Доступные заголовки:", headers);
       return [];
     }
     
-    const circles = parseCircleRows(lines, delimiter, circleNameColumnIndex, functionalTypeColumnIndex);
-    
-    // Add more detailed debug logging
-    console.log(`Распознанные круги (${circles.length} записей):`);
-    circles.forEach((circle, index) => {
-      if (index < 10) { // Limit logging to avoid console flooding
-        console.log(`${index + 1}. Круг: "${circle.name}", Тип: "${circle.functionalType}"`);
-      }
-    });
-    
-    return circles;
+    return parseCircleRows(lines, delimiter, circleNameColumnIndex, functionalTypeColumnIndex);
     
   } catch (error) {
     console.error("Ошибка при парсинге CSV с кругами:", error);
@@ -66,69 +55,36 @@ function parseCircleRows(
   lines: string[],
   delimiter: string,
   circleNameColumnIndex: number,
-  functionalTypeColumnIndex: number = -1
+  functionalTypeColumnIndex: number
 ): CircleData[] {
   const circles: CircleData[] = [];
   
-  // Начинаем с 1, чтобы пропустить заголовки
+  // Start at 1 to skip headers
   for (let i = 1; i < lines.length; i++) {
     const values = lines[i].split(delimiter).map(value => value.trim());
     
-    // Пропускаем пустые строки
+    // Skip empty rows
     if (values.every(v => v === '')) {
       continue;
     }
     
-    // Пропускаем строки без названия круга
-    if (values.length <= circleNameColumnIndex || !values[circleNameColumnIndex]) {
-      console.warn(`Строка ${i + 1} не содержит названия круга. Пропускаем.`);
+    // Skip rows with insufficient values
+    if (values.length < Math.max(circleNameColumnIndex, functionalTypeColumnIndex) + 1) {
+      console.warn(`Строка ${i + 1} в файле кругов имеет недостаточно значений. Пропускаем.`);
       continue;
     }
     
-    const name = values[circleNameColumnIndex].trim();
-    let functionalType = ""; // Empty by default, will be displayed as "na"
+    const name = values[circleNameColumnIndex];
+    const functionalType = values[functionalTypeColumnIndex];
     
-    // Try to get functional type if column exists
-    if (functionalTypeColumnIndex !== -1 && values.length > functionalTypeColumnIndex && values[functionalTypeColumnIndex]) {
-      functionalType = normalizeFunctionalType(values[functionalTypeColumnIndex]);
-    } else {
-      // If functional type column doesn't exist, try to derive from name
-      functionalType = deriveCircleType(name);
+    if (name && functionalType) {
+      circles.push({
+        name: name.trim(),
+        functionalType: functionalType.trim()
+      });
     }
-    
-    circles.push({
-      name,
-      functionalType
-    });
   }
   
-  console.log(`Успешно распознано ${circles.length} записей о кругах`);
-  
+  console.log(`Успешно распознано ${circles.length} записей о кругах и их типах`);
   return circles;
-}
-
-/**
- * Helper function to derive circle type from name when not explicitly provided
- */
-function deriveCircleType(circleName: string): string {
-  if (!circleName) return "";
-  
-  const lowerName = circleName.toLowerCase();
-  
-  // Try to determine type from circle name patterns
-  if (lowerName.includes('marketing') || lowerName.includes('маркетинг') || lowerName.includes('acquisition')) {
-    return "Marketing";
-  } 
-  
-  if (lowerName.includes('sales') || lowerName.includes('продаж')) {
-    return "Sales";
-  } 
-  
-  if (lowerName.includes('discovery') || lowerName.includes('delivery') || 
-      lowerName.includes('hub') || lowerName.includes('bot.one')) {
-    return "Delivery & Discovery";
-  }
-  
-  // Return empty string if can't be determined, will be displayed as "na"
-  return "";
 }

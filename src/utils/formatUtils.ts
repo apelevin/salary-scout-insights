@@ -19,7 +19,6 @@ export const formatName = (name: string): string => {
   const nameParts = cleanName.split(/\s+/);
   
   if (nameParts.length >= 2) {
-    // Return first two parts of the name (usually last name and first name in Russian naming convention)
     return `${nameParts[0]} ${nameParts[1]}`;
   }
   
@@ -34,17 +33,10 @@ export const cleanRoleName = (roleName: string): string => {
   return roleName.replace(/["']/g, '').trim();
 };
 
-// Add back the cleanFunctionalType function for compatibility
-export const cleanFunctionalType = (type: string): string => {
-  if (!type) return "The others";
-  
-  const normalizedType = type.trim().toLowerCase();
-  
-  if (normalizedType.includes("marketing")) return "Marketing";
-  if (normalizedType.includes("sale")) return "Sales";
-  if (normalizedType.includes("discovery") || normalizedType.includes("delivery")) return "Delivery & Discovery";
-  
-  return "The others";
+// New utility function to clean functional type
+export const cleanFunctionalType = (type: string | undefined): string => {
+  if (!type) return '';
+  return type.replace(/["']/g, '').trim();
 };
 
 // New utility function for incognito mode name display

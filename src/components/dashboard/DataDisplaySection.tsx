@@ -1,11 +1,11 @@
 
-import React from "react";
+import { BarChart } from "lucide-react";
+import { Card, CardContent } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import EmployeeTable from "@/components/employee-table/EmployeeTable";
+import RolesTable from "@/components/RolesTable";
+import LeadershipTable from "@/components/leadership/LeadershipTable";
 import { Employee, RoleData, CircleData, LeadershipData } from "@/types";
-import CirclesTable from "../circles/CirclesTable";
-import EmployeeTable from "../employee-table/EmployeeTable";
-import RolesTable from "../RolesTable"; 
-import LeadershipTable from "../leadership/LeadershipTable";
 
 interface DataDisplaySectionProps {
   activeTab: string;
@@ -16,11 +16,11 @@ interface DataDisplaySectionProps {
   leadershipData: LeadershipData[];
   isProcessing: boolean;
   customStandardSalaries: Map<string, number>;
-  onStandardSalaryChange: (roleName: string, newSalary: number) => void;
-  incognitoMode: boolean;
+  onStandardSalaryChange: (roleName: string, newStandardSalary: number) => void;
+  incognitoMode?: boolean;
 }
 
-const DataDisplaySection: React.FC<DataDisplaySectionProps> = ({
+const DataDisplaySection = ({
   activeTab,
   setActiveTab,
   employees,
@@ -30,58 +30,54 @@ const DataDisplaySection: React.FC<DataDisplaySectionProps> = ({
   isProcessing,
   customStandardSalaries,
   onStandardSalaryChange,
-  incognitoMode
-}) => {
+  incognitoMode = false
+}: DataDisplaySectionProps) => {
   return (
-    <div className="bg-white rounded-lg shadow-sm border p-4">
-      <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-        <TabsList className="grid w-full grid-cols-4">
-          <TabsTrigger value="employees">Сотрудники</TabsTrigger>
-          <TabsTrigger value="roles">Роли</TabsTrigger>
-          <TabsTrigger value="circles">Круги</TabsTrigger>
-          <TabsTrigger value="leadership">Лидерство</TabsTrigger>
-        </TabsList>
-
-        <TabsContent value="employees" className="mt-6">
-          <EmployeeTable 
-            employees={employees} 
-            rolesData={rolesData} 
-            customStandardSalaries={customStandardSalaries}
-            onStandardSalaryChange={onStandardSalaryChange}
-            isLoading={isProcessing}
-            incognitoMode={incognitoMode}
-          />
-        </TabsContent>
-
-        <TabsContent value="roles" className="mt-6">
-          <RolesTable 
-            rolesData={rolesData} 
-            employees={employees}
-            isLoading={isProcessing}
-            onStandardSalaryChange={onStandardSalaryChange}
-            incognitoMode={incognitoMode}
-          />
-        </TabsContent>
-
-        <TabsContent value="circles" className="mt-6">
-          <CirclesTable 
-            circlesData={circlesData} 
-            rolesData={rolesData} 
-            employees={employees}
-            isLoading={isProcessing}
-            incognitoMode={incognitoMode}
-          />
-        </TabsContent>
-
-        <TabsContent value="leadership" className="mt-6">
-          <LeadershipTable 
-            leadershipData={leadershipData} 
-            isLoading={isProcessing}
-            incognitoMode={incognitoMode}
-          />
-        </TabsContent>
-      </Tabs>
-    </div>
+    <Card>
+      <CardContent className="p-6">
+        <div className="flex items-center space-x-2 mb-4">
+          <BarChart className="h-5 w-5 text-blue-500" />
+          <h2 className="text-xl font-semibold text-foreground">Данные</h2>
+        </div>
+        <Tabs 
+          value={activeTab} 
+          onValueChange={setActiveTab}
+          className="w-full"
+        >
+          <TabsList className="w-full grid grid-cols-3 mb-4">
+            <TabsTrigger value="employees">Сотрудники</TabsTrigger>
+            <TabsTrigger value="roles">Роли</TabsTrigger>
+            <TabsTrigger value="leadership">Лидерство</TabsTrigger>
+          </TabsList>
+          <TabsContent value="employees">
+            <EmployeeTable 
+              employees={employees} 
+              rolesData={rolesData}
+              circlesData={circlesData}
+              leadershipData={leadershipData}
+              isLoading={isProcessing} 
+              customStandardSalaries={customStandardSalaries}
+              incognitoMode={incognitoMode}
+            />
+          </TabsContent>
+          <TabsContent value="roles">
+            <RolesTable
+              rolesData={rolesData}
+              employees={employees}
+              isLoading={isProcessing}
+              onStandardSalaryChange={onStandardSalaryChange}
+              incognitoMode={incognitoMode}
+            />
+          </TabsContent>
+          <TabsContent value="leadership">
+            <LeadershipTable 
+              leadershipData={leadershipData}
+              isLoading={isProcessing}
+            />
+          </TabsContent>
+        </Tabs>
+      </CardContent>
+    </Card>
   );
 };
 

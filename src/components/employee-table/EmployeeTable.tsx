@@ -1,5 +1,5 @@
 
-import { useState, useMemo, useCallback } from "react";
+import { useState } from "react";
 import { Table } from "@/components/ui/table";
 import { Employee, RoleData, CircleData, LeadershipData, EmployeeWithRoles } from "@/types";
 import EmployeeInfoSidebar from "../EmployeeInfoSidebar";
@@ -18,7 +18,6 @@ interface EmployeeTableProps {
   leadershipData?: LeadershipData[];
   isLoading?: boolean;
   customStandardSalaries?: Map<string, number>;
-  onStandardSalaryChange?: (employeeName: string, newSalary: number) => void;
   incognitoMode?: boolean;
 }
 
@@ -29,14 +28,12 @@ const EmployeeTable = ({
   leadershipData = [], 
   isLoading = false,
   customStandardSalaries = new Map(),
-  onStandardSalaryChange,
   incognitoMode = false
 }: EmployeeTableProps) => {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedEmployee, setSelectedEmployee] = useState<Employee | EmployeeWithRoles | null>(null);
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
-  // Используем оптимизированные хуки для фильтрации и сортировки
   const { filteredEmployees } = useEmployeeFilter(
     employees,
     rolesData,
@@ -49,18 +46,14 @@ const EmployeeTable = ({
   const { sortedEmployees, sortDirection, sortField, toggleSort } = 
     useSortableEmployees(filteredEmployees as (Employee | EmployeeWithRoles)[]);
 
-  // Мемоизированные обработчики событий
-  const handleEmployeeClick = useCallback((employee: Employee | EmployeeWithRoles) => {
+  const handleEmployeeClick = (employee: Employee | EmployeeWithRoles) => {
     setSelectedEmployee(employee);
     setSidebarOpen(true);
-  }, []);
+  };
 
-  const closeSidebar = useCallback(() => {
+  const closeSidebar = () => {
     setSidebarOpen(false);
-  }, []);
-
-  // Для ускорения рендеринга при большом количестве данных
-  const employeeCount = useMemo(() => sortedEmployees.length, [sortedEmployees]);
+  };
 
   if (isLoading) {
     return <LoadingState />;
@@ -91,7 +84,7 @@ const EmployeeTable = ({
         </Table>
       </div>
       <div className="text-sm text-gray-500 mt-3">
-        Всего сотрудников: {employeeCount}
+        Всего сотрудников: {sortedEmployees.length}
       </div>
 
       <EmployeeInfoSidebar 

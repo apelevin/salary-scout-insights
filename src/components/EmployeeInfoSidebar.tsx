@@ -5,19 +5,18 @@ import {
   SheetClose
 } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
-import { Employee, EmployeeWithRoles, LeadershipData, CircleData } from "@/types";
+import { Employee, EmployeeWithRoles, LeadershipData } from "@/types";
 import { EmployeeHeader } from "./employee-info/EmployeeHeader";
 import { FinancialInfo } from "./employee-info/FinancialInfo";
 import { SalaryCalculation } from "./employee-info/SalaryCalculation";
 import { RolesAndWorkload } from "./employee-info/RolesAndWorkload";
-import { LeaderCirclesList } from "./employee-info/LeaderCirclesList";
+import { OperationalCircleInfo } from "./employee-info/OperationalCircleInfo";
 
 interface EmployeeInfoSidebarProps {
   employee: Employee | EmployeeWithRoles | null;
   open: boolean;
   onClose: () => void;
   leadershipData: LeadershipData[];
-  circlesData?: CircleData[];
   incognitoMode?: boolean;
 }
 
@@ -26,7 +25,6 @@ const EmployeeInfoSidebar = ({
   open, 
   onClose, 
   leadershipData,
-  circlesData = [],
   incognitoMode = false
 }: EmployeeInfoSidebarProps) => {
   if (!employee) {
@@ -35,15 +33,6 @@ const EmployeeInfoSidebar = ({
 
   // Check if the employee has the properties of EmployeeWithRoles
   const hasRoles = 'roles' in employee && 'totalFTE' in employee && 'normalizedRolesFTE' in employee;
-
-  // Check if employee has any leadership roles
-  const isLeader = hasRoles && 'roles' in employee && 
-    employee.roles.some(role => 
-      role.toLowerCase().includes('лидер')
-    );
-
-  // Get lead circles if the employee is an enhanced EmployeeWithRoles type
-  const leadCircles = hasRoles && 'leadCircles' in employee ? employee.leadCircles : [];
 
   return (
     <Sheet open={open} onOpenChange={(isOpen) => {
@@ -54,21 +43,19 @@ const EmployeeInfoSidebar = ({
 
         <div className="space-y-6">
           <FinancialInfo employee={employee} />
-          
           {hasRoles && (
             <SalaryCalculation employee={employee as EmployeeWithRoles} />
           )}
           
+          {hasRoles && 'operationalCircleCount' in employee && employee.operationalCircleCount && employee.operationalCircleCount > 0 && (
+            <OperationalCircleInfo 
+              employee={employee as EmployeeWithRoles} 
+              leadershipData={leadershipData}
+            />
+          )}
+          
           {hasRoles && (
             <RolesAndWorkload employee={employee as EmployeeWithRoles} />
-          )}
-
-          {/* Display lead circles section if employee is a leader and has lead circles */}
-          {isLeader && leadCircles && leadCircles.length > 0 && (
-            <LeaderCirclesList 
-              leadCircles={leadCircles} 
-              incognitoMode={incognitoMode}
-            />
           )}
         </div>
 

@@ -1,26 +1,19 @@
 
 import { Card, CardHeader, CardContent, CardTitle } from "@/components/ui/card";
 import { CircleAlert } from "lucide-react";
-import { EmployeeWithRoles, LeadershipData, CircleData } from "@/types";
+import { EmployeeWithRoles, LeadershipData } from "@/types";
 import { cleanFunctionalType } from "@/utils/formatUtils";
-import { findLeadershipStandardSalary } from "@/utils/salary";
+import { findLeadershipStandardSalary } from "@/utils/salaryUtils";
 
 interface OperationalCircleInfoProps {
   employee: EmployeeWithRoles;
   leadershipData: LeadershipData[];
-  circlesData?: CircleData[];
 }
 
-export const OperationalCircleInfo = ({ 
-  employee, 
-  leadershipData, 
-  circlesData = [] 
-}: OperationalCircleInfoProps) => {
+export const OperationalCircleInfo = ({ employee, leadershipData }: OperationalCircleInfoProps) => {
   // Get the total count of circles led by the employee
   const circleCount = employee.operationalCircleCount || 0;
-  const rawFunctionalType = employee.operationalCircleType || "";
-  const functionalType = cleanFunctionalType(rawFunctionalType);
-  const leadCircles = employee.leadCircles || [];
+  const functionalType = employee.operationalCircleType || "";
   
   // Find the standard salary for this leadership role
   const standardSalary = findLeadershipStandardSalary(
@@ -38,22 +31,6 @@ export const OperationalCircleInfo = ({
       }).format(standardSalary)
     : "Не определен";
 
-  // Format functional type display value
-  const displayFunctionalType = functionalType || "The others";
-
-  // Debug logs to track data flow
-  console.log("OperationalCircleInfo received data:", {
-    employeeName: employee.name,
-    circleCount,
-    rawFunctionalType,
-    functionalType,
-    displayFunctionalType,
-    standardSalary,
-    leadCirclesCount: leadCircles?.length || 0,
-    leadCircles: leadCircles?.map(c => ({ name: c.name, type: c.functionalType })) || [],
-    circlesDataLength: circlesData?.length || 0
-  });
-
   return (
     <Card>
       <CardHeader className="pb-2">
@@ -64,10 +41,12 @@ export const OperationalCircleInfo = ({
       </CardHeader>
       <CardContent>
         <div className="space-y-1">
-          <div className="flex justify-between">
-            <span className="text-gray-500">Функциональная принадлежность:</span>
-            <span className="font-medium">{displayFunctionalType}</span>
-          </div>
+          {employee.operationalCircleType && (
+            <div className="flex justify-between">
+              <span className="text-gray-500">Функциональная принадлежность:</span>
+              <span className="font-medium">{cleanFunctionalType(employee.operationalCircleType)}</span>
+            </div>
+          )}
           <div className="flex justify-between">
             <span className="text-gray-500">Количество кругов:</span>
             <span className="font-medium">{circleCount}</span>
@@ -77,23 +56,6 @@ export const OperationalCircleInfo = ({
             <span className="font-medium">{formattedStandardSalary}</span>
           </div>
         </div>
-        
-        {/* Display employee's lead circles */}
-        {leadCircles && leadCircles.length > 0 && (
-          <div className="mt-3">
-            <h4 className="text-sm font-medium mb-2">Управляемые круги:</h4>
-            <ul className="text-sm space-y-1">
-              {leadCircles.map((circle, idx) => (
-                <li key={idx} className="px-2 py-1 bg-blue-50 rounded flex justify-between">
-                  <span>{circle.name}</span>
-                  <span className="text-blue-600 text-xs">
-                    {cleanFunctionalType(circle.functionalType)}
-                  </span>
-                </li>
-              ))}
-            </ul>
-          </div>
-        )}
       </CardContent>
     </Card>
   );

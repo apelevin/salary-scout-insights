@@ -47,24 +47,13 @@ export const parseRolesCSV = (csvContent: string): RoleData[] => {
       return [];
     }
     
-    // Check if we have "Название" column as a fallback for circle name
-    const titleColumnIndex = headers.findIndex(h => 
-      h === 'название' || h === 'название круга' || h === 'наименование'
-    );
-    
-    const effectiveCircleNameColumnIndex = circleNameColumnIndex !== -1 
-      ? circleNameColumnIndex 
-      : titleColumnIndex;
-    
-    console.log("Эффективный индекс колонки с названием круга:", effectiveCircleNameColumnIndex);
-    
     return parseRoleRows(
       lines, 
       delimiter, 
       participantColumnIndex, 
       roleNameColumnIndex, 
       fteColumnIndex, 
-      effectiveCircleNameColumnIndex
+      circleNameColumnIndex
     );
     
   } catch (error) {
@@ -85,7 +74,6 @@ function parseRoleRows(
   circleNameColumnIndex: number
 ): RoleData[] {
   const roles: RoleData[] = [];
-  const leadershipRoles: RoleData[] = [];
   
   // Start at 1 to skip headers
   for (let i = 1; i < lines.length; i++) {
@@ -114,26 +102,11 @@ function parseRoleRows(
         circleNameColumnIndex
       );
       
-      // Separate leadership roles for logging
-      if (roleName.toLowerCase().includes('лидер')) {
-        leadershipRoles.push(role);
-      }
-      
       roles.push(role);
     }
   }
   
   console.log(`Успешно распознано ${roles.length} записей о ролях`);
-  console.log(`Из них ${leadershipRoles.length} ролей лидерства`);
-  
-  // Log leadership roles for debugging
-  if (leadershipRoles.length > 0) {
-    console.log("Роли лидерства:");
-    leadershipRoles.forEach(role => {
-      console.log(`Участник: "${role.participantName}", Роль: "${role.roleName}", Круг: "${role.circleName || 'не указан'}"`);
-    });
-  }
-  
   return roles;
 }
 
@@ -167,11 +140,6 @@ function createRoleFromValues(
   // Add circleName if column exists
   if (circleNameColumnIndex !== -1 && values[circleNameColumnIndex]) {
     role.circleName = values[circleNameColumnIndex].trim();
-    
-    // Debug log for leadership roles
-    if (roleName.toLowerCase().includes('лидер')) {
-      console.log(`Leadership role "${roleName}" for ${participantName} in circle "${role.circleName}"`);
-    }
   }
   
   return role;

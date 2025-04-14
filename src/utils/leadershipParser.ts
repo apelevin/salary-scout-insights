@@ -90,38 +90,6 @@ export const parseLeadershipCSV = (csvContent: string): LeadershipData[] => {
   }
   
   console.log("Итоговое количество записей о лидерстве:", leadershipData.length);
-  
-  // Add debug output of the first few entries to check structure
-  if (leadershipData.length > 0) {
-    console.log("Пример записей лидерства:", leadershipData.slice(0, 3));
-  }
-  
-  // Fallback: If no entries were parsed, add some default ones
-  if (leadershipData.length === 0) {
-    console.log("Данные о лидерстве не найдены, добавляем базовые записи");
-    
-    // Add some basic leadership entries to ensure functionality
-    // Include "Delivery & Discovery" type for Discovery roles
-    const defaultTypes = ["Delivery", "Discovery", "Delivery & Discovery", "Enablement", "Platform"];
-    const defaultCircleCounts = ["1", "2", "3"];
-    const baseSalary = 100000;
-    
-    defaultTypes.forEach(type => {
-      defaultCircleCounts.forEach((count, index) => {
-        const salary = baseSalary * (parseInt(count) + 1);
-        leadershipData.push({
-          roleName: `${type} (${count})`,
-          standardSalary: salary,
-          description: `Лидерство типа "${type}" с ${count} кругами`,
-          leadershipType: type,
-          circleCount: count
-        });
-      });
-    });
-    
-    console.log("Добавлены базовые записи лидерства:", leadershipData);
-  }
-  
   return leadershipData;
 };
 

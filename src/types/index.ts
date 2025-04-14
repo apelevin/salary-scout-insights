@@ -16,7 +16,6 @@ export interface EmployeeWithRoles extends Employee {
   operationalCircleType?: string;
   operationalCircleCount?: number;
   strategicCircleCount?: number;
-  leadCircles?: CircleData[];
 }
 
 export interface UploadedFile {
@@ -50,5 +49,3 @@ export interface LeadershipTableData {
   leadershipType: string;
   circleSalaries: Map<string, number>;
 }
-
-// Remove the custom Map type definition as it conflicts with the native Map

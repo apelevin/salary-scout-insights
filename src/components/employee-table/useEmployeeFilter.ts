@@ -1,7 +1,7 @@
 
-import { useState, useEffect, useMemo, useCallback } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { Employee, RoleData, CircleData, LeadershipData } from "@/types";
-import { processEmployeesWithRoles } from "@/utils/employee";
+import { processEmployeesWithRoles } from "@/utils/employeeUtils";
 
 export interface UseEmployeeFilterParams {
   employees: Employee[];
@@ -20,7 +20,9 @@ export const useEmployeeFilter = (
   searchTerm: string = "",
   leadershipData: LeadershipData[] = []
 ) => {
-  // Мемоизируем обработку сотрудников с ролями для избежания лишних вычислений
+  const [filteredEmployees, setFilteredEmployees] = useState(employees);
+
+  // Process employees with roles and calculate derived data
   const processedEmployees = useMemo(() => {
     if (!employees.length) return [];
     
@@ -33,24 +35,24 @@ export const useEmployeeFilter = (
     );
   }, [employees, rolesData, customStandardSalaries, circlesData, leadershipData]);
 
-  // Мемоизированная функция поиска для повышения производительности
-  const filterEmployees = useCallback((searchTerm: string, employees: any[]) => {
-    if (!searchTerm) return employees;
-    
+  // Apply search filter
+  useEffect(() => {
+    if (!searchTerm) {
+      setFilteredEmployees(processedEmployees);
+      return;
+    }
+
     const lowerSearchTerm = searchTerm.toLowerCase();
-    return employees.filter(employee =>
+    const filtered = processedEmployees.filter(employee =>
       employee.name.toLowerCase().includes(lowerSearchTerm) ||
       (employee.position && employee.position.toLowerCase().includes(lowerSearchTerm)) ||
-      (employee.roles && employee.roles.some((role: string) => 
+      (employee.roles && employee.roles.some(role => 
         role.toLowerCase().includes(lowerSearchTerm)
       ))
     );
-  }, []);
+    
+    setFilteredEmployees(filtered);
+  }, [processedEmployees, searchTerm]);
 
-  // Применяем поиск к обработанным сотрудникам с мемоизацией результата
-  const filteredEmployees = useMemo(() => 
-    filterEmployees(searchTerm, processedEmployees),
-  [searchTerm, processedEmployees, filterEmployees]);
-
-  return { filteredEmployees, circlesData };
+  return { filteredEmployees };
 };

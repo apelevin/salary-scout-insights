@@ -1,4 +1,5 @@
-import { FileType, FileText, RotateCcw } from "lucide-react";
+
+import { FileType, FileText } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import FileUpload from "@/components/FileUpload";
 import { Button } from "@/components/ui/button";
@@ -7,10 +8,8 @@ import { UploadedFile } from "@/types";
 interface FileUploadSectionProps {
   uploadedFiles: UploadedFile[];
   isProcessing: boolean;
-  filesProcessed: boolean;
   onFilesUploaded: (files: UploadedFile[]) => void;
   onProcessFiles: () => void;
-  onResetUploadControls?: () => void;
   onLeadershipFileUpload?: (file: UploadedFile) => void;
   maxFiles?: number;
 }
@@ -18,10 +17,8 @@ interface FileUploadSectionProps {
 const FileUploadSection = ({
   uploadedFiles,
   isProcessing,
-  filesProcessed,
   onFilesUploaded,
   onProcessFiles,
-  onResetUploadControls,
   onLeadershipFileUpload,
   maxFiles = 4
 }: FileUploadSectionProps) => {
@@ -54,80 +51,28 @@ const FileUploadSection = ({
       });
     }
   };
-
-  // Отображение статуса загруженных файлов
-  const getProcessedFilesStatus = () => {
-    const totalFiles = uploadedFiles.length;
-    const parsedFiles = uploadedFiles.filter(file => file.parsed).length;
-    
-    return (
-      <div className="mt-4 text-center">
-        <p className="text-sm text-muted-foreground">
-          Обработано файлов: {parsedFiles}/{totalFiles}
-        </p>
-      </div>
-    );
-  };
-
-  // Отображение кнопки для возврата к загрузке
-  const handleResetUpload = () => {
-    if (onResetUploadControls) {
-      onResetUploadControls();
-    }
-  };
-
-  // Only render the component if files are not processed
-  if (filesProcessed) {
-    return null;
-  }
-
+  
   return (
     <>
       <Card>
         <CardContent className="p-6">
-          <div className="flex items-center justify-between mb-4">
-            <div className="flex items-center space-x-2">
-              <FileType className="h-5 w-5 text-blue-500" />
-              <h2 className="text-xl font-semibold text-foreground">Загрузка данных</h2>
-            </div>
-            {filesProcessed && (
-              <Button
-                variant="outline"
-                size="icon"
-                onClick={handleResetUpload}
-                title="Загрузить новые файлы"
-              >
-                <RotateCcw className="h-4 w-4" />
-              </Button>
-            )}
+          <div className="flex items-center space-x-2 mb-4">
+            <FileType className="h-5 w-5 text-blue-500" />
+            <h2 className="text-xl font-semibold text-foreground">Загрузка данных</h2>
           </div>
-
-          {!filesProcessed ? (
-            <>
-              <FileUpload onFilesUploaded={handleFilesUploaded} maxFiles={maxFiles} />
-              <div className="mt-6">
-                <Button 
-                  className="w-full" 
-                  disabled={uploadedFiles.length === 0 || isProcessing}
-                  onClick={onProcessFiles}
-                >
-                  {isProcessing ? "Обработка..." : "Обработать данные"}
-                </Button>
-              </div>
-              {uploadedFiles.length > 0 && getProcessedFilesStatus()}
-            </>
-          ) : (
-            <div className="py-4 text-center">
-              <p className="text-green-600 font-medium mb-2">Файлы успешно обработаны!</p>
-              <p className="text-sm text-muted-foreground">
-                Загружено {uploadedFiles.length} файлов. Вы можете просмотреть данные на вкладках справа.
-              </p>
-            </div>
-          )}
+          <FileUpload onFilesUploaded={handleFilesUploaded} maxFiles={maxFiles} />
+          <div className="mt-6">
+            <Button 
+              className="w-full" 
+              disabled={uploadedFiles.length === 0 || isProcessing}
+              onClick={onProcessFiles}
+            >
+              {isProcessing ? "Обработка..." : "Обработать данные"}
+            </Button>
+          </div>
         </CardContent>
       </Card>
 
-      {/* Only render the instruction card if files are not processed */}
       <Card className="mt-6">
         <CardContent className="p-6">
           <div className="flex items-center space-x-2 mb-4">

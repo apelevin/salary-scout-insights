@@ -31,7 +31,7 @@ export const detectDelimiter = (firstLine: string): string => {
 export const findColumnIndex = (headers: string[], aliases: string[]): number => {
   for (let i = 0; i < headers.length; i++) {
     const header = headers[i].toLowerCase();
-    if (aliases.some(alias => header.includes(alias.toLowerCase()))) {
+    if (aliases.some(alias => header.includes(alias))) {
       return i;
     }
   }
@@ -61,50 +61,4 @@ export const parseFTEValue = (fteString: string): number | undefined => {
   const cleanedFteValue = parseFloat(cleanedFteString);
   
   return !isNaN(cleanedFteValue) ? cleanedFteValue : undefined;
-};
-
-/**
- * Normalizes functional type to one of our standard categories
- * Returns empty string if no valid type is found (will display as "na")
- */
-export const normalizeFunctionalType = (type: string): string => {
-  if (!type || type.trim() === '') return "";
-  
-  const normalizedType = type.trim().toLowerCase();
-  
-  // Check for Marketing type variations
-  if (normalizedType.includes("market") || 
-      normalizedType.includes("маркет")) {
-    return "Marketing";
-  }
-  
-  // Check for Sales type variations
-  if (normalizedType.includes("sale") || 
-      normalizedType.includes("продаж") || 
-      normalizedType.includes("прод")) {
-    return "Sales";
-  }
-  
-  // Check for Delivery & Discovery type variations
-  if (normalizedType.includes("discovery") || 
-      normalizedType.includes("delivery") || 
-      normalizedType.includes("диск") || 
-      normalizedType.includes("делив")) {
-    return "Delivery & Discovery";
-  }
-  
-  // Check for Enablement type
-  if (normalizedType.includes("enable") || 
-      normalizedType.includes("энейбл")) {
-    return "Enablement";
-  }
-  
-  // Check for Platform type
-  if (normalizedType.includes("platform") || 
-      normalizedType.includes("платформ")) {
-    return "Platform";
-  }
-  
-  // If no match found, return empty string (will display as "na")
-  return "";
 };

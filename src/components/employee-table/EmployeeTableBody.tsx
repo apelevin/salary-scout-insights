@@ -1,5 +1,5 @@
 
-import React, { memo } from "react";
+import React from "react";
 import { TableBody, TableCell, TableRow } from "@/components/ui/table";
 import { Employee, EmployeeWithRoles } from "@/types";
 import EmployeeTableRow from "../EmployeeTableRow";
@@ -10,8 +10,7 @@ interface EmployeeTableBodyProps {
   incognitoMode?: boolean;
 }
 
-// Использование memo для предотвращения лишних перерендеров
-const EmployeeTableBody: React.FC<EmployeeTableBodyProps> = memo(({ 
+const EmployeeTableBody: React.FC<EmployeeTableBodyProps> = ({ 
   employees, 
   onEmployeeClick,
   incognitoMode = false 
@@ -32,7 +31,7 @@ const EmployeeTableBody: React.FC<EmployeeTableBodyProps> = memo(({
     <TableBody>
       {employees.map((employee, index) => (
         <EmployeeTableRow 
-          key={employee.id || `employee-${index}`} 
+          key={employee.id || index} 
           employee={employee} 
           onClick={onEmployeeClick} 
           incognitoMode={incognitoMode}
@@ -40,9 +39,6 @@ const EmployeeTableBody: React.FC<EmployeeTableBodyProps> = memo(({
       ))}
     </TableBody>
   );
-});
-
-// Задаем displayName для улучшения отладки
-EmployeeTableBody.displayName = 'EmployeeTableBody';
+};
 
 export default EmployeeTableBody;
