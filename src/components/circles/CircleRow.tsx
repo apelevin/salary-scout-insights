@@ -13,10 +13,13 @@ const CircleRow = ({
   circleName, 
   functionalType 
 }: CircleRowProps) => {
+  // Очищаем название круга и функционального типа от кавычек
+  const cleanCircleName = circleName.replace(/["']/g, '').trim();
+
   return (
     <TableRow>
       <TableCell className="font-medium">{index + 1}</TableCell>
-      <TableCell>{circleName}</TableCell>
+      <TableCell>{cleanCircleName}</TableCell>
       <TableCell>{cleanFunctionalType(functionalType)}</TableCell>
     </TableRow>
   );
