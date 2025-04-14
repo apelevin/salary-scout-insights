@@ -1,7 +1,6 @@
-
 import { useState } from "react";
 import { Table } from "@/components/ui/table";
-import { Employee, RoleData, CircleData, LeadershipData, EmployeeWithRoles } from "@/types";
+import { Employee, RoleData, CircleData, LeadershipData, EmployeeWithRoles, Map } from "@/types";
 import EmployeeInfoSidebar from "../EmployeeInfoSidebar";
 import EmployeeSearch from "../EmployeeSearch";
 import { LoadingState, EmptyState } from "../EmployeeTableStates";
@@ -18,6 +17,7 @@ interface EmployeeTableProps {
   leadershipData?: LeadershipData[];
   isLoading?: boolean;
   customStandardSalaries?: Map<string, number>;
+  onStandardSalaryChange?: (employeeName: string, newSalary: number) => void;
   incognitoMode?: boolean;
 }
 
@@ -28,6 +28,7 @@ const EmployeeTable = ({
   leadershipData = [], 
   isLoading = false,
   customStandardSalaries = new Map(),
+  onStandardSalaryChange,
   incognitoMode = false
 }: EmployeeTableProps) => {
   const [searchTerm, setSearchTerm] = useState("");

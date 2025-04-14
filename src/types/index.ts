@@ -49,3 +49,14 @@ export interface LeadershipTableData {
   leadershipType: string;
   circleSalaries: Map<string, number>;
 }
+
+// Add a proper Map type definition
+export type Map<K, V> = {
+  get(key: K): V | undefined;
+  set(key: K, value: V): Map<K, V>;
+  has(key: K): boolean;
+  delete(key: K): boolean;
+  clear(): void;
+  size: number;
+  forEach(callbackfn: (value: V, key: K, map: Map<K, V>) => void, thisArg?: any): void;
+}

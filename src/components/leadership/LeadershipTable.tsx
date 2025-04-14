@@ -1,4 +1,3 @@
-
 import { Table, TableBody } from "@/components/ui/table";
 import { LeadershipData } from "@/types";
 import LeadershipTableHeader from "./LeadershipTableHeader";
@@ -13,16 +12,17 @@ interface LeadershipTableProps {
   leadershipData: LeadershipData[];
   isLoading: boolean;
   onLeadershipDataChange?: (updatedData: LeadershipData[]) => void;
+  incognitoMode?: boolean;
 }
 
 const LeadershipTable = ({ 
   leadershipData, 
   isLoading,
-  onLeadershipDataChange
+  onLeadershipDataChange,
+  incognitoMode = false
 }: LeadershipTableProps) => {
   const [localLeadershipData, setLocalLeadershipData] = useState<LeadershipData[]>(leadershipData);
 
-  // Use the provided data or local state
   const currentData = onLeadershipDataChange ? leadershipData : localLeadershipData;
   
   const formatSalary = (salary: number) => {
@@ -34,10 +34,8 @@ const LeadershipTable = ({
   };
   
   const { tableData, uniqueCircleCounts } = useMemo(() => {
-    // Transform leadership data
     const transformedData = transformLeadershipData(currentData);
     
-    // Get unique circle counts across all leadership types
     const allCircleCounts = new Set<string>();
     transformedData.forEach(item => {
       item.circleSalaries.forEach((_, count) => {
@@ -45,7 +43,6 @@ const LeadershipTable = ({
       });
     });
     
-    // Sort circle counts numerically
     const uniqueCounts = Array.from(allCircleCounts).sort((a, b) => parseInt(a) - parseInt(b));
     
     return {
@@ -55,7 +52,6 @@ const LeadershipTable = ({
   }, [currentData]);
   
   const handleSalaryChange = (leadershipType: string, circleCount: string, newSalary: number) => {
-    // Find the corresponding data entry and update it
     const updatedData = currentData.map(item => {
       if (item.leadershipType === leadershipType && item.circleCount === circleCount) {
         return {
@@ -66,12 +62,10 @@ const LeadershipTable = ({
       return item;
     });
     
-    // Check if we found and updated an existing entry
     const entryExists = updatedData.some(
       item => item.leadershipType === leadershipType && item.circleCount === circleCount
     );
     
-    // If entry doesn't exist, create a new one
     if (!entryExists) {
       updatedData.push({
         roleName: `${leadershipType} (${circleCount})`,
@@ -81,7 +75,6 @@ const LeadershipTable = ({
       });
     }
     
-    // Update state or call the provided callback
     if (onLeadershipDataChange) {
       onLeadershipDataChange(updatedData);
     } else {
@@ -119,6 +112,7 @@ const LeadershipTable = ({
               circleCounts={uniqueCircleCounts}
               formatSalary={formatSalary}
               onSalaryChange={handleSalaryChange}
+              incognitoMode={incognitoMode}
             />
           ))}
         </TableBody>

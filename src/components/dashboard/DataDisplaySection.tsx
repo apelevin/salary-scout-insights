@@ -1,12 +1,11 @@
 
 import React from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Employee, RoleData, CircleData, LeadershipData } from "@/types";
+import { Employee, RoleData, CircleData, LeadershipData, Map } from "@/types";
 import CirclesTable from "../circles/CirclesTable";
 import EmployeeTable from "../employee-table/EmployeeTable";
-import RolesList from "../roles/RolesList";
+import RolesTable from "../RolesTable"; // Changed from RolesList
 import LeadershipTable from "../leadership/LeadershipTable";
-import { Map } from "@/types";
 
 interface DataDisplaySectionProps {
   activeTab: string;
@@ -55,10 +54,11 @@ const DataDisplaySection: React.FC<DataDisplaySectionProps> = ({
         </TabsContent>
 
         <TabsContent value="roles" className="mt-6">
-          <RolesList 
+          <RolesTable 
             rolesData={rolesData} 
             employees={employees}
             isLoading={isProcessing}
+            onStandardSalaryChange={onStandardSalaryChange}
             incognitoMode={incognitoMode}
           />
         </TabsContent>
