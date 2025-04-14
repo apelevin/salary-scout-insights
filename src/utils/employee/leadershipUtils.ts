@@ -47,7 +47,6 @@ export const findCircleLeadershipInfo = (
   }
   
   console.log(`Found ${leaderRoles.length} leadership roles for: ${lastName} ${firstName}`);
-  console.log(`Leadership roles:`, leaderRoles.map(r => ({ role: r.roleName, circle: r.circleName })));
   
   // Count the total number of circles led
   const circleCount = leaderRoles.length;
@@ -72,11 +71,10 @@ export const findCircleLeadershipInfo = (
       
       if (circle) {
         console.log(`Found circle "${circleName}" with functional type: "${circle.functionalType || 'Not specified'}"`);
-        leadCircles.push(circle);
+        leadCircles.push({...circle}); // Clone the circle object to avoid reference issues
         if (circle.functionalType && !circleType) {
           // Use the functional type
           circleType = circle.functionalType;
-          console.log(`Found functional type for ${lastName} ${firstName}: ${circleType} (from circle ${role.circleName})`);
         }
       } else {
         // Try to determine functional type from circle name if not found in data
@@ -97,11 +95,9 @@ export const findCircleLeadershipInfo = (
         leadCircles.push({ name: circleName, functionalType: derivedType });
         
         // Set the circle type if not already set
-        if (!circleType) {
+        if (!circleType && derivedType) {
           circleType = derivedType;
         }
-        
-        console.log(`Circle "${circleName}" not found in circles data, creating basic entry with derived type: ${derivedType}`);
       }
     }
   }
