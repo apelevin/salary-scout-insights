@@ -3,7 +3,6 @@ import React from "react";
 import { Card, CardHeader, CardContent, CardTitle } from "@/components/ui/card";
 import { CircleAlert } from "lucide-react";
 import { CircleData } from "@/types";
-import { cleanFunctionalType } from "@/utils/formatUtils";
 
 interface LeaderCirclesListProps {
   leadCircles: CircleData[];
@@ -17,6 +16,14 @@ export const LeaderCirclesList: React.FC<LeaderCirclesListProps> = ({
   if (!leadCircles || leadCircles.length === 0) {
     return null;
   }
+
+  // Function to safely get functional type or display "na"
+  const getFunctionalType = (circle: CircleData): string => {
+    if (!circle.functionalType || circle.functionalType.trim() === '') {
+      return "na";
+    }
+    return circle.functionalType;
+  };
 
   return (
     <Card>
@@ -33,7 +40,7 @@ export const LeaderCirclesList: React.FC<LeaderCirclesListProps> = ({
               <div key={idx} className="px-3 py-2 bg-blue-50 rounded flex justify-between">
                 <span className="font-medium">{circle.name}</span>
                 <span className="text-blue-600 text-sm">
-                  {cleanFunctionalType(circle.functionalType)}
+                  {getFunctionalType(circle)}
                 </span>
               </div>
             ))}
