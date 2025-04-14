@@ -1,6 +1,5 @@
-
 import { CircleData, RoleData } from "@/types";
-import { cleanFunctionalType } from "../formatUtils";
+import { formatName } from "../formatUtils";
 import { normalizeFunctionalType } from "../csv/helpers";
 
 /**
@@ -74,21 +73,22 @@ export const findCircleLeadershipInfo = (
         console.log(`Found circle "${circleName}" with functional type: "${circle.functionalType || 'Not specified'}"`);
         leadCircles.push(circle);
         if (circle.functionalType && !circleType) {
-          // Use the normalized functional type
-          circleType = cleanFunctionalType(circle.functionalType);
+          // Use the functional type
+          circleType = circle.functionalType;
           console.log(`Found functional type for ${lastName} ${firstName}: ${circleType} (from circle ${role.circleName})`);
         }
       } else {
         // Try to determine functional type from circle name if not found in data
-        let derivedType = 'The others';
+        let derivedType = '';
         
-        if (circleName.toLowerCase().includes('marketing') || circleName.toLowerCase().includes('acquisition')) {
+        // Derive the circle type based on its name
+        const lowerName = circleName.toLowerCase();
+        if (lowerName.includes('marketing') || lowerName.includes('маркетинг') || lowerName.includes('acquisition')) {
           derivedType = 'Marketing';
-        } else if (circleName.toLowerCase().includes('sales')) {
+        } else if (lowerName.includes('sales') || lowerName.includes('продаж')) {
           derivedType = 'Sales';
-        } else if (circleName.toLowerCase().includes('discovery') || circleName.toLowerCase().includes('hub')) {
-          derivedType = 'Delivery & Discovery';
-        } else if (circleName.toLowerCase().includes('delivery') || circleName.toLowerCase().includes('bot.one')) {
+        } else if (lowerName.includes('discovery') || lowerName.includes('delivery') || 
+                  lowerName.includes('hub') || lowerName.includes('bot.one')) {
           derivedType = 'Delivery & Discovery';
         }
         
@@ -105,12 +105,6 @@ export const findCircleLeadershipInfo = (
     }
   }
   
-  // If still no functional type, use default
-  if (!circleType && circleCount > 0) {
-    circleType = 'The others';
-    console.log(`Using default type "The others" for ${lastName} ${firstName}`);
-  }
-  
   return { 
     circleType, 
     circleCount,
@@ -119,6 +113,7 @@ export const findCircleLeadershipInfo = (
 };
 
 // Helper function to format names (imported from formatUtils)
+// Keep this internal reference for backward compatibility
 import { formatName } from "../formatUtils";
 
 // These functions are kept for backwards compatibility but are no longer used directly

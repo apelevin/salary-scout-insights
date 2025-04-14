@@ -7,7 +7,8 @@ import {
   normalizeFunctionalType
 } from "./helpers";
 import {
-  CIRCLE_NAME_ALIASES
+  CIRCLE_NAME_ALIASES,
+  FUNCTIONAL_TYPE_ALIASES
 } from "./constants";
 
 /**
@@ -27,9 +28,9 @@ export const parseCirclesCSV = (csvContent: string): CircleData[] => {
     const headers = lines[0].split(delimiter).map(header => header.trim().toLowerCase());
     console.log("Обнаруженные заголовки кругов:", headers);
     
-    // Find column indices
+    // Find column indices with improved aliases
     const circleNameColumnIndex = findColumnIndex(headers, CIRCLE_NAME_ALIASES);
-    const functionalTypeColumnIndex = findColumnIndex(headers, ['функциональная принадлежность', 'тип', 'type', 'functional type']);
+    const functionalTypeColumnIndex = findColumnIndex(headers, FUNCTIONAL_TYPE_ALIASES);
     
     console.log("Индекс колонки с названием круга:", circleNameColumnIndex);
     console.log("Индекс колонки с функциональной принадлежностью:", functionalTypeColumnIndex);
@@ -85,11 +86,14 @@ function parseCircleRows(
     }
     
     const name = values[circleNameColumnIndex].trim();
-    let functionalType = "The others"; // Default value
+    let functionalType = ""; // Empty by default, will be displayed as "na"
     
     // Try to get functional type if column exists
     if (functionalTypeColumnIndex !== -1 && values.length > functionalTypeColumnIndex && values[functionalTypeColumnIndex]) {
       functionalType = normalizeFunctionalType(values[functionalTypeColumnIndex]);
+    } else {
+      // If functional type column doesn't exist, try to derive from name
+      functionalType = deriveCircleType(name);
     }
     
     circles.push({
@@ -101,4 +105,30 @@ function parseCircleRows(
   console.log(`Успешно распознано ${circles.length} записей о кругах`);
   
   return circles;
+}
+
+/**
+ * Helper function to derive circle type from name when not explicitly provided
+ */
+function deriveCircleType(circleName: string): string {
+  if (!circleName) return "";
+  
+  const lowerName = circleName.toLowerCase();
+  
+  // Try to determine type from circle name patterns
+  if (lowerName.includes('marketing') || lowerName.includes('маркетинг') || lowerName.includes('acquisition')) {
+    return "Marketing";
+  } 
+  
+  if (lowerName.includes('sales') || lowerName.includes('продаж')) {
+    return "Sales";
+  } 
+  
+  if (lowerName.includes('discovery') || lowerName.includes('delivery') || 
+      lowerName.includes('hub') || lowerName.includes('bot.one')) {
+    return "Delivery & Discovery";
+  }
+  
+  // Return empty string if can't be determined, will be displayed as "na"
+  return "";
 }
