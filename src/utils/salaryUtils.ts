@@ -1,4 +1,3 @@
-
 import { Employee, RoleData, LeadershipData } from "@/types";
 import { cleanRoleName, cleanFunctionalType } from "./formatUtils";
 
@@ -115,7 +114,6 @@ export const getSalaryDifference = (standardSalary: number | undefined, actualSa
     return { text: '—', className: 'text-gray-400' };
   }
   
-  // Changed direction of calculation: standardSalary - actualSalary
   const difference = standardSalary - actualSalary;
   
   if (difference > 0) {
@@ -157,17 +155,38 @@ export const findLeadershipStandardSalary = (
   circleCount: string,
   leadershipData: LeadershipData[]
 ): number | null => {
-  if (!functionalType || !circleCount || !leadershipData?.length) {
+  if (!functionalType || !circleCount || !leadershipData?.length || circleCount === "0") {
     console.log("Missing leadership data for lookup:", { functionalType, circleCount, hasLeadershipData: Boolean(leadershipData?.length) });
     return null;
   }
   
-  // Clean and normalize the functional type
   const cleanedType = cleanFunctionalType(functionalType).toLowerCase();
   
   console.log(`Looking for leadership salary: type="${cleanedType}", circles=${circleCount}, data entries=${leadershipData.length}`);
   
-  // Look for exact match first
+  if (cleanedType === "не указано") {
+    for (const entry of leadershipData) {
+      if (entry.circleCount === circleCount) {
+        console.log(`Found circle count match for unspecified type: (${entry.circleCount} circles) = ${entry.standardSalary}`);
+        return entry.standardSalary;
+      }
+    }
+
+    for (const entry of leadershipData) {
+      if (
+        entry.leadershipType &&
+        (entry.leadershipType.toLowerCase() === "общий" || 
+         entry.leadershipType.toLowerCase() === "general") &&
+        entry.circleCount === circleCount
+      ) {
+        console.log(`Found general type match: ${entry.leadershipType} (${entry.circleCount}) = ${entry.standardSalary}`);
+        return entry.standardSalary;
+      }
+    }
+
+    return null;
+  }
+  
   for (const entry of leadershipData) {
     if (
       entry.leadershipType && 
@@ -179,7 +198,6 @@ export const findLeadershipStandardSalary = (
     }
   }
   
-  // If no exact match, look for a partial match (type might include multiple functions)
   for (const entry of leadershipData) {
     if (
       entry.leadershipType && 
@@ -191,7 +209,6 @@ export const findLeadershipStandardSalary = (
     }
   }
   
-  // Additional fallback: try with case-insensitive match and without cleaning
   for (const entry of leadershipData) {
     if (
       entry.leadershipType && 
@@ -203,7 +220,6 @@ export const findLeadershipStandardSalary = (
     }
   }
   
-  // Final fallback: just look for any match with the right circle count
   if (circleCount !== "0") {
     for (const entry of leadershipData) {
       if (entry.circleCount === circleCount) {

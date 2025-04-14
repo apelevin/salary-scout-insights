@@ -154,10 +154,10 @@ export const findCircleLeadershipInfo = (
     }
   }
   
-  // Fallback: If still no type, just return "General" as the type
+  // Fallback: If still no type, use "Не указано" instead of "General"
   if (!circleType && circleCount > 0) {
-    circleType = "General";
-    console.log(`Using fallback type "General" for ${lastName} ${firstName}`);
+    circleType = "Не указано";
+    console.log(`Using fallback type "Не указано" for ${lastName} ${firstName}`);
   }
   
   return { 

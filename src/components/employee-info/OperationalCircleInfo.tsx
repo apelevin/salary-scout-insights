@@ -41,6 +41,9 @@ export const OperationalCircleInfo = ({ employee, leadershipData }: OperationalC
     firstLeadershipEntries: leadershipData?.slice(0, 3)
   });
 
+  // Format functional type display value
+  const displayFunctionalType = functionalType || "Не указано";
+
   return (
     <Card>
       <CardHeader className="pb-2">
@@ -51,12 +54,10 @@ export const OperationalCircleInfo = ({ employee, leadershipData }: OperationalC
       </CardHeader>
       <CardContent>
         <div className="space-y-1">
-          {employee.operationalCircleType && (
-            <div className="flex justify-between">
-              <span className="text-gray-500">Функциональная принадлежность:</span>
-              <span className="font-medium">{cleanFunctionalType(employee.operationalCircleType)}</span>
-            </div>
-          )}
+          <div className="flex justify-between">
+            <span className="text-gray-500">Функциональная принадлежность:</span>
+            <span className="font-medium">{displayFunctionalType}</span>
+          </div>
           <div className="flex justify-between">
             <span className="text-gray-500">Количество кругов:</span>
             <span className="font-medium">{circleCount}</span>
