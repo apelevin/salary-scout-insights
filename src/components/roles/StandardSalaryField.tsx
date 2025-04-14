@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Check, X, Edit2 } from "lucide-react";
@@ -21,6 +21,11 @@ const StandardSalaryField = ({
 }: StandardSalaryFieldProps) => {
   const [isEditing, setIsEditing] = useState(false);
   const [editValue, setEditValue] = useState(standardSalary.toString());
+  
+  // Update the edit value when the standard salary changes
+  useEffect(() => {
+    setEditValue(standardSalary.toString());
+  }, [standardSalary]);
 
   const handleEditClick = () => {
     setIsEditing(true);

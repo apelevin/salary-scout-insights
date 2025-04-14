@@ -15,6 +15,7 @@ interface RolesTableProps {
   employees?: Employee[];
   onStandardSalaryChange?: (roleName: string, newStandardSalary: number) => void;
   incognitoMode?: boolean;
+  customStandardSalaries?: Map<string, number>;
 }
 
 const RolesTable = ({ 
@@ -22,9 +23,10 @@ const RolesTable = ({
   isLoading = false,
   employees = [],
   onStandardSalaryChange,
-  incognitoMode = false
+  incognitoMode = false,
+  customStandardSalaries = new Map()
 }: RolesTableProps) => {
-  const { roles } = useRolesData(rolesData, employees);
+  const { roles } = useRolesData(rolesData, employees, customStandardSalaries);
 
   if (isLoading) {
     return <LoadingState>Загрузка ролей...</LoadingState>;

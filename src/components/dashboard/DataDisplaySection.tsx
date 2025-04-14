@@ -68,6 +68,7 @@ const DataDisplaySection = ({
               employees={employees}
               isLoading={isProcessing}
               onStandardSalaryChange={onStandardSalaryChange}
+              customStandardSalaries={customStandardSalaries}
               incognitoMode={incognitoMode}
             />
           </TabsContent>

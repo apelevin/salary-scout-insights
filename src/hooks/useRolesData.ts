@@ -16,7 +16,8 @@ export interface RoleWithSalaries {
 
 export const useRolesData = (
   rolesData: RoleData[] = [], 
-  employees: Employee[] = []
+  employees: Employee[] = [],
+  customStandardSalaries?: Map<string, number>
 ) => {
   const [roles, setRoles] = useState<RoleWithSalaries[]>([]);
 
@@ -102,7 +103,14 @@ export const useRolesData = (
       const salaries = findSalariesForRole(role);
       const minSalary = salaries.length ? Math.min(...salaries) : 0;
       const maxSalary = salaries.length ? Math.max(...salaries) : 0;
-      const standardSalary = salaries.length ? calculateStandardRate(minSalary, maxSalary) : 0;
+      
+      // Check if there's a custom standard salary for this role
+      let standardSalary = 0;
+      if (customStandardSalaries?.has(role)) {
+        standardSalary = customStandardSalaries.get(role) || 0;
+      } else {
+        standardSalary = salaries.length ? calculateStandardRate(minSalary, maxSalary) : 0;
+      }
       
       return {
         roleName: role,
@@ -116,7 +124,7 @@ export const useRolesData = (
     });
 
     setRoles(rolesWithSalaries);
-  }, [rolesData, employees]);
+  }, [rolesData, employees, customStandardSalaries]);
 
   return { roles };
 };
