@@ -37,7 +37,7 @@ export const useFileProcessing = () => {
   // Add debug logging to track circles data
   console.log("useFileProcessing has circles data:", {
     count: circlesData?.length || 0,
-    sample: circlesData?.slice(0, 3) || [],
+    sample: circlesData?.slice(0, 3).map(c => ({ name: c.name, type: c.functionalType })) || [],
     roles: rolesData?.slice(0, 3).map(r => ({ 
       role: r.roleName, 
       circleName: r.circleName,

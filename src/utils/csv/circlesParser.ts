@@ -29,10 +29,8 @@ export const parseCirclesCSV = (csvContent: string): CircleData[] => {
     
     // Find column indices
     const circleNameColumnIndex = findColumnIndex(headers, CIRCLE_NAME_ALIASES);
-    const functionalTypeColumnIndex = findColumnIndex(headers, FUNCTIONAL_TYPE_ALIASES);
     
     console.log("Индекс колонки с названием круга:", circleNameColumnIndex);
-    console.log("Индекс колонки с функциональным типом:", functionalTypeColumnIndex);
     
     if (circleNameColumnIndex === -1) {
       console.error("CSV файл с кругами должен содержать колонку 'название круга'");
@@ -41,10 +39,10 @@ export const parseCirclesCSV = (csvContent: string): CircleData[] => {
     }
     
     // Specifically use column 5 (index 4) for functional type, as requested by the user
-    const functionalTypeColIndex = 4; // Explicitly using column 5 (index 4)
+    const functionalTypeColumnIndex = 4; // Explicitly using column 5 (index 4)
     console.log("Используем колонку 5 (индекс 4) для функциональной принадлежности");
     
-    const circles = parseCircleRows(lines, delimiter, circleNameColumnIndex, functionalTypeColIndex);
+    const circles = parseCircleRows(lines, delimiter, circleNameColumnIndex, functionalTypeColumnIndex);
     
     // Add more detailed debug logging
     console.log(`Распознанные круги и их функциональные принадлежности (${circles.length} записей):`);

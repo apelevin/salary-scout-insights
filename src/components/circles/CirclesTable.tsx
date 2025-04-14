@@ -2,7 +2,7 @@
 import React, { useState } from "react";
 import { Table } from "@/components/ui/table";
 import { CircleData, RoleData, Employee, EmployeeWithRoles } from "@/types";
-import { processEmployeesWithRoles } from "@/utils/employeeUtils";
+import { processEmployeesWithRoles } from "@/utils/employee";
 import CirclesTableHeader from "./CirclesTableHeader";
 import CirclesTableBody from "./CirclesTableBody";
 import CirclesTableLoading from "./CirclesTableLoading";
@@ -37,7 +37,7 @@ const CirclesTable: React.FC<CirclesTableProps> = ({
   }
 
   const employeesWithRoles: EmployeeWithRoles[] = employees.length > 0 
-    ? processEmployeesWithRoles(employees, rolesData, new Map())
+    ? processEmployeesWithRoles(employees, rolesData, new Map(), circlesData)
     : [];
 
   const { uniqueCircles, circleBudgets, currentSalaryBudgets } = calculateCircleBudgets(
