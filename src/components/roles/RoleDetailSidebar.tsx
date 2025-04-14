@@ -1,4 +1,3 @@
-
 import React, { memo } from "react";
 import { 
   Sheet, 
@@ -38,10 +37,8 @@ const RoleDetailSidebar = ({
   minSalary = 0,
   maxSalary = 0
 }: RoleDetailSidebarProps) => {
-  // Return null only after all props have been destructured
   if (!roleName) return null;
 
-  // Move hook call here to avoid React errors
   const { employeesWithRole, totalRoleCost } = useRoleEmployees(roleName, employees, rolesData);
   
   return (
@@ -58,7 +55,6 @@ const RoleDetailSidebar = ({
         </SheetHeader>
         
         <div className="mt-6">
-          {/* Role salary info: Min, Standard, Max */}
           <div className="grid grid-cols-3 gap-4 mb-4 bg-muted/50 p-3 rounded-md">
             <div>
               <h4 className="text-xs text-muted-foreground">Минимальный оклад:</h4>
@@ -74,7 +70,6 @@ const RoleDetailSidebar = ({
             </div>
           </div>
           
-          {/* Role budget summary */}
           <RoleBudgetSummary
             standardSalary={standardSalary}
             totalRoleCost={totalRoleCost}
@@ -84,7 +79,6 @@ const RoleDetailSidebar = ({
           
           <Separator className="my-4" />
           
-          {/* Employees list */}
           <RoleEmployeeList
             employeesWithRole={employeesWithRole}
             totalRoleCost={totalRoleCost}
@@ -96,5 +90,4 @@ const RoleDetailSidebar = ({
   );
 };
 
-// Мемоизируем компонент для оптимизации производительности
 export default memo(RoleDetailSidebar);
