@@ -1,3 +1,4 @@
+
 import { CircleData } from "@/types";
 import { 
   normalizeCSVContent, 
@@ -39,18 +40,18 @@ export const parseCirclesCSV = (csvContent: string): CircleData[] => {
       return [];
     }
     
-    // Also check for "функциональная принадлежность" column explicitly
+    // Specifically check for "функциональная принадлежность" column
     let functionalTypeColIndex = functionalTypeColumnIndex;
     if (functionalTypeColIndex === -1) {
       functionalTypeColIndex = headers.findIndex(h => 
         h === "функциональная принадлежность" || 
         h === "функциональная принадлежность "
       );
+      
       if (functionalTypeColIndex !== -1) {
         console.log("Найдена точная колонка 'функциональная принадлежность' по индексу:", functionalTypeColIndex);
       } else {
         console.warn("В CSV файле не найдена колонка 'функциональная принадлежность'");
-        console.warn("Будет выполнена попытка извлечь тип из названия круга");
       }
     }
     
@@ -100,12 +101,14 @@ function parseCircleRows(
     
     const name = values[circleNameColumnIndex].trim();
     
-    // Используем последнюю колонку для функционального типа
     let functionalType = "";
-    if (values.length > 0) {
-      // Берем последнюю колонку
-      functionalType = values[values.length - 1].trim();
-      console.log(`Круг "${name}": найден тип в последней колонке: "${functionalType}"`);
+    
+    // Пытаемся получить функциональную принадлежность из указанной колонки
+    if (functionalTypeColumnIndex !== -1 && values.length > functionalTypeColumnIndex) {
+      functionalType = values[functionalTypeColumnIndex].trim();
+      console.log(`Круг "${name}": найден тип в колонке 'функциональная принадлежность': "${functionalType}"`);
+    } else {
+      console.warn(`Для круга "${name}" не найдена функциональная принадлежность в колонке`);
     }
     
     // Если функциональный тип не указан, используем значение по умолчанию
