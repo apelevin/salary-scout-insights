@@ -85,14 +85,16 @@ function parseCircleRows(
       continue;
     }
     
-    const name = values[circleNameColumnIndex].trim();
+    const name = values[circleNameColumnIndex].trim().replace(/["']/g, '');
     let functionalType = ""; // Empty by default, will be displayed as "na"
     
     // Try to get functional type if column exists
     if (functionalTypeColumnIndex !== -1 && values.length > functionalTypeColumnIndex && values[functionalTypeColumnIndex]) {
       functionalType = normalizeFunctionalType(values[functionalTypeColumnIndex]);
-    } else {
-      // If functional type column doesn't exist, try to derive from name
+    }
+    
+    // If functional type is still empty, try to derive from name
+    if (!functionalType) {
       functionalType = deriveCircleType(name);
     }
     
@@ -115,18 +117,53 @@ function deriveCircleType(circleName: string): string {
   
   const lowerName = circleName.toLowerCase();
   
-  // Try to determine type from circle name patterns
-  if (lowerName.includes('marketing') || lowerName.includes('маркетинг') || lowerName.includes('acquisition')) {
+  // Expanded patterns for circle type detection
+  
+  // Marketing related patterns
+  if (lowerName.includes('marketing') || 
+      lowerName.includes('маркетинг') || 
+      lowerName.includes('acquisition') ||
+      lowerName.includes('growth') ||
+      lowerName.includes('market')) {
     return "Marketing";
   } 
   
-  if (lowerName.includes('sales') || lowerName.includes('продаж')) {
+  // Sales related patterns
+  if (lowerName.includes('sales') || 
+      lowerName.includes('продаж') ||
+      lowerName.includes('business') ||
+      lowerName.includes('revenue') ||
+      lowerName.includes('deal') ||
+      lowerName.includes('client')) {
     return "Sales";
   } 
   
-  if (lowerName.includes('discovery') || lowerName.includes('delivery') || 
-      lowerName.includes('hub') || lowerName.includes('bot.one')) {
+  // Delivery & Discovery patterns
+  if (lowerName.includes('discovery') || 
+      lowerName.includes('delivery') || 
+      lowerName.includes('hub') || 
+      lowerName.includes('bot.one') ||
+      lowerName.includes('dnd') ||
+      lowerName.includes('process') ||
+      lowerName.includes('product')) {
     return "Delivery & Discovery";
+  }
+
+  // Enablement patterns
+  if (lowerName.includes('enablement') ||
+      lowerName.includes('hr') ||
+      lowerName.includes('people') ||
+      lowerName.includes('talent')) {
+    return "Enablement";
+  }
+
+  // Platform patterns
+  if (lowerName.includes('platform') ||
+      lowerName.includes('tech') ||
+      lowerName.includes('engineering') ||
+      lowerName.includes('dev') ||
+      lowerName.includes('infrastructure')) {
+    return "Platform";
   }
   
   // Return empty string if can't be determined, will be displayed as "na"

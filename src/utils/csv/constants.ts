@@ -39,5 +39,6 @@ export const CIRCLE_NAME_ALIASES = [
 // Список возможных названий для колонки с функциональной принадлежностью
 export const FUNCTIONAL_TYPE_ALIASES = [
   'функциональная принадлежность', 'тип', 'функциональный тип', 'functional type', 'type',
-  'функция', 'function', 'принадлежность', 'категория', 'category'
+  'функция', 'function', 'принадлежность', 'категория', 'category', 'department', 'отдел',
+  'division', 'направление', 'area', 'stream', 'unit'
 ];
