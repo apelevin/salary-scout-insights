@@ -62,38 +62,3 @@ export const parseFTEValue = (fteString: string): number | undefined => {
   
   return !isNaN(cleanedFteValue) ? cleanedFteValue : undefined;
 };
-
-/**
- * Normalizes functional type values to standard values from the 5th column of CSV
- * @param type Raw functional type string from CSV
- * @returns Normalized functional type: "Marketing", "Sales", "Delivery & Discovery", or "The others"
- */
-export const normalizeFunctionalType = (type: string): string => {
-  if (!type) return 'The others';
-  
-  const cleanedType = type.trim().replace(/["']/g, '').toLowerCase();
-  
-  if (cleanedType === '' || cleanedType === 'undefined' || cleanedType === 'null') {
-    return 'The others';
-  }
-  
-  // Normalize according to the allowed values from the specification
-  if (cleanedType.includes('marketing') || cleanedType === 'acquisition') {
-    return 'Marketing';
-  } 
-  if (cleanedType.includes('sales')) {
-    return 'Sales';
-  }
-  if (cleanedType.includes('delivery') && cleanedType.includes('discovery')) {
-    return 'Delivery & Discovery';
-  }
-  if (cleanedType.includes('discovery') || cleanedType.includes('hub')) {
-    return 'Delivery & Discovery';
-  }
-  if (cleanedType.includes('delivery') || cleanedType.includes('bot.one')) {
-    return 'Delivery & Discovery';
-  }
-  
-  // Default case
-  return 'The others';
-};

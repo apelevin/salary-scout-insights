@@ -3,12 +3,10 @@ import { CircleData } from "@/types";
 import { 
   normalizeCSVContent, 
   detectDelimiter, 
-  findColumnIndex,
-  normalizeFunctionalType 
+  findColumnIndex
 } from "./helpers";
 import {
-  CIRCLE_NAME_ALIASES,
-  FUNCTIONAL_TYPE_ALIASES
+  CIRCLE_NAME_ALIASES
 } from "./constants";
 
 /**
@@ -39,17 +37,13 @@ export const parseCirclesCSV = (csvContent: string): CircleData[] => {
       return [];
     }
     
-    // Specifically use column 5 (index 4) for functional type, as requested by the user
-    const functionalTypeColumnIndex = 4; // Explicitly using column 5 (index 4)
-    console.log("Используем колонку 5 (индекс 4) для функциональной принадлежности");
-    
-    const circles = parseCircleRows(lines, delimiter, circleNameColumnIndex, functionalTypeColumnIndex);
+    const circles = parseCircleRows(lines, delimiter, circleNameColumnIndex);
     
     // Add more detailed debug logging
-    console.log(`Распознанные круги и их функциональные принадлежности (${circles.length} записей):`);
+    console.log(`Распознанные круги (${circles.length} записей):`);
     circles.forEach((circle, index) => {
       if (index < 10) { // Limit logging to avoid console flooding
-        console.log(`${index + 1}. Круг: "${circle.name}", Тип: "${circle.functionalType || 'Не указано'}"`);
+        console.log(`${index + 1}. Круг: "${circle.name}"`);
       }
     });
     
@@ -67,8 +61,7 @@ export const parseCirclesCSV = (csvContent: string): CircleData[] => {
 function parseCircleRows(
   lines: string[],
   delimiter: string,
-  circleNameColumnIndex: number,
-  functionalTypeColumnIndex: number
+  circleNameColumnIndex: number
 ): CircleData[] {
   const circles: CircleData[] = [];
   
@@ -89,39 +82,12 @@ function parseCircleRows(
     
     const name = values[circleNameColumnIndex].trim();
     
-    // Извлекаем функциональную принадлежность из пятой колонки (индекс 4)
-    let rawFunctionalType = "";
-    
-    if (values.length > functionalTypeColumnIndex) {
-      rawFunctionalType = values[functionalTypeColumnIndex].trim();
-      console.log(`Круг "${name}": найден тип в колонке 5: "${rawFunctionalType}"`);
-    } else {
-      console.warn(`Для круга "${name}" нет данных в колонке 5 (индекс ${functionalTypeColumnIndex})`);
-    }
-    
-    // Используем название круга для определения функционального типа, если не указано явно
-    if (!rawFunctionalType) {
-      if (name.toLowerCase().includes('marketing') || name.toLowerCase().includes('acquisition')) {
-        rawFunctionalType = 'Marketing';
-      } else if (name.toLowerCase().includes('sales')) {
-        rawFunctionalType = 'Sales';
-      } else if (name.toLowerCase().includes('discovery') || name.toLowerCase().includes('hub')) {
-        rawFunctionalType = 'Delivery & Discovery';
-      } else if (name.toLowerCase().includes('bot.one') || name.toLowerCase().includes('delivery')) {
-        rawFunctionalType = 'Delivery & Discovery';
-      }
-    }
-    
-    // Нормализуем значение функционального типа к одному из четырех допустимых значений
-    const functionalType = normalizeFunctionalType(rawFunctionalType || name);
-    
     circles.push({
-      name,
-      functionalType
+      name
     });
   }
   
-  console.log(`Успешно распознано ${circles.length} записей о кругах и их типах`);
+  console.log(`Успешно распознано ${circles.length} записей о кругах`);
   
   return circles;
 }

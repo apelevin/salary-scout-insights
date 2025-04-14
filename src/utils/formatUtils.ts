@@ -34,30 +34,6 @@ export const cleanRoleName = (roleName: string): string => {
   return roleName.replace(/["']/g, '').trim();
 };
 
-/**
- * Normalize functional type to one of the four allowed values
- * @param type Raw functional type string
- * @returns One of: "Marketing", "Sales", "Delivery & Discovery", or "The others"
- */
-export const cleanFunctionalType = (type: string | undefined): string => {
-  if (!type) return 'The others';
-  
-  const normalizedType = type.replace(/["']/g, '').trim().toLowerCase();
-  
-  if (normalizedType === '' || normalizedType === 'undefined' || normalizedType === 'null') {
-    return 'The others';
-  } else if (normalizedType.includes('marketing') || normalizedType.includes('acquisition')) {
-    return 'Marketing';
-  } else if (normalizedType.includes('sales')) {
-    return 'Sales';
-  } else if (normalizedType.includes('delivery') || normalizedType.includes('bot.one') || 
-             normalizedType.includes('discovery') || normalizedType.includes('hub')) {
-    return 'Delivery & Discovery';
-  }
-  
-  return 'The others';
-};
-
 // New utility function for incognito mode name display
 export const formatNameIncognito = (name: string, incognitoMode: boolean): string => {
   if (incognitoMode) {

@@ -4,8 +4,6 @@ import RoleNameCell from "./RoleNameCell";
 import RoleMinSalary from "./RoleMinSalary";
 import RoleMaxSalary from "./RoleMaxSalary";
 import RoleStandardSalary from "./RoleStandardSalary";
-import { Info } from "lucide-react";
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 
 interface RoleRowProps {
   roleName: string;
@@ -17,7 +15,7 @@ interface RoleRowProps {
   formatSalary: (salary: number) => string;
   onStandardSalaryChange?: (roleName: string, newStandardSalary: number) => void;
   onRoleClick?: (roleName: string) => void;
-  functionalType?: string;  // Add this new property
+  functionalType?: string;
 }
 
 const RoleRow = ({ 
@@ -29,31 +27,18 @@ const RoleRow = ({
   index,
   formatSalary,
   onStandardSalaryChange,
-  onRoleClick,
-  functionalType = "Не указано"  // Default value
+  onRoleClick
 }: RoleRowProps) => {
   const hasEmployees = salaries.length > 0;
 
   return (
     <TableRow>
-      <TableCell className="font-medium flex items-center">
+      <TableCell className="font-medium">
         <RoleNameCell 
           roleName={roleName} 
           hasEmployees={hasEmployees} 
           onRoleClick={onRoleClick} 
         />
-        {functionalType && functionalType !== "Не указано" && (
-          <TooltipProvider>
-            <Tooltip>
-              <TooltipTrigger>
-                <Info className="ml-2 h-4 w-4 text-gray-500 hover:text-blue-500" />
-              </TooltipTrigger>
-              <TooltipContent>
-                <p>Функциональная принадлежность: {functionalType}</p>
-              </TooltipContent>
-            </Tooltip>
-          </TooltipProvider>
-        )}
       </TableCell>
       <TableCell>
         <RoleMinSalary 

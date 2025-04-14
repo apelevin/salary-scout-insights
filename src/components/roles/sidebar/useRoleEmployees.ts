@@ -111,8 +111,6 @@ export const useRoleEmployees = (
       // Calculate total cost of the role
       const total = employeesData.reduce((sum, emp) => sum + emp.contribution, 0);
       
-      console.log(`Role: ${roleName}, Found ${employeesData.length} employees, Total cost: ${total}`);
-      
       setEmployeesWithRole(employeesData);
       setTotalRoleCost(total);
     } catch (error) {

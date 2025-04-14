@@ -1,6 +1,6 @@
 
 import React from "react";
-import { formatNameIncognito } from "@/utils/formatUtils";
+import { formatName } from "@/utils/formatUtils";
 import { Crown } from "lucide-react";
 
 interface CircleLeaderInfoProps {
@@ -19,7 +19,7 @@ const CircleLeaderInfo: React.FC<CircleLeaderInfoProps> = ({
         Лидер круга: {" "}
         <span className="font-normal">
           {circleLeader 
-            ? formatNameIncognito(circleLeader, incognitoMode)
+            ? (incognitoMode ? '░░░░░ ░░░░░' : formatName(circleLeader))
             : "Не назначен"}
         </span>
       </h3>
