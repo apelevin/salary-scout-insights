@@ -50,28 +50,40 @@ const CirclesTable = ({
   const getCircleEmployees = () => {
     if (!selectedCircle) return [];
 
-    const circleEmployees = rolesData
-      .filter(role => role.circleName === selectedCircle.name)
-      .map(role => ({
-        name: formatName(role.participantName || ""),
-        fte: role.fte || 0
-      }));
-
-    // Remove duplicates by name and sum up FTE values
-    const employeeMap = new Map();
-    circleEmployees.forEach(emp => {
-      const key = emp.name.toLowerCase();
-      if (employeeMap.has(key)) {
-        employeeMap.set(key, {
-          name: emp.name,
-          fte: employeeMap.get(key).fte + emp.fte
-        });
+    const circleRoles = rolesData
+      .filter(role => role.circleName === selectedCircle.name);
+    
+    // Group roles by employee name
+    const employeeRolesMap = new Map();
+    
+    circleRoles.forEach(role => {
+      const formattedName = formatName(role.participantName || "");
+      const key = formattedName.toLowerCase();
+      
+      if (employeeRolesMap.has(key)) {
+        const employee = employeeRolesMap.get(key);
+        employee.fte += role.fte || 0;
+        
+        // Store unique roles
+        if (!employee.roles.includes(role.roleName)) {
+          employee.roles.push(role.roleName);
+        }
       } else {
-        employeeMap.set(key, emp);
+        employeeRolesMap.set(key, {
+          name: formattedName,
+          fte: role.fte || 0,
+          roles: [role.roleName]
+        });
       }
     });
-
-    return Array.from(employeeMap.values())
+    
+    // Transform to array with combined roles
+    return Array.from(employeeRolesMap.values())
+      .map(employee => ({
+        name: employee.name,
+        fte: employee.fte,
+        role: employee.roles.join(", ") // Join multiple roles with comma
+      }))
       .sort((a, b) => a.name.localeCompare(b.name, "ru"));
   };
 

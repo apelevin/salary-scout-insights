@@ -6,6 +6,7 @@ import { formatFTE } from "@/utils/employeeUtils";
 interface CircleEmployee {
   name: string;
   fte: number;
+  role?: string; // Adding role to the interface
 }
 
 interface CircleInfoSidebarProps {
@@ -45,12 +46,19 @@ const CircleInfoSidebar = ({
                 {employees.map((employee, index) => (
                   <div 
                     key={`${employee.name}-${index}`}
-                    className="flex items-center justify-between p-2 border rounded-md"
+                    className="flex flex-col p-2 border rounded-md"
                   >
-                    <div className="font-medium">{employee.name}</div>
-                    <div className="text-sm text-muted-foreground">
-                      FTE: {formatFTE(employee.fte)}
+                    <div className="flex items-center justify-between">
+                      <div className="font-medium">{employee.name}</div>
+                      <div className="text-sm text-muted-foreground">
+                        FTE: {formatFTE(employee.fte)}
+                      </div>
                     </div>
+                    {employee.role && (
+                      <div className="text-sm text-muted-foreground mt-1">
+                        Роль: {employee.role}
+                      </div>
+                    )}
                   </div>
                 ))}
               </div>
