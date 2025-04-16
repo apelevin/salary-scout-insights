@@ -56,7 +56,18 @@ const CircleInfoSidebar = ({
                     </div>
                     {employee.role && (
                       <div className="text-sm text-muted-foreground mt-1">
-                        Роль: {employee.role}
+                        {employee.role.includes(',') ? (
+                          <div>
+                            <div>Роли:</div>
+                            <ol className="list-decimal ml-5 mt-1">
+                              {employee.role.split(',').map((role, roleIndex) => (
+                                <li key={roleIndex}>{role.trim()}</li>
+                              ))}
+                            </ol>
+                          </div>
+                        ) : (
+                          <div>Роль: {employee.role}</div>
+                        )}
                       </div>
                     )}
                   </div>
