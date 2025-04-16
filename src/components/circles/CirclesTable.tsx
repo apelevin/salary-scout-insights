@@ -1,36 +1,21 @@
 
-import { useState } from "react";
 import { Table, TableBody } from "@/components/ui/table";
-import { CircleData, RoleData } from "@/types";
+import { CircleData } from "@/types";
 import CirclesTableHeader from "@/components/circles/CirclesTableHeader";
 import CircleRow from "@/components/circles/CircleRow";
 import LoadingState from "@/components/roles/LoadingState";
 import EmptyState from "@/components/roles/EmptyState";
 import CirclesTableActions from "@/components/circles/CirclesTableActions";
-import CircleInfoSidebar from "@/components/circles/CircleInfoSidebar";
 
 interface CirclesTableProps {
   circlesData: CircleData[];
-  rolesData?: RoleData[];
   isLoading?: boolean;
 }
 
 const CirclesTable = ({ 
   circlesData = [], 
-  rolesData = [],
   isLoading = false
 }: CirclesTableProps) => {
-  const [selectedCircle, setSelectedCircle] = useState<string | null>(null);
-  const [sidebarOpen, setSidebarOpen] = useState(false);
-
-  const handleCircleClick = (circleName: string) => {
-    setSelectedCircle(circleName);
-    setSidebarOpen(true);
-  };
-
-  const closeSidebar = () => {
-    setSidebarOpen(false);
-  };
   
   if (isLoading) {
     return <LoadingState>Загрузка кругов...</LoadingState>;
@@ -62,21 +47,14 @@ const CirclesTable = ({
                 index={index}
                 circleName={circle.name}
                 functionalType={circle.functionalType}
-                onClick={handleCircleClick}
               />
             ))}
           </TableBody>
         </Table>
       </div>
-      
-      <CircleInfoSidebar 
-        circleName={selectedCircle || ""}
-        open={sidebarOpen}
-        onClose={closeSidebar}
-        rolesData={rolesData}
-      />
     </div>
   );
 };
 
 export default CirclesTable;
+

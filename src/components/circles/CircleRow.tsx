@@ -6,23 +6,18 @@ interface CircleRowProps {
   index: number;
   circleName: string;
   functionalType: string;
-  onClick: (circleName: string) => void;
 }
 
 const CircleRow = ({ 
   index, 
   circleName, 
-  functionalType,
-  onClick
+  functionalType 
 }: CircleRowProps) => {
   // Очищаем название круга и функционального типа от кавычек
   const cleanCircleName = circleName.replace(/["']/g, '').trim();
 
   return (
-    <TableRow 
-      className="cursor-pointer hover:bg-gray-50"
-      onClick={() => onClick(cleanCircleName)}
-    >
+    <TableRow>
       <TableCell className="font-medium">{index + 1}</TableCell>
       <TableCell>{cleanCircleName}</TableCell>
       <TableCell>{cleanFunctionalType(functionalType)}</TableCell>
