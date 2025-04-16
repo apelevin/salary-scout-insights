@@ -1,7 +1,6 @@
 
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { CircleData, RoleData } from "@/types";
-import { ScrollArea } from "@/components/ui/scroll-area";
 import { formatFTE } from "@/utils/employeeUtils";
 
 interface CircleEmployee {
@@ -42,21 +41,19 @@ const CircleInfoSidebar = ({
             {employees.length === 0 ? (
               <p className="text-muted-foreground text-sm">Сотрудники не найдены</p>
             ) : (
-              <ScrollArea className="h-[500px]">
-                <div className="space-y-2">
-                  {employees.map((employee, index) => (
-                    <div 
-                      key={`${employee.name}-${index}`}
-                      className="flex items-center justify-between p-2 border rounded-md"
-                    >
-                      <div className="font-medium">{employee.name}</div>
-                      <div className="text-sm text-muted-foreground">
-                        FTE: {formatFTE(employee.fte)}
-                      </div>
+              <div className="space-y-2">
+                {employees.map((employee, index) => (
+                  <div 
+                    key={`${employee.name}-${index}`}
+                    className="flex items-center justify-between p-2 border rounded-md"
+                  >
+                    <div className="font-medium">{employee.name}</div>
+                    <div className="text-sm text-muted-foreground">
+                      FTE: {formatFTE(employee.fte)}
                     </div>
-                  ))}
-                </div>
-              </ScrollArea>
+                  </div>
+                ))}
+              </div>
             )}
           </div>
         </div>
