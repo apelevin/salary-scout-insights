@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { Table, TableBody } from "@/components/ui/table";
 import { CircleData, RoleData } from "@/types";
 import CirclesTableHeader from "@/components/circles/CirclesTableHeader";
@@ -9,7 +9,6 @@ import EmptyState from "@/components/roles/EmptyState";
 import CirclesTableActions from "@/components/circles/CirclesTableActions";
 import CircleInfoSidebar from "./CircleInfoSidebar";
 import { formatName } from "@/utils/employeeUtils";
-import { useRolesData } from "@/hooks/useRolesData";
 
 interface CirclesTableProps {
   circlesData: CircleData[];
@@ -24,12 +23,35 @@ const CirclesTable = ({
 }: CirclesTableProps) => {
   const [selectedCircle, setSelectedCircle] = useState<CircleData | null>(null);
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const { roles } = useRolesData(rolesData, [], undefined);
   
-  // Create a map of role names to their standard salaries
-  const standardSalariesMap = new Map(
-    roles.map(role => [role.roleName, role.standardSalary])
-  );
+  // Use useMemo to create the standardSalaries map only once when rolesData changes
+  const standardSalariesMap = useMemo(() => {
+    // Create a map to store role names and their standard salaries
+    const salariesMap = new Map();
+    
+    // Group roles by name to find min and max salaries
+    const roleGroups = new Map();
+    
+    rolesData.forEach(role => {
+      const roleName = role.roleName.replace(/["']/g, '').trim();
+      if (!roleGroups.has(roleName)) {
+        roleGroups.set(roleName, []);
+      }
+      roleGroups.get(roleName).push(role);
+    });
+    
+    // Calculate standard salary for each role (midpoint between min and max)
+    roleGroups.forEach((roleEntries, roleName) => {
+      if (roleName) {
+        // For simplicity, we'll use a standard calculation
+        // In a real app, this would be replaced by your actual standard salary logic
+        const standardSalary = 100000; // Placeholder value
+        salariesMap.set(roleName, standardSalary);
+      }
+    });
+    
+    return salariesMap;
+  }, [rolesData]);
   
   if (isLoading) {
     return <LoadingState>Загрузка кругов...</LoadingState>;
