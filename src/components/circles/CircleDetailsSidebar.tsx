@@ -1,9 +1,9 @@
-
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { Employee, RoleData, CircleData } from "@/types";
 import { useMemo } from "react";
 import { formatSalary } from "@/utils/employeeUtils";
-import { RussianRuble } from "lucide-react";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { getSalaryDifference } from "@/utils/salaryUtils";
 
 interface CircleDetailsSidebarProps {
   open: boolean;
@@ -63,6 +63,11 @@ const CircleDetailsSidebar = ({
       fte: number;
       standardBudget: number;
       actualBudget: number;
+      proportionalBudget: number;
+      difference: {
+        value: number;
+        percentage: number;
+      };
       roleName: string;
     }> = [];
     
@@ -82,11 +87,26 @@ const CircleDetailsSidebar = ({
         const standardBudget = standardSalary * fte;
         const actualBudget = employee.salary * fte;
         
+        // Calculate salary difference percentage for proportional adjustment
+        let percentageDiff = 0;
+        if (standardSalary > 0) {
+          percentageDiff = ((employee.salary - standardSalary) / standardSalary) * 100;
+        }
+        
+        // Calculate proportionally adjusted budget
+        // If actual salary is 10% higher than standard, then proportional budget is 10% higher than standard budget
+        const proportionalBudget = standardBudget * (1 + percentageDiff / 100);
+        
         members.push({
           employee,
           fte,
           standardBudget,
           actualBudget,
+          proportionalBudget,
+          difference: {
+            value: employee.salary - standardSalary,
+            percentage: percentageDiff
+          },
           roleName: role.roleName || 'Не указана'
         });
       }
@@ -164,6 +184,13 @@ const CircleDetailsSidebar = ({
     return totalBudget;
   }, [circle, rolesData, employees]);
 
+  // Calculate circle budget based on proportional adjustment
+  const proportionalCircleBudget = useMemo(() => {
+    if (!circleMembers.length) return 0;
+    
+    return circleMembers.reduce((total, member) => total + member.proportionalBudget, 0);
+  }, [circleMembers]);
+
   return (
     <Sheet open={open} onOpenChange={(isOpen) => !isOpen && onClose()}>
       <SheetContent className="overflow-y-auto">
@@ -196,6 +223,13 @@ const CircleDetailsSidebar = ({
               {formatSalary(actualCircleBudget)}
             </p>
           </div>
+          
+          <div className="pt-2 border-t">
+            <h3 className="text-sm font-medium text-muted-foreground mb-1">Бюджет круга (пропорциональный)</h3>
+            <p className="text-base font-semibold">
+              {formatSalary(proportionalCircleBudget)}
+            </p>
+          </div>
 
           <div className="pt-4 border-t">
             <h3 className="text-sm font-medium text-muted-foreground mb-3">Участники круга</h3>
@@ -203,31 +237,42 @@ const CircleDetailsSidebar = ({
             {circleMembers.length === 0 ? (
               <p className="text-sm text-muted-foreground italic">Нет данных об участниках</p>
             ) : (
-              <div className="space-y-3">
-                {circleMembers.map((member, index) => (
-                  <div key={index} className="border rounded-md p-3">
-                    <div className="flex justify-between items-start">
-                      <div>
-                        <p className="font-medium">{member.employee.name.replace(/["']/g, '').trim()}</p>
-                        <p className="text-sm text-muted-foreground">{member.roleName.replace(/["']/g, '').trim()}</p>
+              <ScrollArea className="h-[400px] pr-4">
+                <div className="space-y-3">
+                  {circleMembers.map((member, index) => (
+                    <div key={index} className="border rounded-md p-3">
+                      <div className="flex justify-between items-start">
+                        <div>
+                          <p className="font-medium">{member.employee.name.replace(/["']/g, '').trim()}</p>
+                          <p className="text-sm text-muted-foreground">{member.roleName.replace(/["']/g, '').trim()}</p>
+                        </div>
+                        <div className="text-right">
+                          <p className="text-sm">FTE: {member.fte.toFixed(2)}</p>
+                          {member.difference.percentage !== 0 && (
+                            <p className={`text-xs ${member.difference.percentage > 0 ? 'text-green-500' : 'text-red-500'}`}>
+                              {member.difference.percentage > 0 ? '+' : ''}{member.difference.percentage.toFixed(0)}%
+                            </p>
+                          )}
+                        </div>
                       </div>
-                      <div className="text-right">
-                        <p className="text-sm">FTE: {member.fte.toFixed(2)}</p>
+                      <div className="mt-2 pt-2 border-t grid grid-cols-3 gap-2">
+                        <div>
+                          <p className="text-xs text-muted-foreground">Стандартный</p>
+                          <p className="text-sm font-medium">{formatSalary(member.standardBudget)}</p>
+                        </div>
+                        <div>
+                          <p className="text-xs text-muted-foreground">Пропорциональный</p>
+                          <p className="text-sm font-medium">{formatSalary(member.proportionalBudget)}</p>
+                        </div>
+                        <div>
+                          <p className="text-xs text-muted-foreground">Фактический</p>
+                          <p className="text-sm font-medium">{formatSalary(member.actualBudget)}</p>
+                        </div>
                       </div>
                     </div>
-                    <div className="mt-2 pt-2 border-t grid grid-cols-2 gap-2">
-                      <div>
-                        <p className="text-xs text-muted-foreground">Стандартный</p>
-                        <p className="text-sm font-medium">{formatSalary(member.standardBudget)}</p>
-                      </div>
-                      <div>
-                        <p className="text-xs text-muted-foreground">Фактический</p>
-                        <p className="text-sm font-medium">{formatSalary(member.actualBudget)}</p>
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
+                  ))}
+                </div>
+              </ScrollArea>
             )}
           </div>
         </div>
