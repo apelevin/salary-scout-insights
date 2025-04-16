@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Table, TableBody } from "@/components/ui/table";
 import { CircleData, RoleData } from "@/types";
@@ -9,7 +8,6 @@ import EmptyState from "@/components/roles/EmptyState";
 import CirclesTableActions from "@/components/circles/CirclesTableActions";
 import CircleInfoSidebar from "./CircleInfoSidebar";
 import { formatName } from "@/utils/employeeUtils";
-import { useRolesData } from "@/hooks/useRolesData";
 
 interface CirclesTableProps {
   circlesData: CircleData[];
@@ -24,15 +22,6 @@ const CirclesTable = ({
 }: CirclesTableProps) => {
   const [selectedCircle, setSelectedCircle] = useState<CircleData | null>(null);
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  
-  // Use the useRolesData hook to get roles with standard salaries
-  const { roles } = useRolesData(rolesData, []);
-  
-  // Create a map of role names to standard salaries
-  const rolesStandardSalaries = new Map<string, number>();
-  roles.forEach(role => {
-    rolesStandardSalaries.set(role.roleName, role.standardSalary);
-  });
   
   if (isLoading) {
     return <LoadingState>Загрузка кругов...</LoadingState>;
@@ -121,7 +110,6 @@ const CirclesTable = ({
         onOpenChange={setSidebarOpen}
         circle={selectedCircle}
         employees={getCircleEmployees()}
-        rolesStandardSalaries={rolesStandardSalaries}
       />
     </div>
   );

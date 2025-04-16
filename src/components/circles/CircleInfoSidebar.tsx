@@ -2,13 +2,11 @@
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { CircleData, RoleData } from "@/types";
 import { formatFTE } from "@/utils/employeeUtils";
-import { formatSalary } from "@/utils/formatUtils";
 
 interface CircleEmployee {
   name: string;
   fte: number;
-  role?: string;
-  roleStandardSalaries?: Map<string, number>;
+  role?: string; // Adding role to the interface
 }
 
 interface CircleInfoSidebarProps {
@@ -16,15 +14,13 @@ interface CircleInfoSidebarProps {
   onOpenChange: (open: boolean) => void;
   circle: CircleData | null;
   employees: CircleEmployee[];
-  rolesStandardSalaries?: Map<string, number>;
 }
 
 const CircleInfoSidebar = ({
   open,
   onOpenChange,
   circle,
-  employees,
-  rolesStandardSalaries = new Map()
+  employees
 }: CircleInfoSidebarProps) => {
   if (!circle) return null;
 
@@ -64,32 +60,13 @@ const CircleInfoSidebar = ({
                           <div>
                             <div>Роли:</div>
                             <ol className="list-decimal ml-5 mt-1">
-                              {employee.role.split(',').map((role, roleIndex) => {
-                                const trimmedRole = role.trim();
-                                const standardSalary = rolesStandardSalaries.get(trimmedRole);
-                                
-                                return (
-                                  <li key={roleIndex} className="flex justify-between">
-                                    <span>{trimmedRole}</span>
-                                    {standardSalary !== undefined && (
-                                      <span className="text-gray-500 ml-2">
-                                        {formatSalary(standardSalary)}
-                                      </span>
-                                    )}
-                                  </li>
-                                );
-                              })}
+                              {employee.role.split(',').map((role, roleIndex) => (
+                                <li key={roleIndex}>{role.trim()}</li>
+                              ))}
                             </ol>
                           </div>
                         ) : (
-                          <div className="flex justify-between">
-                            <div>Роль: {employee.role}</div>
-                            {rolesStandardSalaries.get(employee.role) !== undefined && (
-                              <div className="text-gray-500">
-                                {formatSalary(rolesStandardSalaries.get(employee.role) || 0)}
-                              </div>
-                            )}
-                          </div>
+                          <div>Роль: {employee.role}</div>
                         )}
                       </div>
                     )}
