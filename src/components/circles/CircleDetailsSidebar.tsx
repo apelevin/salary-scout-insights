@@ -3,7 +3,7 @@ import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sh
 import { Employee, RoleData, CircleData } from "@/types";
 import { useMemo } from "react";
 import { formatSalary } from "@/utils/employeeUtils";
-import { RussianRuble } from "lucide-react";
+import { findStandardRateForRole } from "@/utils/salaryUtils";
 
 interface CircleDetailsSidebarProps {
   open: boolean;
@@ -64,7 +64,29 @@ const CircleDetailsSidebar = ({
       standardBudget: number;
       actualBudget: number;
       roleName: string;
+      salaryDeviation: number;
     }> = [];
+    
+    // Create a custom standard salaries map
+    const customStandardSalaries = new Map<string, number>();
+    
+    // Find all unique roles from rolesData
+    const uniqueRoles = new Set<string>();
+    rolesData.forEach(role => {
+      if (role.roleName) uniqueRoles.add(role.roleName);
+    });
+    
+    // For each role, find the standard salary by looking at all employees with this role
+    uniqueRoles.forEach(roleName => {
+      const standardSalary = findStandardRateForRole(
+        roleName, 
+        rolesData, 
+        employees,
+        customStandardSalaries
+      );
+      
+      customStandardSalaries.set(roleName, standardSalary);
+    });
     
     // For each role, find the employee and calculate their contribution
     circleRoles.forEach(role => {
@@ -77,17 +99,27 @@ const CircleDetailsSidebar = ({
         return empName.includes(participantName) || participantName.includes(empName);
       });
       
-      if (employee) {
-        const standardSalary = employee.standardSalary || employee.salary;
+      if (employee && role.roleName) {
+        // Get standard salary for this role from our map
+        const standardSalary = customStandardSalaries.get(role.roleName) || 0;
+        
+        // Calculate salary deviation percentage
+        const salaryDeviation = employee.standardSalary && employee.standardSalary > 0
+          ? ((employee.salary - employee.standardSalary) / employee.standardSalary) * 100
+          : 0;
+          
+        // Calculate budgets
         const standardBudget = standardSalary * fte;
-        const actualBudget = employee.salary * fte;
+        // Apply the deviation to the standard budget to get the actual budget
+        const actualBudget = standardBudget * (1 + salaryDeviation / 100);
         
         members.push({
           employee,
           fte,
           standardBudget,
           actualBudget,
-          roleName: role.roleName || 'Не указана'
+          roleName: role.roleName || 'Не указана',
+          salaryDeviation
         });
       }
     });
@@ -98,71 +130,13 @@ const CircleDetailsSidebar = ({
 
   // Calculate circle budget based on standard salaries
   const circleBudget = useMemo(() => {
-    if (!circle || !rolesData.length || !employees.length) return 0;
-
-    let totalBudget = 0;
-
-    // Find all role entries for this circle
-    const circleRoles = rolesData.filter(role => 
-      role.circleName?.toLowerCase() === circle.name.toLowerCase() && 
-      role.participantName && 
-      role.fte
-    );
-    
-    // For each role, find the employee and add their contribution to the budget
-    circleRoles.forEach(role => {
-      const participantName = role.participantName.replace(/["']/g, '').trim().toLowerCase();
-      const fte = role.fte || 0;
-      
-      // Find matching employee
-      const employee = employees.find(emp => {
-        const empName = emp.name.replace(/["']/g, '').trim().toLowerCase();
-        return empName.includes(participantName) || participantName.includes(empName);
-      });
-      
-      if (employee && employee.standardSalary) {
-        // If employee has a standard salary defined, use it
-        totalBudget += employee.standardSalary * fte;
-      } else if (employee) {
-        // Otherwise use their actual salary
-        totalBudget += employee.salary * fte;
-      }
-    });
-    
-    return totalBudget;
-  }, [circle, rolesData, employees]);
+    return circleMembers.reduce((sum, member) => sum + member.standardBudget, 0);
+  }, [circleMembers]);
 
   // Calculate circle budget based on actual salaries
   const actualCircleBudget = useMemo(() => {
-    if (!circle || !rolesData.length || !employees.length) return 0;
-
-    let totalBudget = 0;
-
-    // Find all role entries for this circle
-    const circleRoles = rolesData.filter(role => 
-      role.circleName?.toLowerCase() === circle.name.toLowerCase() && 
-      role.participantName && 
-      role.fte
-    );
-    
-    // For each role, find the employee and add their actual salary contribution
-    circleRoles.forEach(role => {
-      const participantName = role.participantName.replace(/["']/g, '').trim().toLowerCase();
-      const fte = role.fte || 0;
-      
-      // Find matching employee
-      const employee = employees.find(emp => {
-        const empName = emp.name.replace(/["']/g, '').trim().toLowerCase();
-        return empName.includes(participantName) || participantName.includes(empName);
-      });
-      
-      if (employee) {
-        totalBudget += employee.salary * fte;
-      }
-    });
-    
-    return totalBudget;
-  }, [circle, rolesData, employees]);
+    return circleMembers.reduce((sum, member) => sum + member.actualBudget, 0);
+  }, [circleMembers]);
 
   return (
     <Sheet open={open} onOpenChange={(isOpen) => !isOpen && onClose()}>
@@ -213,6 +187,12 @@ const CircleDetailsSidebar = ({
                       </div>
                       <div className="text-right">
                         <p className="text-sm">FTE: {member.fte.toFixed(2)}</p>
+                        {member.salaryDeviation !== 0 && (
+                          <p className={`text-xs ${member.salaryDeviation > 0 ? 'text-green-600' : 'text-red-600'}`}>
+                            {member.salaryDeviation > 0 ? '+' : ''}
+                            {member.salaryDeviation.toFixed(1)}%
+                          </p>
+                        )}
                       </div>
                     </div>
                     <div className="mt-2 pt-2 border-t grid grid-cols-2 gap-2">
