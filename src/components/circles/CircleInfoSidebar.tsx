@@ -78,16 +78,16 @@ const CircleInfoSidebar = ({
         // Get employee details
         const employeeIds = circleEmployees.map(ce => ce.employee_id);
         
-        // Get all roles for these employees
+        // Get all roles for these employees in this specific circle
         const { data: rolesData, error: rolesError } = await supabase
           .from('employee_roles')
           .select(`
+            id,
             employee_id, 
             role_name,
             fte,
-            employees!employee_roles_employee_id_fkey(name)
-          `)
-          .in('employee_id', employeeIds);
+            employees!employee_roles_employee_id_fkey(id, name)
+          `);
 
         if (rolesError) {
           console.error("Error fetching employee roles:", rolesError);
@@ -95,16 +95,30 @@ const CircleInfoSidebar = ({
           return;
         }
 
+        // Get all role names from the roles table
+        const { data: allRoleNames, error: roleNamesError } = await supabase
+          .from('roles')
+          .select('name');
+          
+        if (roleNamesError) {
+          console.error("Error fetching role names:", roleNamesError);
+        }
+
+        // Create a map of employee IDs to their names
+        const employeeMap = new Map<string, string>();
+        
         // Group roles by employee
         const employeeRolesMap = new Map<string, EmployeeWithRoles>();
         
         employees.forEach(emp => {
-          const matchingEmployee = rolesData?.find(role => 
+          // Find matching employee in the rolesData
+          const matchingRoles = rolesData?.filter(role => 
             role.employees?.name === emp.name
           );
           
-          if (matchingEmployee) {
-            const employeeId = matchingEmployee.employee_id;
+          if (matchingRoles && matchingRoles.length > 0) {
+            const employeeId = matchingRoles[0].employee_id;
+            employeeMap.set(employeeId, emp.name);
             
             if (!employeeRolesMap.has(employeeId)) {
               employeeRolesMap.set(employeeId, {
@@ -120,7 +134,9 @@ const CircleInfoSidebar = ({
         // Add roles to each employee
         rolesData?.forEach(role => {
           const employeeId = role.employee_id;
-          if (employeeRolesMap.has(employeeId)) {
+          
+          // Only add roles for employees in this circle
+          if (employeeMap.has(employeeId) && employeeRolesMap.has(employeeId)) {
             const employee = employeeRolesMap.get(employeeId);
             employee?.roles.push({
               roleName: role.role_name,
