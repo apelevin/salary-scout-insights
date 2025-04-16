@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Table, TableBody } from "@/components/ui/table";
 import { CircleData, RoleData } from "@/types";
@@ -8,6 +9,7 @@ import EmptyState from "@/components/roles/EmptyState";
 import CirclesTableActions from "@/components/circles/CirclesTableActions";
 import CircleInfoSidebar from "./CircleInfoSidebar";
 import { formatName } from "@/utils/employeeUtils";
+import { useRolesData } from "@/hooks/useRolesData";
 
 interface CirclesTableProps {
   circlesData: CircleData[];
@@ -22,6 +24,12 @@ const CirclesTable = ({
 }: CirclesTableProps) => {
   const [selectedCircle, setSelectedCircle] = useState<CircleData | null>(null);
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const { roles } = useRolesData(rolesData, [], undefined);
+  
+  // Create a map of role names to their standard salaries
+  const standardSalariesMap = new Map(
+    roles.map(role => [role.roleName, role.standardSalary])
+  );
   
   if (isLoading) {
     return <LoadingState>Загрузка кругов...</LoadingState>;
@@ -80,7 +88,8 @@ const CirclesTable = ({
       .map(employee => ({
         name: employee.name,
         fte: employee.fte,
-        role: employee.roles.join(", ") // Join multiple roles with comma
+        role: employee.roles.join(", "), // Join multiple roles with comma
+        standardSalaries: standardSalariesMap // Add standard salaries map to each employee
       }))
       .sort((a, b) => a.name.localeCompare(b.name, "ru"));
   };

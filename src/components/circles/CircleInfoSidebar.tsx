@@ -2,11 +2,13 @@
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { CircleData, RoleData } from "@/types";
 import { formatFTE } from "@/utils/employeeUtils";
+import { formatSalary } from "@/utils/formatUtils";
 
 interface CircleEmployee {
   name: string;
   fte: number;
-  role?: string; // Adding role to the interface
+  role?: string;
+  standardSalaries?: Map<string, number>; // Added standard salaries map
 }
 
 interface CircleInfoSidebarProps {
@@ -60,13 +62,32 @@ const CircleInfoSidebar = ({
                           <div>
                             <div>Роли:</div>
                             <ol className="list-decimal ml-5 mt-1">
-                              {employee.role.split(',').map((role, roleIndex) => (
-                                <li key={roleIndex}>{role.trim()}</li>
-                              ))}
+                              {employee.role.split(',').map((role, roleIndex) => {
+                                const roleName = role.trim();
+                                const standardSalary = employee.standardSalaries?.get(roleName);
+                                
+                                return (
+                                  <li key={roleIndex} className="flex justify-between items-center">
+                                    <span>{roleName}</span>
+                                    {standardSalary !== undefined && (
+                                      <span className="font-medium text-gray-700">
+                                        {formatSalary(standardSalary)}
+                                      </span>
+                                    )}
+                                  </li>
+                                );
+                              })}
                             </ol>
                           </div>
                         ) : (
-                          <div>Роль: {employee.role}</div>
+                          <div className="flex justify-between">
+                            <div>Роль: {employee.role}</div>
+                            {employee.standardSalaries?.get(employee.role) !== undefined && (
+                              <div className="font-medium text-gray-700">
+                                {formatSalary(employee.standardSalaries.get(employee.role)!)}
+                              </div>
+                            )}
+                          </div>
                         )}
                       </div>
                     )}
