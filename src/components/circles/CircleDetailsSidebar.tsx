@@ -4,6 +4,7 @@ import { Employee, RoleData, CircleData } from "@/types";
 import { useMemo } from "react";
 import { formatSalary } from "@/utils/employeeUtils";
 import { RussianRuble } from "lucide-react";
+import { findStandardRateForRole } from "@/utils/salaryUtils";
 
 interface CircleDetailsSidebarProps {
   open: boolean;
@@ -78,8 +79,16 @@ const CircleDetailsSidebar = ({
       });
       
       if (employee) {
-        const standardSalary = employee.standardSalary || employee.salary;
-        const standardBudget = standardSalary * fte;
+        // Get standard salary for this role from the roles table
+        const roleStandardSalary = findStandardRateForRole(
+          role.roleName || '',
+          rolesData,
+          employees,
+          new Map()
+        );
+        
+        // Calculate standard budget using the role's standard salary
+        const standardBudget = roleStandardSalary * fte;
         const actualBudget = employee.salary * fte;
         
         members.push({
@@ -96,7 +105,7 @@ const CircleDetailsSidebar = ({
     return members.sort((a, b) => b.standardBudget - a.standardBudget);
   }, [circle, rolesData, employees]);
 
-  // Calculate circle budget based on standard salaries
+  // Calculate circle budget based on standard salaries from the roles table
   const circleBudget = useMemo(() => {
     if (!circle || !rolesData.length || !employees.length) return 0;
 
@@ -109,24 +118,20 @@ const CircleDetailsSidebar = ({
       role.fte
     );
     
-    // For each role, find the employee and add their contribution to the budget
+    // For each role, find the standard salary and multiply by FTE
     circleRoles.forEach(role => {
-      const participantName = role.participantName.replace(/["']/g, '').trim().toLowerCase();
       const fte = role.fte || 0;
       
-      // Find matching employee
-      const employee = employees.find(emp => {
-        const empName = emp.name.replace(/["']/g, '').trim().toLowerCase();
-        return empName.includes(participantName) || participantName.includes(empName);
-      });
+      // Get standard salary for this role from the roles table
+      const roleStandardSalary = findStandardRateForRole(
+        role.roleName || '',
+        rolesData,
+        employees,
+        new Map()
+      );
       
-      if (employee && employee.standardSalary) {
-        // If employee has a standard salary defined, use it
-        totalBudget += employee.standardSalary * fte;
-      } else if (employee) {
-        // Otherwise use their actual salary
-        totalBudget += employee.salary * fte;
-      }
+      // Add to total budget
+      totalBudget += roleStandardSalary * fte;
     });
     
     return totalBudget;
@@ -204,29 +209,51 @@ const CircleDetailsSidebar = ({
               <p className="text-sm text-muted-foreground italic">Нет данных об участниках</p>
             ) : (
               <div className="space-y-3">
-                {circleMembers.map((member, index) => (
-                  <div key={index} className="border rounded-md p-3">
-                    <div className="flex justify-between items-start">
-                      <div>
-                        <p className="font-medium">{member.employee.name.replace(/["']/g, '').trim()}</p>
-                        <p className="text-sm text-muted-foreground">{member.roleName.replace(/["']/g, '').trim()}</p>
+                {circleMembers.map((member, index) => {
+                  // Calculate deviation percentage
+                  const deviation = member.standardBudget > 0 
+                    ? ((member.actualBudget - member.standardBudget) / member.standardBudget) * 100
+                    : 0;
+                  
+                  // Determine text color based on deviation
+                  const deviationClass = deviation > 0 
+                    ? "text-green-600" 
+                    : deviation < 0 
+                      ? "text-red-600" 
+                      : "text-gray-600";
+
+                  return (
+                    <div key={index} className="border rounded-md p-3">
+                      <div className="flex justify-between items-start">
+                        <div>
+                          <p className="font-medium">{member.employee.name.replace(/["']/g, '').trim()}</p>
+                          <p className="text-sm text-muted-foreground">{member.roleName.replace(/["']/g, '').trim()}</p>
+                        </div>
+                        <div className="text-right">
+                          <p className="text-sm">FTE: {member.fte.toFixed(2)}</p>
+                        </div>
                       </div>
-                      <div className="text-right">
-                        <p className="text-sm">FTE: {member.fte.toFixed(2)}</p>
+                      <div className="mt-2 pt-2 border-t grid grid-cols-2 gap-2">
+                        <div>
+                          <p className="text-xs text-muted-foreground">Стандартный</p>
+                          <p className="text-sm font-medium">{formatSalary(member.standardBudget)}</p>
+                        </div>
+                        <div>
+                          <p className="text-xs text-muted-foreground">Фактический</p>
+                          <div className="flex items-center justify-between">
+                            <p className="text-sm font-medium">{formatSalary(member.actualBudget)}</p>
+                            {member.standardBudget > 0 && (
+                              <p className={`text-xs font-medium ${deviationClass}`}>
+                                {deviation > 0 ? "+" : ""}
+                                {deviation.toFixed(1)}%
+                              </p>
+                            )}
+                          </div>
+                        </div>
                       </div>
                     </div>
-                    <div className="mt-2 pt-2 border-t grid grid-cols-2 gap-2">
-                      <div>
-                        <p className="text-xs text-muted-foreground">Стандартный</p>
-                        <p className="text-sm font-medium">{formatSalary(member.standardBudget)}</p>
-                      </div>
-                      <div>
-                        <p className="text-xs text-muted-foreground">Фактический</p>
-                        <p className="text-sm font-medium">{formatSalary(member.actualBudget)}</p>
-                      </div>
-                    </div>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             )}
           </div>
