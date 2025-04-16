@@ -10,6 +10,7 @@ import CirclesTableActions from "@/components/circles/CirclesTableActions";
 import CircleInfoSidebar from "./CircleInfoSidebar";
 import { formatName } from "@/utils/employeeUtils";
 import { findStandardRateForRole } from "@/utils/salaryUtils";
+import { useRolesData } from "@/hooks/useRolesData";
 
 interface CirclesTableProps {
   circlesData: CircleData[];
@@ -24,6 +25,9 @@ const CirclesTable = ({
 }: CirclesTableProps) => {
   const [selectedCircle, setSelectedCircle] = useState<CircleData | null>(null);
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  
+  // Get roles data which includes standard salaries
+  const { roles: rolesSalaryData } = useRolesData(rolesData, []);
   
   if (isLoading) {
     return <LoadingState>Загрузка кругов...</LoadingState>;
@@ -46,6 +50,12 @@ const CirclesTable = ({
     setSelectedCircle(circle);
     setSidebarOpen(true);
   };
+
+  // Create a map of role names to their standard salaries
+  const roleStandardSalaryMap = new Map();
+  rolesSalaryData.forEach(role => {
+    roleStandardSalaryMap.set(role.roleName, role.standardSalary);
+  });
 
   // Get employees for the selected circle
   const getCircleEmployees = () => {
@@ -93,16 +103,11 @@ const CirclesTable = ({
       .map(employee => {
         // Calculate standard salary for each role and multiply by FTE
         let totalStandardSalary = 0;
+        
         if (employee.roleData && employee.roleData.length > 0) {
           employee.roleData.forEach(roleInfo => {
-            // Using an empty array and map since we don't have actual employee data here
-            // This is simplified just to get the standard rate
-            const standardRate = findStandardRateForRole(
-              roleInfo.roleName,
-              rolesData,
-              [], // employees array is empty as we don't need it for the circle sidebar
-              new Map() // customStandardSalaries is empty as we don't need it for the circle sidebar
-            );
+            // Get standard salary from our precomputed map
+            const standardRate = roleStandardSalaryMap.get(roleInfo.roleName) || 0;
             totalStandardSalary += standardRate * roleInfo.fte;
           });
         }
