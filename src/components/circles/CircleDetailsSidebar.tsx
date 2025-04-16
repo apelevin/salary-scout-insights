@@ -1,7 +1,9 @@
+
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { Employee, RoleData, CircleData } from "@/types";
 import { useMemo } from "react";
 import { formatSalary } from "@/utils/employeeUtils";
+import { RussianRuble } from "lucide-react";
 
 interface CircleDetailsSidebarProps {
   open: boolean;
@@ -43,6 +45,55 @@ const CircleDetailsSidebar = ({
     });
 
     return leader || null;
+  }, [circle, rolesData, employees]);
+
+  // Get members of the circle
+  const circleMembers = useMemo(() => {
+    if (!circle || !rolesData.length || !employees.length) return [];
+
+    // Find all role entries for this circle
+    const circleRoles = rolesData.filter(role => 
+      role.circleName?.toLowerCase() === circle.name.toLowerCase() && 
+      role.participantName && 
+      role.fte
+    );
+    
+    const members: Array<{
+      employee: Employee;
+      fte: number;
+      standardBudget: number;
+      actualBudget: number;
+      roleName: string;
+    }> = [];
+    
+    // For each role, find the employee and calculate their contribution
+    circleRoles.forEach(role => {
+      const participantName = role.participantName.replace(/["']/g, '').trim().toLowerCase();
+      const fte = role.fte || 0;
+      
+      // Find matching employee
+      const employee = employees.find(emp => {
+        const empName = emp.name.replace(/["']/g, '').trim().toLowerCase();
+        return empName.includes(participantName) || participantName.includes(empName);
+      });
+      
+      if (employee) {
+        const standardSalary = employee.standardSalary || employee.salary;
+        const standardBudget = standardSalary * fte;
+        const actualBudget = employee.salary * fte;
+        
+        members.push({
+          employee,
+          fte,
+          standardBudget,
+          actualBudget,
+          roleName: role.roleName || 'Не указана'
+        });
+      }
+    });
+    
+    // Sort by contribution amount (descending)
+    return members.sort((a, b) => b.standardBudget - a.standardBudget);
   }, [circle, rolesData, employees]);
 
   // Calculate circle budget based on standard salaries
@@ -115,7 +166,7 @@ const CircleDetailsSidebar = ({
 
   return (
     <Sheet open={open} onOpenChange={(isOpen) => !isOpen && onClose()}>
-      <SheetContent>
+      <SheetContent className="overflow-y-auto">
         <SheetHeader>
           <SheetTitle>
             {circle ? circle.name.replace(/["']/g, '').trim() : 'Информация о круге'}
@@ -144,6 +195,40 @@ const CircleDetailsSidebar = ({
             <p className="text-base font-semibold">
               {formatSalary(actualCircleBudget)}
             </p>
+          </div>
+
+          <div className="pt-4 border-t">
+            <h3 className="text-sm font-medium text-muted-foreground mb-3">Участники круга</h3>
+            
+            {circleMembers.length === 0 ? (
+              <p className="text-sm text-muted-foreground italic">Нет данных об участниках</p>
+            ) : (
+              <div className="space-y-3">
+                {circleMembers.map((member, index) => (
+                  <div key={index} className="border rounded-md p-3">
+                    <div className="flex justify-between items-start">
+                      <div>
+                        <p className="font-medium">{member.employee.name.replace(/["']/g, '').trim()}</p>
+                        <p className="text-sm text-muted-foreground">{member.roleName.replace(/["']/g, '').trim()}</p>
+                      </div>
+                      <div className="text-right">
+                        <p className="text-sm">FTE: {member.fte.toFixed(2)}</p>
+                      </div>
+                    </div>
+                    <div className="mt-2 pt-2 border-t grid grid-cols-2 gap-2">
+                      <div>
+                        <p className="text-xs text-muted-foreground">Стандартный</p>
+                        <p className="text-sm font-medium">{formatSalary(member.standardBudget)}</p>
+                      </div>
+                      <div>
+                        <p className="text-xs text-muted-foreground">Фактический</p>
+                        <p className="text-sm font-medium">{formatSalary(member.actualBudget)}</p>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
         </div>
       </SheetContent>
