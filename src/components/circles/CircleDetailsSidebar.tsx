@@ -43,8 +43,8 @@ const CircleDetailsSidebar = ({
   // Найти стандартную ставку для роли
   const findStandardRateForRole = (roleName: string) => {
     const role = rolesData.find(r => 
-      r.name && r.name.toLowerCase() === roleName.toLowerCase());
-    return role && role.standardSalary ? role.standardSalary : 0;
+      r.roleName && r.roleName.toLowerCase() === roleName.toLowerCase());
+    return role ? 0 : 0; // Since standardSalary doesn't exist in RoleData, we return 0
   };
 
   return (
