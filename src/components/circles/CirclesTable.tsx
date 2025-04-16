@@ -1,21 +1,28 @@
 
 import { Table, TableBody } from "@/components/ui/table";
-import { CircleData } from "@/types";
+import { CircleData, Employee, RoleData } from "@/types";
 import CirclesTableHeader from "@/components/circles/CirclesTableHeader";
 import CircleRow from "@/components/circles/CircleRow";
 import LoadingState from "@/components/roles/LoadingState";
 import EmptyState from "@/components/roles/EmptyState";
 import CirclesTableActions from "@/components/circles/CirclesTableActions";
+import { useState } from "react";
+import CircleDetailsSidebar from "./CircleDetailsSidebar";
 
 interface CirclesTableProps {
   circlesData: CircleData[];
   isLoading?: boolean;
+  employees?: Employee[];
+  rolesData?: RoleData[];
 }
 
 const CirclesTable = ({ 
   circlesData = [], 
-  isLoading = false
+  isLoading = false,
+  employees = [],
+  rolesData = []
 }: CirclesTableProps) => {
+  const [selectedCircle, setSelectedCircle] = useState<string | null>(null);
   
   if (isLoading) {
     return <LoadingState>Загрузка кругов...</LoadingState>;
@@ -34,6 +41,14 @@ const CirclesTable = ({
     new Map(circlesData.map(circle => [circle.name, circle])).values()
   ).sort((a, b) => a.name.localeCompare(b.name, "ru"));
 
+  const handleCircleClick = (circleName: string) => {
+    setSelectedCircle(circleName);
+  };
+
+  const handleClosePanel = () => {
+    setSelectedCircle(null);
+  };
+
   return (
     <div className="w-full">
       <CirclesTableActions circlesCount={uniqueCircles.length} />
@@ -47,14 +62,24 @@ const CirclesTable = ({
                 index={index}
                 circleName={circle.name}
                 functionalType={circle.functionalType}
+                onClick={handleCircleClick}
               />
             ))}
           </TableBody>
         </Table>
       </div>
+
+      {selectedCircle && (
+        <CircleDetailsSidebar
+          circleName={selectedCircle}
+          open={!!selectedCircle}
+          onClose={handleClosePanel}
+          employees={employees}
+          rolesData={rolesData}
+        />
+      )}
     </div>
   );
 };
 
 export default CirclesTable;
-
