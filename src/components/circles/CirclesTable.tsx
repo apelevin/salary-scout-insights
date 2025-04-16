@@ -9,6 +9,7 @@ import EmptyState from "@/components/roles/EmptyState";
 import CirclesTableActions from "@/components/circles/CirclesTableActions";
 import CircleInfoSidebar from "./CircleInfoSidebar";
 import { formatName } from "@/utils/employeeUtils";
+import { findStandardRateForRole } from "@/utils/salaryUtils";
 
 interface CirclesTableProps {
   circlesData: CircleData[];
@@ -68,22 +69,51 @@ const CirclesTable = ({
         if (!employee.roles.includes(role.roleName)) {
           employee.roles.push(role.roleName);
         }
+
+        // Store role data for standard salary calculation
+        employee.roleData.push({
+          roleName: role.roleName,
+          fte: role.fte || 0
+        });
       } else {
         employeeRolesMap.set(key, {
           name: formattedName,
           fte: role.fte || 0,
-          roles: [role.roleName]
+          roles: [role.roleName],
+          roleData: [{
+            roleName: role.roleName,
+            fte: role.fte || 0
+          }]
         });
       }
     });
     
-    // Transform to array with combined roles
+    // Transform to array with combined roles and calculate standard salaries
     return Array.from(employeeRolesMap.values())
-      .map(employee => ({
-        name: employee.name,
-        fte: employee.fte,
-        role: employee.roles.join(", ") // Join multiple roles with comma
-      }))
+      .map(employee => {
+        // Calculate standard salary for each role and multiply by FTE
+        let totalStandardSalary = 0;
+        if (employee.roleData && employee.roleData.length > 0) {
+          employee.roleData.forEach(roleInfo => {
+            // Using an empty array and map since we don't have actual employee data here
+            // This is simplified just to get the standard rate
+            const standardRate = findStandardRateForRole(
+              roleInfo.roleName,
+              rolesData,
+              [], // employees array is empty as we don't need it for the circle sidebar
+              new Map() // customStandardSalaries is empty as we don't need it for the circle sidebar
+            );
+            totalStandardSalary += standardRate * roleInfo.fte;
+          });
+        }
+
+        return {
+          name: employee.name,
+          fte: employee.fte,
+          role: employee.roles.join(", "), // Join multiple roles with comma
+          standardSalary: totalStandardSalary
+        };
+      })
       .sort((a, b) => a.name.localeCompare(b.name, "ru"));
   };
 

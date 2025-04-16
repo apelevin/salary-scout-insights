@@ -2,11 +2,13 @@
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { CircleData, RoleData } from "@/types";
 import { formatFTE } from "@/utils/employeeUtils";
+import { formatSalary } from "@/utils/formatUtils";
 
 interface CircleEmployee {
   name: string;
   fte: number;
-  role?: string; // Adding role to the interface
+  role?: string;
+  standardSalary?: number;
 }
 
 interface CircleInfoSidebarProps {
@@ -57,6 +59,11 @@ const CircleInfoSidebar = ({
                     {employee.role && (
                       <div className="text-sm text-muted-foreground mt-1">
                         Роль: {employee.role}
+                      </div>
+                    )}
+                    {employee.standardSalary !== undefined && (
+                      <div className="text-sm text-green-600 mt-1">
+                        Стандартный оклад: {formatSalary(employee.standardSalary)}
                       </div>
                     )}
                   </div>
