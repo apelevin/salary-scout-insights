@@ -9,6 +9,7 @@ import EmptyState from "@/components/roles/EmptyState";
 import CirclesTableActions from "@/components/circles/CirclesTableActions";
 import CircleInfoSidebar from "./CircleInfoSidebar";
 import { formatName } from "@/utils/employeeUtils";
+import { useRolesData } from "@/hooks/useRolesData";
 
 interface CirclesTableProps {
   circlesData: CircleData[];
@@ -24,34 +25,23 @@ const CirclesTable = ({
   const [selectedCircle, setSelectedCircle] = useState<CircleData | null>(null);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   
-  // Use useMemo to create the standardSalaries map only once when rolesData changes
+  // Get role data with standard salaries from useRolesData
+  const { roles } = useRolesData(rolesData, [], undefined);
+  
+  // Create a map of role names to their standard salaries
   const standardSalariesMap = useMemo(() => {
     // Create a map to store role names and their standard salaries
     const salariesMap = new Map();
     
-    // Group roles by name to find min and max salaries
-    const roleGroups = new Map();
-    
-    rolesData.forEach(role => {
-      const roleName = role.roleName.replace(/["']/g, '').trim();
-      if (!roleGroups.has(roleName)) {
-        roleGroups.set(roleName, []);
-      }
-      roleGroups.get(roleName).push(role);
-    });
-    
-    // Calculate standard salary for each role (midpoint between min and max)
-    roleGroups.forEach((roleEntries, roleName) => {
-      if (roleName) {
-        // For simplicity, we'll use a standard calculation
-        // In a real app, this would be replaced by your actual standard salary logic
-        const standardSalary = 100000; // Placeholder value
-        salariesMap.set(roleName, standardSalary);
+    // Add each role's standard salary to the map
+    roles.forEach(role => {
+      if (role.roleName) {
+        salariesMap.set(role.roleName, role.standardSalary);
       }
     });
     
     return salariesMap;
-  }, [rolesData]);
+  }, [roles]);
   
   if (isLoading) {
     return <LoadingState>Загрузка кругов...</LoadingState>;
