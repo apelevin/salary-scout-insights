@@ -1,5 +1,5 @@
 
-import { FileType, FileText, Save } from "lucide-react";
+import { FileType, FileText } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import FileUpload from "@/components/FileUpload";
 import { Button } from "@/components/ui/button";
@@ -10,7 +10,6 @@ interface FileUploadSectionProps {
   isProcessing: boolean;
   onFilesUploaded: (files: UploadedFile[]) => void;
   onProcessFiles: () => void;
-  onSaveToDatabase?: () => void;
   onLeadershipFileUpload?: (file: UploadedFile) => void;
   maxFiles?: number;
 }
@@ -20,7 +19,6 @@ const FileUploadSection = ({
   isProcessing,
   onFilesUploaded,
   onProcessFiles,
-  onSaveToDatabase,
   onLeadershipFileUpload,
   maxFiles = 4
 }: FileUploadSectionProps) => {
@@ -63,26 +61,14 @@ const FileUploadSection = ({
             <h2 className="text-xl font-semibold text-foreground">Загрузка данных</h2>
           </div>
           <FileUpload onFilesUploaded={handleFilesUploaded} maxFiles={maxFiles} />
-          <div className="mt-6 flex gap-2">
+          <div className="mt-6">
             <Button 
-              className="flex-1" 
+              className="w-full" 
               disabled={uploadedFiles.length === 0 || isProcessing}
               onClick={onProcessFiles}
             >
               {isProcessing ? "Обработка..." : "Обработать данные"}
             </Button>
-            
-            {onSaveToDatabase && (
-              <Button 
-                className="flex-none"
-                variant="outline"
-                disabled={isProcessing}
-                onClick={onSaveToDatabase}
-                title="Сохранить данные в базу"
-              >
-                <Save className="h-4 w-4" />
-              </Button>
-            )}
           </div>
         </CardContent>
       </Card>
@@ -107,7 +93,7 @@ const FileUploadSection = ({
               4. CSV файл лидерства должен содержать тип лидерства в первой колонке и количество кругов с окладами в последующих колонках.
             </p>
             <p>
-              5. Нажмите "Обработать данные" для анализа загруженных файлов и сохранения в базу данных.
+              5. Нажмите "Обработать данные" для анализа загруженных файлов.
             </p>
             <p>
               6. Вы можете редактировать стандартные оклады для ролей на соответствующей вкладке.
