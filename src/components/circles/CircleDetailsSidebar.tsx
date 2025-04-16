@@ -2,7 +2,7 @@
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { Employee, RoleData, CircleData } from "@/types";
 import { useMemo } from "react";
-import { formatSalary } from "@/utils/formatUtils";
+import { formatSalary } from "@/utils/employeeUtils";
 import { RussianRuble } from "lucide-react";
 
 interface CircleDetailsSidebarProps {
@@ -64,7 +64,6 @@ const CircleDetailsSidebar = ({
       standardBudget: number;
       actualBudget: number;
       roleName: string;
-      salaryDeviation: number;
     }> = [];
     
     // For each role, find the employee and calculate their contribution
@@ -81,14 +80,6 @@ const CircleDetailsSidebar = ({
       if (employee) {
         const standardSalary = employee.standardSalary || employee.salary;
         const standardBudget = standardSalary * fte;
-        
-        // Calculate salary deviation percentage
-        let salaryDeviation = 0;
-        if ('standardSalary' in employee && employee.standardSalary && employee.standardSalary > 0) {
-          salaryDeviation = ((employee.standardSalary - employee.salary) / employee.standardSalary) * 100;
-        }
-        
-        // Actual budget is calculated with standard salary adjusted by deviation
         const actualBudget = employee.salary * fte;
         
         members.push({
@@ -96,8 +87,7 @@ const CircleDetailsSidebar = ({
           fte,
           standardBudget,
           actualBudget,
-          roleName: role.roleName || 'Не указана',
-          salaryDeviation
+          roleName: role.roleName || 'Не указана'
         });
       }
     });
@@ -214,41 +204,29 @@ const CircleDetailsSidebar = ({
               <p className="text-sm text-muted-foreground italic">Нет данных об участниках</p>
             ) : (
               <div className="space-y-3">
-                {circleMembers.map((member, index) => {
-                  // Calculate adjusted standard salary based on the deviation
-                  const standardSalary = member.employee.standardSalary || member.employee.salary;
-                  const adjustedSalary = standardSalary; // Same as standard
-
-                  return (
-                    <div key={index} className="border rounded-md p-3">
-                      <div className="flex justify-between items-start">
-                        <div>
-                          <p className="font-medium">{member.employee.name.replace(/["']/g, '').trim()}</p>
-                          <p className="text-sm text-muted-foreground">{member.roleName.replace(/["']/g, '').trim()}</p>
-                        </div>
-                        <div className="text-right">
-                          <p className="text-sm">FTE: {member.fte.toFixed(2)}</p>
-                          {member.salaryDeviation !== 0 && (
-                            <p className={`text-xs ${member.salaryDeviation > 0 ? 'text-green-500' : 'text-red-500'}`}>
-                              {member.salaryDeviation > 0 ? '+' : ''}
-                              {Math.abs(member.salaryDeviation).toFixed(1)}%
-                            </p>
-                          )}
-                        </div>
+                {circleMembers.map((member, index) => (
+                  <div key={index} className="border rounded-md p-3">
+                    <div className="flex justify-between items-start">
+                      <div>
+                        <p className="font-medium">{member.employee.name.replace(/["']/g, '').trim()}</p>
+                        <p className="text-sm text-muted-foreground">{member.roleName.replace(/["']/g, '').trim()}</p>
                       </div>
-                      <div className="mt-2 pt-2 border-t grid grid-cols-2 gap-2">
-                        <div>
-                          <p className="text-xs text-muted-foreground">Стандартный</p>
-                          <p className="text-sm font-medium">{formatSalary(standardSalary * member.fte)}</p>
-                        </div>
-                        <div>
-                          <p className="text-xs text-muted-foreground">Фактический</p>
-                          <p className="text-sm font-medium">{formatSalary(member.employee.salary * member.fte)}</p>
-                        </div>
+                      <div className="text-right">
+                        <p className="text-sm">FTE: {member.fte.toFixed(2)}</p>
                       </div>
                     </div>
-                  );
-                })}
+                    <div className="mt-2 pt-2 border-t grid grid-cols-2 gap-2">
+                      <div>
+                        <p className="text-xs text-muted-foreground">Стандартный</p>
+                        <p className="text-sm font-medium">{formatSalary(member.standardBudget)}</p>
+                      </div>
+                      <div>
+                        <p className="text-xs text-muted-foreground">Фактический</p>
+                        <p className="text-sm font-medium">{formatSalary(member.actualBudget)}</p>
+                      </div>
+                    </div>
+                  </div>
+                ))}
               </div>
             )}
           </div>
