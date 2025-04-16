@@ -1,7 +1,7 @@
 
 import { Card, CardHeader, CardContent, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { DollarSign, Percent } from "lucide-react";
+import { DollarSign } from "lucide-react";
 import { Employee, EmployeeWithRoles } from "@/types";
 import { formatSalary } from "@/utils/formatUtils";
 
@@ -60,8 +60,7 @@ export const FinancialInfo = ({ employee }: FinancialInfoProps) => {
                 {isPositive ? "+" : ""}
                 {formatSalary(difference)}
               </Badge>
-              <Badge variant="outline" className={`flex items-center ${isPositive ? "text-green-500 border-green-500" : "text-red-500 border-red-500"}`}>
-                <Percent className="h-3 w-3 mr-1" />
+              <Badge variant="outline" className={`${isPositive ? "text-green-500 border-green-500" : "text-red-500 border-red-500"}`}>
                 {isPositive ? "+" : ""}
                 {Math.abs(percentageDiff).toFixed(1)}%
               </Badge>
