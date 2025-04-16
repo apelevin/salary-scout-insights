@@ -1,7 +1,7 @@
 
 import { Card, CardHeader, CardContent, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { DollarSign } from "lucide-react";
+import { DollarSign, Percent } from "lucide-react";
 import { Employee, EmployeeWithRoles } from "@/types";
 import { formatSalary } from "@/utils/formatUtils";
 
@@ -21,6 +21,14 @@ export const FinancialInfo = ({ employee }: FinancialInfoProps) => {
 
   const difference = calculateDifference();
   const isPositive = difference > 0;
+  
+  // Calculate percentage difference
+  const calculatePercentage = () => {
+    if (!hasStandardSalary || employee.salary === 0) return 0;
+    return (difference / employee.salary) * 100;
+  };
+  
+  const percentageDiff = calculatePercentage();
 
   return (
     <Card>
@@ -47,10 +55,17 @@ export const FinancialInfo = ({ employee }: FinancialInfoProps) => {
         {hasStandardSalary && (
           <div className="flex justify-between items-center pt-1">
             <span className="text-sm text-gray-500">Разница:</span>
-            <Badge className={isPositive ? "bg-green-500" : "bg-red-500"}>
-              {isPositive ? "+" : ""}
-              {formatSalary(difference)}
-            </Badge>
+            <div className="flex items-center gap-2">
+              <Badge className={isPositive ? "bg-green-500" : "bg-red-500"}>
+                {isPositive ? "+" : ""}
+                {formatSalary(difference)}
+              </Badge>
+              <Badge variant="outline" className={`flex items-center ${isPositive ? "text-green-500 border-green-500" : "text-red-500 border-red-500"}`}>
+                <Percent className="h-3 w-3 mr-1" />
+                {isPositive ? "+" : ""}
+                {Math.abs(percentageDiff).toFixed(1)}%
+              </Badge>
+            </div>
           </div>
         )}
       </CardContent>
