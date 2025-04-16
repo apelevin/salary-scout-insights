@@ -1,21 +1,38 @@
 
 import { Table, TableBody } from "@/components/ui/table";
-import { CircleData } from "@/types";
+import { CircleData, Employee, RoleData } from "@/types";
 import CirclesTableHeader from "@/components/circles/CirclesTableHeader";
 import CircleRow from "@/components/circles/CircleRow";
 import LoadingState from "@/components/roles/LoadingState";
 import EmptyState from "@/components/roles/EmptyState";
 import CirclesTableActions from "@/components/circles/CirclesTableActions";
+import CircleDetailsSidebar from "@/components/circles/CircleDetailsSidebar";
+import { useState } from "react";
 
 interface CirclesTableProps {
   circlesData: CircleData[];
+  rolesData: RoleData[];
+  employees: Employee[];
   isLoading?: boolean;
 }
 
 const CirclesTable = ({ 
   circlesData = [], 
+  rolesData = [],
+  employees = [],
   isLoading = false
 }: CirclesTableProps) => {
+  const [selectedCircle, setSelectedCircle] = useState<CircleData | null>(null);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  
+  const handleCircleClick = (circle: CircleData) => {
+    setSelectedCircle(circle);
+    setIsSidebarOpen(true);
+  };
+  
+  const handleCloseSidebar = () => {
+    setIsSidebarOpen(false);
+  };
   
   if (isLoading) {
     return <LoadingState>Загрузка кругов...</LoadingState>;
@@ -47,14 +64,22 @@ const CirclesTable = ({
                 index={index}
                 circleName={circle.name}
                 functionalType={circle.functionalType}
+                onClick={() => handleCircleClick(circle)}
               />
             ))}
           </TableBody>
         </Table>
       </div>
+      
+      <CircleDetailsSidebar
+        open={isSidebarOpen}
+        onClose={handleCloseSidebar}
+        circle={selectedCircle}
+        rolesData={rolesData}
+        employees={employees}
+      />
     </div>
   );
 };
 
 export default CirclesTable;
-
