@@ -4,6 +4,7 @@ import { Badge } from "@/components/ui/badge";
 import { DollarSign } from "lucide-react";
 import { Employee, EmployeeWithRoles } from "@/types";
 import { formatSalary } from "@/utils/formatUtils";
+import { calculateSalaryDifference, calculateSalaryPercentage } from "@/utils/salaryDifferenceUtils";
 
 interface FinancialInfoProps {
   employee: Employee | EmployeeWithRoles;
@@ -12,23 +13,17 @@ interface FinancialInfoProps {
 export const FinancialInfo = ({ employee }: FinancialInfoProps) => {
   // Check if employee has standardSalary (specific to EmployeeWithRoles)
   const hasStandardSalary = 'standardSalary' in employee && employee.standardSalary && employee.standardSalary > 0;
-
-  // Calculate the difference as standardSalary - salary
-  const calculateDifference = () => {
-    if (!hasStandardSalary) return 0;
-    return (employee as EmployeeWithRoles).standardSalary! - employee.salary;
-  };
-
-  const difference = calculateDifference();
+  
+  // Calculate difference and percentage using utility functions
+  const difference = hasStandardSalary ? 
+    calculateSalaryDifference(employee.salary, (employee as EmployeeWithRoles).standardSalary!) : 
+    0;
+  
+  const percentageDiff = hasStandardSalary ? 
+    calculateSalaryPercentage(employee.salary, (employee as EmployeeWithRoles).standardSalary!) : 
+    0;
+  
   const isPositive = difference > 0;
-  
-  // Calculate percentage difference
-  const calculatePercentage = () => {
-    if (!hasStandardSalary || employee.salary === 0) return 0;
-    return (difference / employee.salary) * 100;
-  };
-  
-  const percentageDiff = calculatePercentage();
 
   return (
     <Card>
