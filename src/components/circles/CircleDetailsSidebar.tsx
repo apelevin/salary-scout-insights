@@ -2,12 +2,9 @@
 import { useState, useEffect } from "react";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { ScrollArea } from "@/components/ui/scroll-area";
 import { Card, CardContent } from "@/components/ui/card";
-import { Separator } from "@/components/ui/separator";
 import { RoleData, Employee } from "@/types";
 import { formatFTE, formatName } from "@/utils/formatUtils";
-import { findStandardRateForRole } from "@/utils/salaryUtils";
 
 interface CircleDetailsSidebarProps {
   open: boolean;
@@ -119,9 +116,9 @@ const CircleDetailsSidebar = ({
         
         <div className="mt-6">
           <h3 className="text-lg font-medium mb-2">Участники круга ({circleEmployees.length})</h3>
-          <ScrollArea className="h-[500px] pr-4">
+          <div className="pr-4 space-y-3">
             {circleEmployees.map((employee, index) => (
-              <Card key={`${employee.name}-${index}`} className="mb-3">
+              <Card key={`${employee.name}-${index}`}>
                 <CardContent className="p-4">
                   <div className="flex items-start gap-3">
                     <Avatar className="h-10 w-10">
@@ -146,7 +143,7 @@ const CircleDetailsSidebar = ({
                 Нет данных об участниках этого круга
               </div>
             )}
-          </ScrollArea>
+          </div>
         </div>
       </SheetContent>
     </Sheet>
