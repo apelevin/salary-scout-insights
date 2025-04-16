@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Table, TableBody } from "@/components/ui/table";
 import { CircleData, RoleData } from "@/types";
@@ -36,7 +35,6 @@ const CirclesTable = ({
     />;
   }
 
-  // Remove duplicates and sort circles by name
   const uniqueCircles = Array.from(
     new Map(circlesData.map(circle => [circle.name, circle])).values()
   ).sort((a, b) => a.name.localeCompare(b.name, "ru"));
@@ -46,14 +44,12 @@ const CirclesTable = ({
     setSidebarOpen(true);
   };
 
-  // Get employees for the selected circle
   const getCircleEmployees = () => {
     if (!selectedCircle) return [];
 
     const circleRoles = rolesData
       .filter(role => role.circleName === selectedCircle.name);
     
-    // Group roles by employee name
     const employeeRolesMap = new Map();
     
     circleRoles.forEach(role => {
@@ -64,20 +60,22 @@ const CirclesTable = ({
         const employee = employeeRolesMap.get(key);
         employee.fte += role.fte || 0;
         
-        // Store unique roles
-        if (!employee.roles.includes(role.roleName)) {
-          employee.roles.push(role.roleName);
+        const cleanedRoleName = role.roleName.replace(/["']/g, '').trim();
+        
+        if (!employee.roles.includes(cleanedRoleName)) {
+          employee.roles.push(cleanedRoleName);
         }
       } else {
+        const cleanedRoleName = role.roleName.replace(/["']/g, '').trim();
+        
         employeeRolesMap.set(key, {
           name: formattedName,
           fte: role.fte || 0,
-          roles: [role.roleName]
+          roles: [cleanedRoleName]
         });
       }
     });
     
-    // Transform to array with combined roles
     return Array.from(employeeRolesMap.values())
       .map(employee => ({
         name: employee.name,
