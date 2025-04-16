@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Employee, RoleData, CircleData, LeadershipData } from "@/types";
@@ -307,14 +306,13 @@ export const useSupabaseData = () => {
         const isLeader = role.roleName?.toLowerCase().includes('лидер') || false;
         
         // Сохраняем связь сотрудник-круг
-        // Исправление: указываем правильные типы и добавляем onConflict
         const { error } = await supabase
           .from('employee_circles')
           .upsert({
             employee_id: employeeId,
             circle_id: circleId,
             is_leader: isLeader
-          }, { onConflict: ['employee_id', 'circle_id'] });
+          }, { onConflict: 'employee_id, circle_id' });
           
         if (error) throw error;
       }
