@@ -19,15 +19,15 @@ export const FinancialInfo = ({ employee }: FinancialInfoProps) => {
     return (employee as EmployeeWithRoles).standardSalary! - employee.salary;
   };
 
-  // Calculate percentage difference
-  const calculatePercentageDifference = () => {
+  // Calculate percentage difference - this is the deviation from current salary
+  const calculateSalaryDeviation = () => {
     if (!hasStandardSalary) return 0;
     const standardSalary = (employee as EmployeeWithRoles).standardSalary!;
     return ((standardSalary - employee.salary) / standardSalary) * 100;
   };
 
   const difference = calculateDifference();
-  const percentageDifference = calculatePercentageDifference();
+  const salaryDeviation = calculateSalaryDeviation();
   const isPositive = difference > 0;
 
   return (
@@ -54,7 +54,7 @@ export const FinancialInfo = ({ employee }: FinancialInfoProps) => {
         </div>
         {hasStandardSalary && (
           <div className="flex justify-between items-center pt-1">
-            <span className="text-sm text-gray-500">Разница:</span>
+            <span className="text-sm text-gray-500">Отклонение:</span>
             <div className="flex items-center gap-2">
               <Badge className={isPositive ? "bg-green-500" : "bg-red-500"}>
                 {isPositive ? "+" : ""}
@@ -62,7 +62,7 @@ export const FinancialInfo = ({ employee }: FinancialInfoProps) => {
               </Badge>
               <Badge variant="outline" className={isPositive ? "text-green-500 border-green-500" : "text-red-500 border-red-500"}>
                 {isPositive ? "+" : ""}
-                {Math.abs(percentageDifference).toFixed(1)}%
+                {Math.abs(salaryDeviation).toFixed(1)}%
               </Badge>
             </div>
           </div>
