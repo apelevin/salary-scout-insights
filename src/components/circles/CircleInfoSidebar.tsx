@@ -42,15 +42,36 @@ const CircleInfoSidebar = ({
       setIsLoading(true);
       
       try {
-        // First, get all employees in this circle
-        const { data: circleEmployees, error: circleError } = await supabase
+        // First, find the circle in the database by name
+        const { data: circleData, error: circleError } = await supabase
+          .from('circles')
+          .select('id')
+          .eq('name', circle.name)
+          .single();
+
+        if (circleError || !circleData) {
+          console.error("Error fetching circle ID:", circleError);
+          setIsLoading(false);
+          return;
+        }
+
+        const circleId = circleData.id;
+        
+        // Get all employees in this circle
+        const { data: circleEmployees, error: circleError2 } = await supabase
           .from('employee_circles')
           .select('employee_id')
-          .eq('circle_id', circle.id);
+          .eq('circle_id', circleId);
 
-        if (circleError) throw circleError;
+        if (circleError2) {
+          console.error("Error fetching circle employees:", circleError2);
+          setIsLoading(false);
+          return;
+        }
+
         if (!circleEmployees || circleEmployees.length === 0) {
           setEmployeesWithRoles([]);
+          setIsLoading(false);
           return;
         }
 
@@ -68,7 +89,11 @@ const CircleInfoSidebar = ({
           `)
           .in('employee_id', employeeIds);
 
-        if (rolesError) throw rolesError;
+        if (rolesError) {
+          console.error("Error fetching employee roles:", rolesError);
+          setIsLoading(false);
+          return;
+        }
 
         // Group roles by employee
         const employeeRolesMap = new Map<string, EmployeeWithRoles>();
