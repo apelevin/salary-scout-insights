@@ -9,7 +9,146 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
-      [_ in never]: never
+      circles: {
+        Row: {
+          created_at: string
+          functional_type: string | null
+          id: string
+          name: string
+        }
+        Insert: {
+          created_at?: string
+          functional_type?: string | null
+          id?: string
+          name: string
+        }
+        Update: {
+          created_at?: string
+          functional_type?: string | null
+          id?: string
+          name?: string
+        }
+        Relationships: []
+      }
+      employee_circles: {
+        Row: {
+          circle_id: string
+          created_at: string
+          employee_id: string
+          id: string
+          is_leader: boolean | null
+        }
+        Insert: {
+          circle_id: string
+          created_at?: string
+          employee_id: string
+          id?: string
+          is_leader?: boolean | null
+        }
+        Update: {
+          circle_id?: string
+          created_at?: string
+          employee_id?: string
+          id?: string
+          is_leader?: boolean | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "employee_circles_circle_id_fkey"
+            columns: ["circle_id"]
+            isOneToOne: false
+            referencedRelation: "circles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "employee_circles_employee_id_fkey"
+            columns: ["employee_id"]
+            isOneToOne: false
+            referencedRelation: "employees"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      employee_roles: {
+        Row: {
+          created_at: string
+          employee_id: string
+          fte: number | null
+          id: string
+          role_name: string
+        }
+        Insert: {
+          created_at?: string
+          employee_id: string
+          fte?: number | null
+          id?: string
+          role_name: string
+        }
+        Update: {
+          created_at?: string
+          employee_id?: string
+          fte?: number | null
+          id?: string
+          role_name?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "employee_roles_employee_id_fkey"
+            columns: ["employee_id"]
+            isOneToOne: false
+            referencedRelation: "employees"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      employees: {
+        Row: {
+          created_at: string
+          id: string
+          name: string
+          salary: number
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          name: string
+          salary: number
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          name?: string
+          salary?: number
+        }
+        Relationships: []
+      }
+      roles: {
+        Row: {
+          created_at: string
+          id: string
+          max_salary: number | null
+          min_salary: number | null
+          name: string
+          standard_salary: number | null
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          max_salary?: number | null
+          min_salary?: number | null
+          name: string
+          standard_salary?: number | null
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          max_salary?: number | null
+          min_salary?: number | null
+          name?: string
+          standard_salary?: number | null
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
