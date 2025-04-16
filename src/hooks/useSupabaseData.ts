@@ -307,6 +307,7 @@ export const useSupabaseData = () => {
         const isLeader = role.roleName?.toLowerCase().includes('лидер') || false;
         
         // Сохраняем связь сотрудник-круг
+        // Исправление ошибки типа: используем single object, а не массив
         const { error } = await supabase
           .from('employee_circles')
           .upsert({
