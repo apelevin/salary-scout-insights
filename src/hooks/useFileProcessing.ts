@@ -7,6 +7,7 @@ import { useStandardSalary } from "./useStandardSalary";
 import { useFileParser } from "./useFileParser";
 import { saveAllDataToSupabase } from "@/utils/supabaseDataSync";
 import { toast } from "@/components/ui/use-toast";
+import { isSupabaseConfigured } from "@/lib/supabase";
 
 export const useFileProcessing = () => {
   const [employees, setEmployees] = useState<Employee[]>([]);
@@ -50,6 +51,15 @@ export const useFileProcessing = () => {
       toast({
         title: "Нет данных для сохранения",
         description: "Пожалуйста, сначала загрузите и обработайте файлы с данными.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (!isSupabaseConfigured()) {
+      toast({
+        title: "Supabase не настроен",
+        description: "Пожалуйста, настройте подключение к Supabase перед сохранением данных.",
         variant: "destructive",
       });
       return;

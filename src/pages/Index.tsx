@@ -7,6 +7,7 @@ import { useFileProcessing } from "@/hooks/useFileProcessing";
 import { Switch } from "@/components/ui/switch";
 import { Button } from "@/components/ui/button";
 import { EyeOff, Database } from "lucide-react";
+import { isSupabaseConfigured } from "@/lib/supabase";
 
 const Index = () => {
   const [activeTab, setActiveTab] = useState("employees");
@@ -57,7 +58,7 @@ const Index = () => {
             />
           </div>
           
-          {(filesUploaded || uploadedFiles.length > 0) && (
+          {(filesUploaded || uploadedFiles.length > 0) && isSupabaseConfigured() && (
             <Button 
               variant="outline"
               onClick={saveToSupabase}
