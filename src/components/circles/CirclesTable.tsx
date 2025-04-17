@@ -8,7 +8,7 @@ import CircleRolesSidebar from "@/components/circles/CircleRolesSidebar";
 import LoadingState from "@/components/roles/LoadingState";
 import EmptyState from "@/components/roles/EmptyState";
 import CirclesTableActions from "@/components/circles/CirclesTableActions";
-import { useCircleRoles, CircleBudgetSummary } from "@/hooks/useCircleRoles";
+import { CircleBudgetSummary } from "@/hooks/useCircleRoles";
 
 interface CirclesTableProps {
   circlesData: CircleData[];
@@ -16,6 +16,59 @@ interface CirclesTableProps {
   isLoading?: boolean;
   employees?: Employee[];
 }
+
+// Utility function to calculate budget summary, moved outside the component
+const calculateCircleBudget = (
+  circleName: string,
+  rolesData: RoleData[],
+  employees: Employee[]
+): CircleBudgetSummary => {
+  // Filter circle roles
+  const circleRoles = rolesData.filter(role => {
+    if (!role.circleName) return false;
+    const normalizedCircleName = role.circleName.replace(/["']/g, '').trim();
+    return normalizedCircleName === circleName;
+  });
+  
+  let totalStandardIncome = 0;
+  let totalActualIncome = 0;
+  
+  // Process each role in the circle
+  circleRoles.forEach(role => {
+    if (!role.roleName || !role.participantName || !role.fte) return;
+    
+    // Find employee
+    const employeeName = role.participantName.replace(/["']/g, '').trim();
+    const employee = employees.find(e => 
+      e.name.replace(/["']/g, '').trim().toLowerCase() === employeeName.toLowerCase()
+    );
+    
+    // Get employee's role FTE and salary
+    const fte = role.fte || 0;
+    
+    // Find standard salary for this role from the employee's roles
+    const standardSalary = employee?.standardSalary || 0;
+    
+    // Add to totals
+    const standardIncome = fte * standardSalary;
+    totalStandardIncome += standardIncome;
+    
+    // Add actual income
+    if (employee) {
+      totalActualIncome += (employee.salary || 0) * fte;
+    }
+  });
+  
+  // Calculate percentage difference
+  const percentageDifference = totalStandardIncome === 0 ? 0 : 
+    Math.round(((totalActualIncome - totalStandardIncome) / totalStandardIncome) * 10000) / 100;
+  
+  return { 
+    totalStandardIncome, 
+    totalActualIncome, 
+    percentageDifference 
+  };
+};
 
 const CirclesTable = ({ 
   circlesData = [], 
@@ -36,6 +89,26 @@ const CirclesTable = ({
     setSelectedCircle(null);
   };
   
+  // Pre-calculate budget information for all circles once
+  const circleBudgets = useMemo(() => {
+    const budgets = new Map<string, CircleBudgetSummary>();
+    
+    // Remove duplicates and get unique circles
+    const uniqueCircleNames = new Set<string>();
+    circlesData.forEach(circle => {
+      const cleanName = circle.name.replace(/["']/g, '').trim();
+      uniqueCircleNames.add(cleanName);
+    });
+    
+    // Calculate budget for each circle
+    uniqueCircleNames.forEach(circleName => {
+      const budget = calculateCircleBudget(circleName, rolesData, employees);
+      budgets.set(circleName, budget);
+    });
+    
+    return budgets;
+  }, [circlesData, rolesData, employees]);
+  
   if (isLoading) {
     return <LoadingState>Загрузка кругов...</LoadingState>;
   }
@@ -52,35 +125,6 @@ const CirclesTable = ({
   const uniqueCircles = Array.from(
     new Map(circlesData.map(circle => [circle.name, circle])).values()
   ).sort((a, b) => a.name.localeCompare(b.name, "ru"));
-
-  // Предварительно вычисляем бюджетную информацию для всех кругов за один проход
-  // это намного эффективнее, чем вызывать useCircleRoles для каждого круга
-  const circleBudgets = useMemo(() => {
-    const budgets = new Map<string, CircleBudgetSummary>();
-    
-    // Проходим по всем ролям один раз и группируем их по кругам
-    const rolesByCircle = new Map<string, RoleData[]>();
-    
-    rolesData.forEach(role => {
-      if (!role.circleName) return;
-      
-      const normalizedCircleName = role.circleName.replace(/["']/g, '').trim();
-      
-      if (!rolesByCircle.has(normalizedCircleName)) {
-        rolesByCircle.set(normalizedCircleName, []);
-      }
-      
-      rolesByCircle.get(normalizedCircleName)?.push(role);
-    });
-    
-    // Для каждого круга вычисляем бюджет
-    rolesByCircle.forEach((circleRoles, circleName) => {
-      const { budgetSummary } = useCircleRoles(circleName, circleRoles, employees);
-      budgets.set(circleName, budgetSummary);
-    });
-    
-    return budgets;
-  }, [rolesData, employees]);
 
   return (
     <div className="w-full">
