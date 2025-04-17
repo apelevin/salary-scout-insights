@@ -17,7 +17,7 @@ interface LeadershipTableProps {
 
 const LeadershipTable = ({ 
   leadershipData, 
-  isLoading,
+  isLoading = false,
   onLeadershipDataChange
 }: LeadershipTableProps) => {
   const [localLeadershipData, setLocalLeadershipData] = useState<LeadershipData[]>(leadershipData);

@@ -88,16 +88,18 @@ const DataDisplaySection = ({
           <EmployeeTable 
             employees={employeesWithRoles} 
             isLoading={isProcessing}
-            onSelectEmployee={handleOpenSidebar}
+            onEmployeeClick={handleOpenSidebar}
             incognitoMode={incognitoMode}
           />
         </TabsContent>
 
         <TabsContent value="roles" className="p-4">
           <RolesTable 
-            roles={roles}
+            rolesData={rolesData}
             isLoading={isProcessing}
             onStandardSalaryChange={onStandardSalaryChange}
+            employees={employees}
+            customStandardSalaries={customStandardSalaries}
           />
         </TabsContent>
 
@@ -111,6 +113,7 @@ const DataDisplaySection = ({
         <TabsContent value="leadership" className="p-4">
           <LeadershipTable 
             leadershipData={leadershipData}
+            isLoading={isProcessing}
             onLeadershipDataChange={onLeadershipDataChange}
           />
         </TabsContent>

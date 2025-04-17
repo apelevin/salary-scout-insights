@@ -1,3 +1,4 @@
+
 import { Employee, RoleData, EmployeeWithRoles, CircleData, LeadershipData } from "@/types";
 import { formatName, cleanRoleName, cleanFunctionalType } from "./formatUtils";
 import { calculateStandardSalary } from "./salaryUtils";
@@ -121,6 +122,11 @@ export const processEmployeesWithRoles = (
       strategicCircleCount: undefined // no longer needed as separate count
     };
   });
+};
+
+// Add the missing filterEmployeesWithRoles function
+export const filterEmployeesWithRoles = (employees: Employee[], rolesData: RoleData[]): EmployeeWithRoles[] => {
+  return processEmployeesWithRoles(employees, rolesData, new Map());
 };
 
 // Function to find the leadership information for an employee
