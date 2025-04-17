@@ -5,11 +5,14 @@ import { useFileUpload } from "./useFileUpload";
 import { useLeadershipData } from "./useLeadershipData";
 import { useStandardSalary } from "./useStandardSalary";
 import { useFileParser } from "./useFileParser";
+import { saveAllDataToSupabase } from "@/utils/supabaseDataSync";
+import { toast } from "@/components/ui/use-toast";
 
 export const useFileProcessing = () => {
   const [employees, setEmployees] = useState<Employee[]>([]);
   const [rolesData, setRolesData] = useState<RoleData[]>([]);
   const [circlesData, setCirclesData] = useState<CircleData[]>([]);
+  const [isSavingToSupabase, setIsSavingToSupabase] = useState(false);
 
   const { 
     uploadedFiles, 
@@ -42,6 +45,25 @@ export const useFileProcessing = () => {
     setIsProcessing
   });
 
+  const saveToSupabase = async () => {
+    if (employees.length === 0 && rolesData.length === 0 && circlesData.length === 0) {
+      toast({
+        title: "Нет данных для сохранения",
+        description: "Пожалуйста, сначала загрузите и обработайте файлы с данными.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setIsSavingToSupabase(true);
+    
+    try {
+      await saveAllDataToSupabase(employees, rolesData, circlesData, leadershipData);
+    } finally {
+      setIsSavingToSupabase(false);
+    }
+  };
+
   return {
     uploadedFiles,
     employees,
@@ -49,11 +71,13 @@ export const useFileProcessing = () => {
     circlesData,
     leadershipData,
     isProcessing,
+    isSavingToSupabase,
     customStandardSalaries,
     handleFilesUploaded,
     handleStandardSalaryChange,
     handleLeadershipFileUpload,
     handleLeadershipDataChange,
-    processFiles
+    processFiles,
+    saveToSupabase
   };
 };
