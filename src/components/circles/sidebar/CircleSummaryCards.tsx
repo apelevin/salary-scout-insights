@@ -55,41 +55,35 @@ const CircleSummaryCards: React.FC<CircleSummaryCardsProps> = ({ roles }) => {
   return (
     <div className="grid grid-cols-3 gap-4 mb-6">
       <Card>
-        <CardContent className="pt-4">
-          <div className="text-center">
-            <h3 className="text-sm font-medium text-muted-foreground">
-              Стандартный доход
-            </h3>
-            <p className="text-lg font-bold">
-              {formatSalary(totalStandardIncome)}
-            </p>
-          </div>
+        <CardContent className="pt-4 pl-4 space-y-1">
+          <h3 className="text-sm text-muted-foreground">
+            Стандартный бюджет
+          </h3>
+          <p className="text-xl font-bold">
+            {formatSalary(totalStandardIncome)}
+          </p>
         </CardContent>
       </Card>
       
       <Card>
-        <CardContent className="pt-4">
-          <div className="text-center">
-            <h3 className="text-sm font-medium text-muted-foreground">
-              Текущий доход
-            </h3>
-            <p className="text-lg font-bold">
-              {formatSalary(totalActualIncome)}
-            </p>
-          </div>
+        <CardContent className="pt-4 pl-4 space-y-1">
+          <h3 className="text-sm text-muted-foreground">
+            Текущий бюджет
+          </h3>
+          <p className="text-xl font-bold">
+            {formatSalary(totalActualIncome)}
+          </p>
         </CardContent>
       </Card>
       
       <Card>
-        <CardContent className="pt-4">
-          <div className="text-center">
-            <h3 className="text-sm font-medium text-muted-foreground">
-              Разница
-            </h3>
-            <p className={`text-lg font-bold ${isPositive ? 'text-green-600' : 'text-red-600'}`}>
-              {isPositive ? '+' : ''}{percentageDifference}%
-            </p>
-          </div>
+        <CardContent className="pt-4 pl-4 space-y-1">
+          <h3 className="text-sm text-muted-foreground">
+            Разница
+          </h3>
+          <p className={`text-xl font-bold ${isPositive ? 'text-green-600' : 'text-red-600'}`}>
+            {isPositive ? '+' : ''}{percentageDifference}%
+          </p>
         </CardContent>
       </Card>
     </div>
