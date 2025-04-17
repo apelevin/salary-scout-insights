@@ -22,17 +22,41 @@ if (!supabaseUrl || !supabaseKey) {
   }
 }
 
-// Create a Supabase client instance with the available configuration
-export const supabase = createClient(
-  supabaseUrl, 
-  supabaseKey,
-  {
-    auth: {
-      autoRefreshToken: true,
-      persistSession: true
-    }
-  }
-);
+// Create a dummy client or a real one based on configuration availability
+export const supabase = supabaseUrl && supabaseKey 
+  ? createClient(
+      supabaseUrl, 
+      supabaseKey,
+      {
+        auth: {
+          autoRefreshToken: true,
+          persistSession: true
+        }
+      }
+    ) 
+  : {
+      // Provide a minimal mock implementation to prevent runtime errors
+      from: () => ({ 
+        select: () => ({ data: null, error: new Error('Supabase not configured') }),
+        insert: () => ({ data: null, error: new Error('Supabase not configured') }),
+        update: () => ({ data: null, error: new Error('Supabase not configured') }),
+        delete: () => ({ data: null, error: new Error('Supabase not configured') }),
+        eq: () => ({ data: null, error: new Error('Supabase not configured') }),
+        single: () => ({ data: null, error: new Error('Supabase not configured') }),
+      }),
+      // Add other commonly used methods that might be called
+      auth: {
+        getUser: () => Promise.resolve({ data: { user: null }, error: new Error('Supabase not configured') }),
+        signIn: () => Promise.resolve({ data: { user: null }, error: new Error('Supabase not configured') }),
+        signOut: () => Promise.resolve({ error: new Error('Supabase not configured') }),
+      },
+      storage: {
+        from: () => ({
+          upload: () => Promise.resolve({ error: new Error('Supabase not configured') }),
+          getPublicUrl: () => ({ data: { publicUrl: '' }, error: new Error('Supabase not configured') }),
+        }),
+      }
+    };
 
 // Helper function to check if Supabase is properly configured
 export const isSupabaseConfigured = () => {

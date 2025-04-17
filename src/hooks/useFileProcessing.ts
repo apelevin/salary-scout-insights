@@ -69,6 +69,13 @@ export const useFileProcessing = () => {
     
     try {
       await saveAllDataToSupabase(employees, rolesData, circlesData, leadershipData);
+    } catch (error) {
+      console.error("Ошибка при сохранении данных:", error);
+      toast({
+        title: "Ошибка сохранения",
+        description: `Не удалось сохранить данные: ${error instanceof Error ? error.message : 'Неизвестная ошибка'}`,
+        variant: "destructive",
+      });
     } finally {
       setIsSavingToSupabase(false);
     }
