@@ -79,6 +79,7 @@ const DataDisplaySection = ({
           <TabsContent value="circles" className="w-full">
             <CirclesTable
               circlesData={circlesData}
+              employees={employees}
               isLoading={isProcessing}
             />
           </TabsContent>
