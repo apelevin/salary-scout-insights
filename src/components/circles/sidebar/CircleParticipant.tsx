@@ -18,23 +18,25 @@ const CircleParticipant: React.FC<CircleParticipantProps> = ({
   index
 }) => {
   return (
-    <li key={index} className="hover:bg-gray-100 rounded-sm px-1 py-1">
+    <li className="hover:bg-gray-50 rounded-md px-3 py-2 transition-colors">
       <div className="flex justify-between items-center">
-        <span>{name}</span>
-        <span className="text-gray-500 font-mono">
+        <span className="font-medium">{name}</span>
+        <span className="text-gray-500 font-mono text-sm">
           FTE: {formatFTE(fte)}
         </span>
       </div>
-      {standardIncome && standardIncome > 0 && (
-        <div className="text-xs text-gray-500 mt-1">
-          Стандартный доход: {formatSalary(standardIncome)}
-        </div>
-      )}
-      {actualIncome && (
-        <div className="text-xs text-gray-600 mt-1">
-          Текущий доход: {actualIncome}
-        </div>
-      )}
+      <div className="grid grid-cols-2 gap-2 mt-1.5 text-xs">
+        {standardIncome && standardIncome > 0 && (
+          <div className="text-gray-500">
+            Стандартный: {formatSalary(standardIncome)}
+          </div>
+        )}
+        {actualIncome && (
+          <div className="text-gray-600">
+            Текущий: {actualIncome}
+          </div>
+        )}
+      </div>
     </li>
   );
 };
