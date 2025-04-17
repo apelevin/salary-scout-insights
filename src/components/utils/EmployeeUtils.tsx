@@ -1,38 +1,6 @@
 
 import { Employee } from "@/types";
-import { formatName } from "@/utils/formatUtils";
+import { calculateActualIncome, formatActualIncome } from "@/utils/employeeIncomeUtils";
 
-/**
- * Calculate actual income for an employee based on their salary and FTE
- * This is different from standard income which is based on standard salary
- */
-export const calculateActualIncome = (
-  employee: Employee | undefined, 
-  fte: number
-): number => {
-  if (!employee || !employee.salary || fte <= 0) {
-    return 0;
-  }
-  
-  return employee.salary * fte;
-};
-
-/**
- * Format actual income for display with currency symbol
- */
-export const formatActualIncome = (
-  employee: Employee | undefined, 
-  fte: number
-): string => {
-  const actualIncome = calculateActualIncome(employee, fte);
-  
-  if (actualIncome <= 0) {
-    return "";
-  }
-  
-  return new Intl.NumberFormat("ru-RU", {
-    style: "currency",
-    currency: "RUB",
-    maximumFractionDigits: 0,
-  }).format(actualIncome);
-};
+// Re-export the functions for backward compatibility
+export { calculateActualIncome, formatActualIncome };
