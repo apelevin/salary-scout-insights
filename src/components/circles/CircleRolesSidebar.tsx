@@ -7,6 +7,7 @@ import {
   SheetDescription,
   SheetClose
 } from "@/components/ui/sheet";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import { X } from "lucide-react";
 import { RoleData, Employee } from "@/types";
 import { cleanRoleName, formatName, formatFTE, formatSalary } from "@/utils/formatUtils";
@@ -163,47 +164,48 @@ const CircleRolesSidebar = ({
           <span className="sr-only">Закрыть</span>
         </SheetClose>
         
-        <div className="mt-6 space-y-1">
-          {rolesWithParticipants.length > 0 ? (
-            <ul className="space-y-6">
-              {rolesWithParticipants.map((role, index) => (
-                <li key={index} className="px-2 py-2 rounded-md border border-gray-100">
-                  <div className="font-medium">
-                    {role.roleName}
-                    {role.standardSalary > 0 && (
-                      <div className="text-xs text-gray-500 mt-1">
-                        Стандартный оклад: {formatSalary(role.standardSalary)}
-                      </div>
-                    )}
-                  </div>
-                  <ul className="pl-4 mt-2 text-sm text-gray-600 space-y-2">
-                    {role.participants.map((participant, idx) => (
-                      <li key={idx} className="hover:bg-gray-100 rounded-sm px-1 py-1">
-                        <div className="flex justify-between items-center">
-                          <span>{participant.name}</span>
-                          <span className="text-gray-500 font-mono">
-                            FTE: {formatFTE(participant.fte)}
-                          </span>
+        <ScrollArea className="mt-6 h-[calc(100vh-180px)]">
+          <div className="space-y-1 pr-4">
+            {rolesWithParticipants.length > 0 ? (
+              <ul className="space-y-6">
+                {rolesWithParticipants.map((role, index) => (
+                  <li key={index} className="px-2 py-2 rounded-md border border-gray-100">
+                    <div className="font-medium">
+                      {role.roleName}
+                      {role.standardSalary > 0 && (
+                        <div className="text-xs text-gray-500 mt-1">
+                          Стандартный оклад: {formatSalary(role.standardSalary)}
                         </div>
-                        {participant.standardIncome && participant.standardIncome > 0 && (
-                          <div className="text-xs text-gray-500 mt-1">
-                            Стандартный доход: {formatSalary(participant.standardIncome)}
+                      )}
+                    </div>
+                    <ul className="pl-4 mt-2 text-sm text-gray-600 space-y-2">
+                      {role.participants.map((participant, idx) => (
+                        <li key={idx} className="hover:bg-gray-100 rounded-sm px-1 py-1">
+                          <div className="flex justify-between items-center">
+                            <span>{participant.name}</span>
+                            <span className="text-gray-500 font-mono">
+                              FTE: {formatFTE(participant.fte)}
+                            </span>
                           </div>
-                        )}
-                      </li>
-                    ))}
-                  </ul>
-                </li>
-              ))}
-            </ul>
-          ) : (
-            <p className="text-sm text-gray-500">В этом круге нет определенных ролей</p>
-          )}
-        </div>
+                          {participant.standardIncome && participant.standardIncome > 0 && (
+                            <div className="text-xs text-gray-500 mt-1">
+                              Стандартный доход: {formatSalary(participant.standardIncome)}
+                            </div>
+                          )}
+                        </li>
+                      ))}
+                    </ul>
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <p className="text-sm text-gray-500">В этом круге нет определенных ролей</p>
+            )}
+          </div>
+        </ScrollArea>
       </SheetContent>
     </Sheet>
   );
 };
 
 export default CircleRolesSidebar;
-
