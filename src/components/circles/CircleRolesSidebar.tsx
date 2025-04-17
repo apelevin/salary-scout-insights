@@ -24,14 +24,16 @@ interface CircleRolesSidebarProps {
   employees: Employee[];
 }
 
+interface RoleParticipant {
+  name: string;
+  fte: number;
+  standardIncome?: number;
+  actualIncome?: string;
+}
+
 interface RoleWithParticipants {
   roleName: string;
-  participants: Array<{
-    name: string;
-    fte: number;
-    standardIncome?: number;
-    actualIncome?: string;
-  }>;
+  participants: RoleParticipant[];
   standardSalary: number;
 }
 
@@ -139,7 +141,7 @@ const CircleRolesSidebar = ({
       }
       
       return acc;
-    }, new Map<string, { participants: Array<{name: string; fte: number; standardIncome?: number; actualIncome?: string}>; standardSalary: number }>());
+    }, new Map<string, { participants: RoleParticipant[]; standardSalary: number }>());
 
     // Convert map to array and sort by role name
     const rolesWithParticipants: RoleWithParticipants[] = Array.from(roleMap.entries())

@@ -2,7 +2,8 @@
 import React from "react";
 import { TableCell, TableRow } from "@/components/ui/table";
 import { Employee, EmployeeWithRoles } from "@/types";
-import { formatName, formatSalary } from "@/utils/employeeUtils";
+import { formatName } from "@/utils/formatUtils";
+import { formatSalary } from "@/utils/employeeUtils";
 
 interface EmployeeTableRowProps {
   employee: Employee | EmployeeWithRoles;
