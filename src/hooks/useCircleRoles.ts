@@ -3,7 +3,7 @@ import { useMemo } from "react";
 import { RoleData, Employee } from "@/types";
 import { cleanRoleName, formatName } from "@/utils/formatUtils";
 import { findEmployeeByName } from "@/utils/employeeUtils";
-import { formatActualIncome } from "@/utils/employeeIncomeUtils";
+import { formatActualIncome, parseActualIncome } from "@/utils/employeeIncomeUtils";
 import { useRolesData } from "@/hooks/useRolesData";
 
 export interface RoleParticipant {
@@ -85,12 +85,17 @@ export const useCircleRoles = (
     });
 
     // Process roles more efficiently with reduce
-    const roleMap = circleRoles.reduce((acc, role) => {
+    const roleMap = new Map<string, { participants: RoleParticipant[]; standardSalary: number }>();
+    
+    // Optimize the loop by pulling common operations outside the loop
+    circleRoles.forEach(role => {
+      if (!role.roleName || !role.participantName) return;
+      
       const cleanedRoleName = cleanRoleName(role.roleName);
       const participantName = formatName(role.participantName);
       const fte = role.fte || 0;
       
-      // Find standard salary for this role
+      // Find standard salary for this role efficiently
       const roleSalaryInfo = rolesWithSalaries.find(r => 
         r.roleName.toLowerCase() === cleanedRoleName.toLowerCase()
       );
@@ -103,28 +108,28 @@ export const useCircleRoles = (
       const employee = findEmployeeByName(employees, participantName);
       const actualIncome = formatActualIncome(employee, fte);
       
-      if (!acc.has(cleanedRoleName)) {
-        acc.set(cleanedRoleName, {
+      // Use Map.get with default for better performance
+      if (!roleMap.has(cleanedRoleName)) {
+        roleMap.set(cleanedRoleName, {
           participants: [],
           standardSalary
         });
       }
       
-      const roleData = acc.get(cleanedRoleName);
+      const roleData = roleMap.get(cleanedRoleName)!;
       
       // Check if participant already exists
       const existingParticipantIndex = roleData.participants.findIndex(p => p.name === participantName);
       
       if (existingParticipantIndex >= 0) {
         // Update existing participant's FTE
-        roleData.participants[existingParticipantIndex].fte += fte;
-        roleData.participants[existingParticipantIndex].standardIncome = 
-          roleData.participants[existingParticipantIndex].fte * standardSalary;
+        const participant = roleData.participants[existingParticipantIndex];
+        participant.fte += fte;
+        participant.standardIncome = participant.fte * standardSalary;
           
         // Update actual income
         if (employee) {
-          roleData.participants[existingParticipantIndex].actualIncome = 
-            formatActualIncome(employee, roleData.participants[existingParticipantIndex].fte);
+          participant.actualIncome = formatActualIncome(employee, participant.fte);
         }
       } else {
         // Add new participant
@@ -135,11 +140,9 @@ export const useCircleRoles = (
           actualIncome
         });
       }
-      
-      return acc;
-    }, new Map<string, { participants: RoleParticipant[]; standardSalary: number }>());
+    });
 
-    // Convert map to array and sort by role name
+    // Convert map to array and sort by role name only once
     const rolesWithParticipants: RoleWithParticipants[] = Array.from(roleMap.entries())
       .map(([roleName, data]) => ({
         roleName,
@@ -148,28 +151,24 @@ export const useCircleRoles = (
       }))
       .sort((a, b) => a.roleName.localeCompare(b.roleName, "ru"));
 
-    // Calculate totals for both standard and actual income
+    // Calculate totals for both standard and actual income in a single pass
     let totalStandardIncome = 0;
     let totalActualIncome = 0;
 
-    // Iterate through all roles and their participants
-    rolesWithParticipants.forEach(role => {
-      role.participants.forEach(participant => {
+    // Iterate through all roles and participants once
+    for (const role of rolesWithParticipants) {
+      for (const participant of role.participants) {
         // Add standard income if available
-        if (participant.standardIncome) {
-          totalStandardIncome += participant.standardIncome;
-        }
+        totalStandardIncome += participant.standardIncome || 0;
         
-        // Add actual income if available (need to convert from currency string to number)
+        // Add actual income if available (convert from currency string to number)
         if (participant.actualIncome) {
           // Extract numeric value from currency string (removing currency symbol and spaces)
           const numericValue = parseActualIncome(participant.actualIncome);
-          if (!isNaN(numericValue)) {
-            totalActualIncome += numericValue;
-          }
+          totalActualIncome += numericValue;
         }
-      });
-    });
+      }
+    }
 
     // Calculate percentage difference
     const percentageDifference = totalStandardIncome === 0 ? 0 : 

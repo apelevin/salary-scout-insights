@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { Table, TableBody } from "@/components/ui/table";
 import { CircleData, RoleData, Employee } from "@/types";
 import CirclesTableHeader from "@/components/circles/CirclesTableHeader";
@@ -8,7 +8,7 @@ import CircleRolesSidebar from "@/components/circles/CircleRolesSidebar";
 import LoadingState from "@/components/roles/LoadingState";
 import EmptyState from "@/components/roles/EmptyState";
 import CirclesTableActions from "@/components/circles/CirclesTableActions";
-import { useCircleRoles } from "@/hooks/useCircleRoles";
+import { useCircleRoles, CircleBudgetSummary } from "@/hooks/useCircleRoles";
 
 interface CirclesTableProps {
   circlesData: CircleData[];
@@ -53,6 +53,35 @@ const CirclesTable = ({
     new Map(circlesData.map(circle => [circle.name, circle])).values()
   ).sort((a, b) => a.name.localeCompare(b.name, "ru"));
 
+  // Предварительно вычисляем бюджетную информацию для всех кругов за один проход
+  // это намного эффективнее, чем вызывать useCircleRoles для каждого круга
+  const circleBudgets = useMemo(() => {
+    const budgets = new Map<string, CircleBudgetSummary>();
+    
+    // Проходим по всем ролям один раз и группируем их по кругам
+    const rolesByCircle = new Map<string, RoleData[]>();
+    
+    rolesData.forEach(role => {
+      if (!role.circleName) return;
+      
+      const normalizedCircleName = role.circleName.replace(/["']/g, '').trim();
+      
+      if (!rolesByCircle.has(normalizedCircleName)) {
+        rolesByCircle.set(normalizedCircleName, []);
+      }
+      
+      rolesByCircle.get(normalizedCircleName)?.push(role);
+    });
+    
+    // Для каждого круга вычисляем бюджет
+    rolesByCircle.forEach((circleRoles, circleName) => {
+      const { budgetSummary } = useCircleRoles(circleName, circleRoles, employees);
+      budgets.set(circleName, budgetSummary);
+    });
+    
+    return budgets;
+  }, [rolesData, employees]);
+
   return (
     <div className="w-full">
       <CirclesTableActions circlesCount={uniqueCircles.length} />
@@ -61,12 +90,8 @@ const CirclesTable = ({
           <CirclesTableHeader />
           <TableBody>
             {uniqueCircles.map((circle, index) => {
-              // Pre-calculate budget summary for each circle
-              const { budgetSummary } = useCircleRoles(
-                circle.name.replace(/["']/g, '').trim(),
-                rolesData,
-                employees
-              );
+              const cleanCircleName = circle.name.replace(/["']/g, '').trim();
+              const budgetSummary = circleBudgets.get(cleanCircleName);
               
               return (
                 <CircleRow
