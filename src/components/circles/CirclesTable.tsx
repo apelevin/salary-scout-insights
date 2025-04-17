@@ -1,4 +1,3 @@
-
 import { useState, useMemo } from "react";
 import { Table, TableBody } from "@/components/ui/table";
 import { CircleData, RoleData, Employee } from "@/types";
@@ -9,6 +8,8 @@ import LoadingState from "@/components/roles/LoadingState";
 import EmptyState from "@/components/roles/EmptyState";
 import CirclesTableActions from "@/components/circles/CirclesTableActions";
 import { CircleBudgetSummary } from "@/hooks/useCircleRoles";
+import { findEmployeeByName } from "@/utils/employeeUtils";
+import { formatName } from "@/utils/formatUtils";
 
 interface CirclesTableProps {
   circlesData: CircleData[];
@@ -35,28 +36,29 @@ const calculateCircleBudget = (
   
   // Process each role in the circle
   circleRoles.forEach(role => {
-    if (!role.roleName || !role.participantName || !role.fte) return;
+    if (!role.roleName || !role.participantName) return;
     
-    // Find employee
-    const employeeName = role.participantName.replace(/["']/g, '').trim();
-    const employee = employees.find(e => 
-      e.name.replace(/["']/g, '').trim().toLowerCase() === employeeName.toLowerCase()
-    );
-    
-    // Get employee's role FTE and salary
+    // Получаем отформатированное имя участника
+    const participantName = formatName(role.participantName);
     const fte = role.fte || 0;
     
-    // Find standard salary for this role from the employee's roles
-    const standardSalary = employee?.standardSalary || 0;
+    // Находим сотрудника по имени
+    const employee = findEmployeeByName(employees, participantName);
     
-    // Add to totals
-    const standardIncome = fte * standardSalary;
+    if (!employee) return;
+    
+    // Находим стандартную и актуальную зарплату для этого сотрудника
+    // Стандартная зарплата хранится как свойство standardSalary
+    const standardSalary = employee.standardSalary || 0;
+    const actualSalary = employee.salary || 0;
+    
+    // Учитываем коэффициент FTE при расчете доходов
+    const standardIncome = standardSalary * fte;
+    const actualIncome = actualSalary * fte;
+    
+    // Добавляем к общим суммам
     totalStandardIncome += standardIncome;
-    
-    // Add actual income
-    if (employee) {
-      totalActualIncome += (employee.salary || 0) * fte;
-    }
+    totalActualIncome += actualIncome;
   });
   
   // Calculate percentage difference
