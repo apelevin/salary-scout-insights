@@ -8,7 +8,6 @@ import {
   SheetClose
 } from "@/components/ui/sheet";
 import { X } from "lucide-react";
-import { Button } from "@/components/ui/button";
 import { RoleData, Employee } from "@/types";
 import { cleanRoleName, formatName, formatFTE, formatSalary } from "@/utils/formatUtils";
 import { useRolesData } from "@/hooks/useRolesData";
@@ -41,10 +40,45 @@ const CircleRolesSidebar = ({
   // Get roles data with standard salaries
   const { roles: rolesWithSalaries } = useRolesData(rolesData, employees);
 
+  // Constants for leader role names
+  const OPERATIONAL_CIRCLE_LEADER = "лидер операционного круга";
+  const STRATEGIC_CIRCLE_LEADER = "лидер стратегического круга";
+  const GENERIC_LEADER_ROLE = "лидер";
+
+  // Find leader for this circle
+  const circleLeader = rolesData.find(role => {
+    if (!role.circleName || !role.roleName) return false;
+    
+    const normalizedCircleName = role.circleName.replace(/["']/g, '').trim();
+    const normalizedRoleName = role.roleName.toLowerCase();
+    const isCurrentCircle = normalizedCircleName === circleName;
+    
+    return isCurrentCircle && (
+      normalizedRoleName.includes(OPERATIONAL_CIRCLE_LEADER) || 
+      normalizedRoleName.includes(STRATEGIC_CIRCLE_LEADER) ||
+      normalizedRoleName === GENERIC_LEADER_ROLE
+    );
+  });
+
+  // Get leader name and FTE if available
+  const leaderName = circleLeader ? formatName(circleLeader.participantName) : null;
+  const leaderFte = circleLeader ? circleLeader.fte || 0 : 0;
+
   // Filter roles that belong to the selected circle
   const circleRoles = rolesData.filter(role => {
-    return role.circleName && 
-           role.circleName.replace(/["']/g, '').trim() === circleName;
+    if (!role.circleName || !role.roleName) return false;
+    
+    const normalizedCircleName = role.circleName.replace(/["']/g, '').trim();
+    const normalizedRoleName = role.roleName.toLowerCase();
+    const isCurrentCircle = normalizedCircleName === circleName;
+    
+    // Exclude leader roles
+    const isLeaderRole = 
+      normalizedRoleName.includes(OPERATIONAL_CIRCLE_LEADER) || 
+      normalizedRoleName.includes(STRATEGIC_CIRCLE_LEADER) ||
+      normalizedRoleName === GENERIC_LEADER_ROLE;
+    
+    return isCurrentCircle && !isLeaderRole;
   });
 
   // Group roles by name and collect participants with FTE for each role
@@ -112,6 +146,14 @@ const CircleRolesSidebar = ({
       <SheetContent className="sm:max-w-md">
         <SheetHeader className="pr-8">
           <SheetTitle className="text-xl">{circleName || ""}</SheetTitle>
+          {leaderName && (
+            <div className="text-sm text-gray-600">
+              Лидер: {leaderName}
+              <span className="ml-2 text-gray-500 font-mono">
+                FTE: {formatFTE(leaderFte)}
+              </span>
+            </div>
+          )}
           <SheetDescription>
             Роли в этом круге ({rolesWithParticipants.length})
           </SheetDescription>
@@ -164,3 +206,4 @@ const CircleRolesSidebar = ({
 };
 
 export default CircleRolesSidebar;
+
