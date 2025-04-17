@@ -1,19 +1,27 @@
 
-import { supabase } from '@/lib/supabase';
+import { supabase, isSupabaseConfigured } from '@/lib/supabase';
 import { Employee, RoleData, CircleData, LeadershipData } from '@/types';
 import { toast } from '@/components/ui/use-toast';
 
 export const saveEmployeesToSupabase = async (employees: Employee[]): Promise<string[]> => {
+  if (!isSupabaseConfigured()) {
+    throw new Error('Supabase not configured');
+  }
+  
   try {
     const employeeIds: string[] = [];
     
     for (const employee of employees) {
       // Проверка на существование сотрудника по имени
-      const { data: existingEmployee } = await supabase
+      const { data: existingEmployee, error: findError } = await supabase
         .from('employees')
         .select('id')
         .eq('name', employee.name)
         .single();
+      
+      if (findError && findError.message !== 'No rows found') {
+        throw findError;
+      }
       
       if (existingEmployee) {
         // Обновляем существующего сотрудника
@@ -219,6 +227,15 @@ export const saveAllDataToSupabase = async (
   circles: CircleData[],
   leadershipData: LeadershipData[]
 ): Promise<boolean> => {
+  if (!isSupabaseConfigured()) {
+    toast({
+      title: "Supabase не настроен",
+      description: "Пожалуйста, настройте подключение к Supabase перед сохранением данных.",
+      variant: "destructive",
+    });
+    return false;
+  }
+  
   try {
     // Шаг 1: Сохраняем сотрудников и получаем их ID
     const employeeIds = await saveEmployeesToSupabase(employees);

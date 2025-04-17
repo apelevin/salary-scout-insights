@@ -22,6 +22,29 @@ if (!supabaseUrl || !supabaseKey) {
   }
 }
 
+// Create a chainable mock that returns itself for most method calls
+const createChainableMock = (errorMessage = 'Supabase not configured') => {
+  const mockObj: any = {};
+  
+  // Methods that return the mock object itself for chaining
+  const chainMethods = ['from', 'select', 'insert', 'update', 'delete', 'eq', 'single'];
+  
+  chainMethods.forEach(method => {
+    mockObj[method] = () => mockObj;
+  });
+  
+  // Add the final resolution methods that end the chain
+  mockObj.then = (callback: any) => {
+    return Promise.resolve(callback({ data: null, error: new Error(errorMessage) }));
+  };
+  
+  // For direct access to data/error pattern
+  mockObj.data = null;
+  mockObj.error = new Error(errorMessage);
+  
+  return mockObj;
+};
+
 // Create a dummy client or a real one based on configuration availability
 export const supabase = supabaseUrl && supabaseKey 
   ? createClient(
@@ -35,15 +58,8 @@ export const supabase = supabaseUrl && supabaseKey
       }
     ) 
   : {
-      // Provide a minimal mock implementation to prevent runtime errors
-      from: () => ({ 
-        select: () => ({ data: null, error: new Error('Supabase not configured') }),
-        insert: () => ({ data: null, error: new Error('Supabase not configured') }),
-        update: () => ({ data: null, error: new Error('Supabase not configured') }),
-        delete: () => ({ data: null, error: new Error('Supabase not configured') }),
-        eq: () => ({ data: null, error: new Error('Supabase not configured') }),
-        single: () => ({ data: null, error: new Error('Supabase not configured') }),
-      }),
+      // Provide a chainable mock implementation to prevent runtime errors
+      from: () => createChainableMock('Supabase not configured'),
       // Add other commonly used methods that might be called
       auth: {
         getUser: () => Promise.resolve({ data: { user: null }, error: new Error('Supabase not configured') }),
