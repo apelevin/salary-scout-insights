@@ -20,29 +20,34 @@ const EmployeeTableRow: React.FC<EmployeeTableRowProps> = ({
   
   // Calculate the difference as standardSalary - salary
   const getDifference = () => {
-    if (!hasStandardSalary) return { text: '—', className: 'text-gray-400' };
+    if (!hasStandardSalary) return { text: '—', className: 'text-gray-400', percentage: null };
     
     const difference = (employee as EmployeeWithRoles).standardSalary! - employee.salary;
+    const percentageDifference = employee.salary !== 0 ? 
+      (difference / employee.salary * 100).toFixed(1) + '%' : '0%';
     
     if (difference > 0) {
       return { 
         text: `+${formatSalary(difference)}`, 
-        className: 'text-green-600 font-medium' 
+        className: 'text-green-600 font-medium',
+        percentage: `+${percentageDifference}`
       };
     } else if (difference < 0) {
       return { 
         text: formatSalary(difference), 
-        className: 'text-red-600 font-medium' 
+        className: 'text-red-600 font-medium',
+        percentage: percentageDifference
       };
     } else {
       return { 
         text: `0 ₽`, 
-        className: 'text-gray-500' 
+        className: 'text-gray-500',
+        percentage: '0%'
       };
     }
   };
   
-  const { text, className } = getDifference();
+  const { text, className, percentage } = getDifference();
   
   const displayName = incognitoMode ? '░░░░░ ░░░░░' : formatName(employee.name);
 
@@ -65,7 +70,12 @@ const EmployeeTableRow: React.FC<EmployeeTableRowProps> = ({
         )}
       </TableCell>
       <TableCell>
-        <span className={className}>{text}</span>
+        <div className="flex items-center gap-2">
+          <span className={className}>{text}</span>
+          {percentage && (
+            <span className={`text-xs ${className}`}>({percentage})</span>
+          )}
+        </div>
       </TableCell>
     </TableRow>
   );
