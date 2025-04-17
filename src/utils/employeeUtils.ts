@@ -1,3 +1,4 @@
+
 import { Employee, RoleData, EmployeeWithRoles, CircleData, LeadershipData } from "@/types";
 import { formatName, cleanRoleName, cleanFunctionalType } from "./formatUtils";
 import { calculateStandardSalary } from "./salaryUtils";
@@ -25,6 +26,82 @@ export {
   calculateTotalFTE, 
   normalizeRolesFTE 
 } from "./fteUtils";
+
+// Function to filter employees by role
+export const filterEmployeesByRole = (
+  employees: (Employee | EmployeeWithRoles)[], 
+  roleName: string
+): (Employee | EmployeeWithRoles)[] => {
+  if (!roleName) return employees;
+  
+  return employees.filter(emp => {
+    if ('roles' in emp) {
+      return emp.roles.some(role => 
+        role.toLowerCase().includes(roleName.toLowerCase())
+      );
+    }
+    return false;
+  });
+};
+
+// Function to filter employees by circle
+export const filterEmployeesByCircle = (
+  employees: (Employee | EmployeeWithRoles)[], 
+  circleName: string,
+  rolesData: RoleData[]
+): (Employee | EmployeeWithRoles)[] => {
+  if (!circleName || !rolesData.length) return employees;
+  
+  // Find all employee names in this circle from roles data
+  const employeesInCircle = new Set<string>();
+  
+  rolesData.forEach(role => {
+    if (role.circleName && role.participantName && 
+        role.circleName.toLowerCase() === circleName.toLowerCase()) {
+      employeesInCircle.add(formatName(role.participantName).toLowerCase());
+    }
+  });
+  
+  // Filter employees by matching names
+  return employees.filter(emp => 
+    employeesInCircle.has(formatName(emp.name).toLowerCase())
+  );
+};
+
+// Function to filter employees with roles
+export const filterEmployeesWithRoles = (
+  employees: (Employee | EmployeeWithRoles)[]
+): EmployeeWithRoles[] => {
+  return employees.filter(emp => 
+    'roles' in emp && emp.roles.length > 0
+  ) as EmployeeWithRoles[];
+};
+
+// Function to get employee circles
+export const getEmployeeCircles = (
+  employee: Employee | EmployeeWithRoles,
+  rolesData: RoleData[]
+): string[] => {
+  const result: string[] = [];
+  if (!rolesData.length) return result;
+  
+  const nameParts = formatName(employee.name).toLowerCase().split(' ');
+  
+  for (const roleData of rolesData) {
+    if (!roleData.participantName || !roleData.circleName) continue;
+    
+    const participantNameParts = formatName(roleData.participantName).toLowerCase().split(' ');
+    const matches = nameParts.some(part => 
+      participantNameParts.some(namePart => namePart === part)
+    );
+    
+    if (matches && !result.includes(roleData.circleName)) {
+      result.push(roleData.circleName);
+    }
+  }
+  
+  return result;
+};
 
 // Function to merge duplicate employees (employees with the same name)
 const mergeEmployeesByName = (employees: Employee[]): Employee[] => {

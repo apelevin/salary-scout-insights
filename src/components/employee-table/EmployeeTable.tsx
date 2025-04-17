@@ -92,6 +92,8 @@ const EmployeeTable = ({
         open={sidebarOpen} 
         onClose={closeSidebar}
         leadershipData={leadershipData}
+        rolesData={rolesData}
+        circlesData={circlesData}
         incognitoMode={incognitoMode}
       />
     </div>

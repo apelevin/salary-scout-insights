@@ -5,18 +5,22 @@ import {
   SheetClose
 } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
-import { Employee, EmployeeWithRoles, LeadershipData } from "@/types";
+import { Employee, EmployeeWithRoles, LeadershipData, RoleData, CircleData } from "@/types";
 import { EmployeeHeader } from "./employee-info/EmployeeHeader";
 import { FinancialInfo } from "./employee-info/FinancialInfo";
 import { SalaryCalculation } from "./employee-info/SalaryCalculation";
 import { RolesAndWorkload } from "./employee-info/RolesAndWorkload";
 import { OperationalCircleInfo } from "./employee-info/OperationalCircleInfo";
+import { EmployeeCircles } from "./employee-info/EmployeeCircles";
+import { useEmployeeDetails } from "@/hooks/useEmployeeDetails";
 
 interface EmployeeInfoSidebarProps {
   employee: Employee | EmployeeWithRoles | null;
   open: boolean;
   onClose: () => void;
   leadershipData: LeadershipData[];
+  rolesData: RoleData[];
+  circlesData: CircleData[];
   incognitoMode?: boolean;
 }
 
@@ -25,14 +29,15 @@ const EmployeeInfoSidebar = ({
   open, 
   onClose, 
   leadershipData,
+  rolesData,
+  circlesData,
   incognitoMode = false
 }: EmployeeInfoSidebarProps) => {
   if (!employee) {
     return null;
   }
 
-  // Check if the employee has the properties of EmployeeWithRoles
-  const hasRoles = 'roles' in employee && 'totalFTE' in employee && 'normalizedRolesFTE' in employee;
+  const { hasRoles } = useEmployeeDetails(employee, rolesData, circlesData);
 
   return (
     <Sheet open={open} onOpenChange={(isOpen) => {
@@ -43,6 +48,14 @@ const EmployeeInfoSidebar = ({
 
         <div className="space-y-6">
           <FinancialInfo employee={employee} />
+          
+          {/* Показываем информацию о кругах */}
+          <EmployeeCircles 
+            employee={employee} 
+            rolesData={rolesData}
+            circlesData={circlesData}
+          />
+          
           {hasRoles && (
             <SalaryCalculation employee={employee as EmployeeWithRoles} />
           )}
