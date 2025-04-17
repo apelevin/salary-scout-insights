@@ -12,6 +12,7 @@ import { X } from "lucide-react";
 import { RoleData, Employee } from "@/types";
 import { cleanRoleName, formatName, formatFTE, formatSalary } from "@/utils/formatUtils";
 import { useRolesData } from "@/hooks/useRolesData";
+import { useMemo } from "react";
 
 interface CircleRolesSidebarProps {
   isOpen: boolean;
@@ -42,105 +43,142 @@ const CircleRolesSidebar = ({
   const { roles: rolesWithSalaries } = useRolesData(rolesData, employees);
 
   // Constants for leader role names
-  const OPERATIONAL_CIRCLE_LEADER = "лидер операционного круга";
-  const STRATEGIC_CIRCLE_LEADER = "лидер стратегического круга";
-  const GENERIC_LEADER_ROLE = "лидер";
+  const LEADER_ROLES = useMemo(() => ({
+    OPERATIONAL: "лидер операционного круга",
+    STRATEGIC: "лидер стратегического круга",
+    GENERIC: "лидер"
+  }), []);
 
-  // Find leader for this circle
-  const circleLeader = rolesData.find(role => {
-    if (!role.circleName || !role.roleName) return false;
-    
-    const normalizedCircleName = role.circleName.replace(/["']/g, '').trim();
-    const normalizedRoleName = role.roleName.toLowerCase();
-    const isCurrentCircle = normalizedCircleName === circleName;
-    
-    return isCurrentCircle && (
-      normalizedRoleName.includes(OPERATIONAL_CIRCLE_LEADER) || 
-      normalizedRoleName.includes(STRATEGIC_CIRCLE_LEADER) ||
-      normalizedRoleName === GENERIC_LEADER_ROLE
-    );
-  });
+  // Process circle data using useMemo to avoid recalculations
+  const { circleLeader, rolesWithParticipants } = useMemo(() => {
+    // Find leader for this circle
+    const circleLeader = rolesData.find(role => {
+      if (!role.circleName || !role.roleName) return false;
+      
+      const normalizedCircleName = role.circleName.replace(/["']/g, '').trim();
+      const normalizedRoleName = role.roleName.toLowerCase();
+      const isCurrentCircle = normalizedCircleName === circleName;
+      
+      return isCurrentCircle && (
+        normalizedRoleName.includes(LEADER_ROLES.OPERATIONAL) || 
+        normalizedRoleName.includes(LEADER_ROLES.STRATEGIC) ||
+        normalizedRoleName === LEADER_ROLES.GENERIC
+      );
+    });
 
-  // Get leader name and FTE if available
-  const leaderName = circleLeader ? formatName(circleLeader.participantName) : null;
-  const leaderFte = circleLeader ? circleLeader.fte || 0 : 0;
+    // Filter roles that belong to the selected circle
+    const circleRoles = rolesData.filter(role => {
+      if (!role.circleName || !role.roleName) return false;
+      
+      const normalizedCircleName = role.circleName.replace(/["']/g, '').trim();
+      const normalizedRoleName = role.roleName.toLowerCase();
+      const isCurrentCircle = normalizedCircleName === circleName;
+      
+      // Exclude leader roles
+      const isLeaderRole = 
+        normalizedRoleName.includes(LEADER_ROLES.OPERATIONAL) || 
+        normalizedRoleName.includes(LEADER_ROLES.STRATEGIC) ||
+        normalizedRoleName === LEADER_ROLES.GENERIC;
+      
+      return isCurrentCircle && !isLeaderRole;
+    });
 
-  // Filter roles that belong to the selected circle
-  const circleRoles = rolesData.filter(role => {
-    if (!role.circleName || !role.roleName) return false;
-    
-    const normalizedCircleName = role.circleName.replace(/["']/g, '').trim();
-    const normalizedRoleName = role.roleName.toLowerCase();
-    const isCurrentCircle = normalizedCircleName === circleName;
-    
-    // Exclude leader roles
-    const isLeaderRole = 
-      normalizedRoleName.includes(OPERATIONAL_CIRCLE_LEADER) || 
-      normalizedRoleName.includes(STRATEGIC_CIRCLE_LEADER) ||
-      normalizedRoleName === GENERIC_LEADER_ROLE;
-    
-    return isCurrentCircle && !isLeaderRole;
-  });
-
-  // Group roles by name and collect participants with FTE for each role
-  const roleMap = new Map<string, Array<{name: string; fte: number; standardIncome?: number}>>();
-  const roleStandardSalaries = new Map<string, number>();
-  
-  circleRoles.forEach(role => {
-    const cleanedRoleName = cleanRoleName(role.roleName);
-    const participantName = formatName(role.participantName);
-    const fte = role.fte || 0;
-    
-    // Find standard salary for this role
-    const roleSalaryInfo = rolesWithSalaries.find(r => 
-      r.roleName.toLowerCase() === cleanedRoleName.toLowerCase()
-    );
-    const standardSalary = roleSalaryInfo?.standardSalary || 0;
-    
-    // Store standard salary for this role
-    roleStandardSalaries.set(cleanedRoleName, standardSalary);
-    
-    // Calculate standard income based on FTE and standard salary
-    const standardIncome = fte * standardSalary;
-    
-    if (roleMap.has(cleanedRoleName)) {
-      const participants = roleMap.get(cleanedRoleName) || [];
+    // Process roles more efficiently with reduce
+    const roleMap = circleRoles.reduce((acc, role) => {
+      const cleanedRoleName = cleanRoleName(role.roleName);
+      const participantName = formatName(role.participantName);
+      const fte = role.fte || 0;
+      
+      // Find standard salary for this role
+      const roleSalaryInfo = rolesWithSalaries.find(r => 
+        r.roleName.toLowerCase() === cleanedRoleName.toLowerCase()
+      );
+      const standardSalary = roleSalaryInfo?.standardSalary || 0;
+      
+      // Calculate standard income based on FTE and standard salary
+      const standardIncome = fte * standardSalary;
+      
+      if (!acc.has(cleanedRoleName)) {
+        acc.set(cleanedRoleName, {
+          participants: [],
+          standardSalary
+        });
+      }
+      
+      const roleData = acc.get(cleanedRoleName);
       
       // Check if participant already exists
-      const existingParticipant = participants.findIndex(p => p.name === participantName);
+      const existingParticipantIndex = roleData.participants.findIndex(p => p.name === participantName);
       
-      if (existingParticipant >= 0) {
+      if (existingParticipantIndex >= 0) {
         // Update existing participant's FTE
-        participants[existingParticipant].fte += fte;
-        participants[existingParticipant].standardIncome = 
-          (participants[existingParticipant].fte * standardSalary);
+        roleData.participants[existingParticipantIndex].fte += fte;
+        roleData.participants[existingParticipantIndex].standardIncome = 
+          roleData.participants[existingParticipantIndex].fte * standardSalary;
       } else {
         // Add new participant
-        participants.push({
+        roleData.participants.push({
           name: participantName,
           fte,
           standardIncome
         });
       }
       
-      roleMap.set(cleanedRoleName, participants);
-    } else {
-      roleMap.set(cleanedRoleName, [{
-        name: participantName,
-        fte,
-        standardIncome
-      }]);
-    }
-  });
+      return acc;
+    }, new Map<string, { participants: Array<{name: string; fte: number; standardIncome?: number}>; standardSalary: number }>());
 
-  // Convert map to array and sort by role name
-  const rolesWithParticipants: RoleWithParticipants[] = Array.from(roleMap.entries())
-    .map(([roleName, participants]) => ({
-      roleName,
-      participants: participants.sort((a, b) => a.name.localeCompare(b.name, "ru")),
-      standardSalary: roleStandardSalaries.get(roleName) || 0
-    }))
-    .sort((a, b) => a.roleName.localeCompare(b.roleName, "ru"));
+    // Convert map to array and sort by role name
+    const rolesWithParticipants: RoleWithParticipants[] = Array.from(roleMap.entries())
+      .map(([roleName, data]) => ({
+        roleName,
+        participants: data.participants.sort((a, b) => a.name.localeCompare(b.name, "ru")),
+        standardSalary: data.standardSalary
+      }))
+      .sort((a, b) => a.roleName.localeCompare(b.roleName, "ru"));
+
+    return { 
+      circleLeader,
+      rolesWithParticipants
+    };
+  }, [circleName, rolesData, rolesWithSalaries, LEADER_ROLES]);
+
+  // Get leader name and FTE if available
+  const leaderName = circleLeader ? formatName(circleLeader.participantName) : null;
+  const leaderFte = circleLeader ? circleLeader.fte || 0 : 0;
+
+  // Render circle role participant
+  const renderParticipant = (participant, idx) => (
+    <li key={idx} className="hover:bg-gray-100 rounded-sm px-1 py-1">
+      <div className="flex justify-between items-center">
+        <span>{participant.name}</span>
+        <span className="text-gray-500 font-mono">
+          FTE: {formatFTE(participant.fte)}
+        </span>
+      </div>
+      {participant.standardIncome && participant.standardIncome > 0 && (
+        <div className="text-xs text-gray-500 mt-1">
+          Стандартный доход: {formatSalary(participant.standardIncome)}
+        </div>
+      )}
+    </li>
+  );
+
+  // Render role with all its participants
+  const renderRole = (role, index) => (
+    <li key={index} className="px-2 py-2 rounded-md border border-gray-100">
+      <div className="font-medium">
+        {role.roleName}
+        {role.standardSalary > 0 && (
+          <div className="text-xs text-gray-500 mt-1">
+            Стандартный оклад: {formatSalary(role.standardSalary)}
+          </div>
+        )}
+      </div>
+      <ul className="pl-4 mt-2 text-sm text-gray-600 space-y-2">
+        {role.participants.map(renderParticipant)}
+      </ul>
+    </li>
+  );
 
   return (
     <Sheet open={isOpen} onOpenChange={(open) => !open && onClose()}>
@@ -168,35 +206,7 @@ const CircleRolesSidebar = ({
           <div className="space-y-1 pr-4">
             {rolesWithParticipants.length > 0 ? (
               <ul className="space-y-6">
-                {rolesWithParticipants.map((role, index) => (
-                  <li key={index} className="px-2 py-2 rounded-md border border-gray-100">
-                    <div className="font-medium">
-                      {role.roleName}
-                      {role.standardSalary > 0 && (
-                        <div className="text-xs text-gray-500 mt-1">
-                          Стандартный оклад: {formatSalary(role.standardSalary)}
-                        </div>
-                      )}
-                    </div>
-                    <ul className="pl-4 mt-2 text-sm text-gray-600 space-y-2">
-                      {role.participants.map((participant, idx) => (
-                        <li key={idx} className="hover:bg-gray-100 rounded-sm px-1 py-1">
-                          <div className="flex justify-between items-center">
-                            <span>{participant.name}</span>
-                            <span className="text-gray-500 font-mono">
-                              FTE: {formatFTE(participant.fte)}
-                            </span>
-                          </div>
-                          {participant.standardIncome && participant.standardIncome > 0 && (
-                            <div className="text-xs text-gray-500 mt-1">
-                              Стандартный доход: {formatSalary(participant.standardIncome)}
-                            </div>
-                          )}
-                        </li>
-                      ))}
-                    </ul>
-                  </li>
-                ))}
+                {rolesWithParticipants.map(renderRole)}
               </ul>
             ) : (
               <p className="text-sm text-gray-500">В этом круге нет определенных ролей</p>

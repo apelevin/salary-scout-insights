@@ -1,5 +1,10 @@
 
+/**
+ * Normalizes functional type strings by removing quotes and standardizing format
+ */
 export const cleanFunctionalType = (type: string): string => {
+  if (!type) return '';
+  
   // Удаляем кавычки и трим
   const normalizedType = type.replace(/["']/g, '').trim().toLowerCase();
   
@@ -16,6 +21,8 @@ export const cleanFunctionalType = (type: string): string => {
  * Formats a salary number into a readable string with currency symbol
  */
 export const formatSalary = (salary: number): string => {
+  if (!salary && salary !== 0) return '';
+  
   return new Intl.NumberFormat("ru-RU", {
     style: "currency",
     currency: "RUB",
@@ -47,6 +54,7 @@ export const formatName = (name: string): string => {
  * Formats an FTE (Full Time Equivalent) value to a string representation
  */
 export const formatFTE = (fte: number): string => {
+  if (fte === undefined || fte === null) return '0.00';
   return fte.toFixed(2);
 };
 
@@ -63,4 +71,12 @@ export const cleanRoleName = (roleName: string): string => {
   cleanedName = cleanedName.charAt(0).toUpperCase() + cleanedName.slice(1).toLowerCase();
   
   return cleanedName;
+};
+
+/**
+ * Normalizes text by removing quotes and extra spaces
+ */
+export const normalizeText = (text: string): string => {
+  if (!text) return '';
+  return text.replace(/["']/g, '').trim();
 };

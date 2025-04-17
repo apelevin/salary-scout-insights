@@ -1,30 +1,34 @@
 
 import { RoleData } from "@/types";
-import { cleanRoleName } from "./formatUtils";
+import { cleanRoleName, normalizeText } from "./formatUtils";
 
+// Constant leader role names - moved outside function to avoid recreation
+const LEADER_ROLES = {
+  OPERATIONAL: "лидер операционного круга",
+  STRATEGIC: "лидер стратегического круга",
+  GENERIC: "лидер",
+  NORMALIZED: "Лидер"
+};
+
+/**
+ * Finds all roles with FTE values for a specific employee
+ */
 export const findRolesWithFTEForEmployee = (
   lastName: string, 
   firstName: string, 
   rolesData: RoleData[]
 ): Map<string, number> => {
-  if (!lastName || !rolesData.length) return new Map();
+  if (!lastName || !rolesData?.length) return new Map();
   
   const rolesWithFTE = new Map<string, number>();
   
   const normalizedLastName = lastName.toLowerCase();
   const normalizedFirstName = firstName ? firstName.toLowerCase() : '';
-
-  // Constants for the circle leader role names
-  const OPERATIONAL_CIRCLE_LEADER = "лидер операционного круга";
-  const STRATEGIC_CIRCLE_LEADER = "лидер стратегического круга";
-  const GENERIC_LEADER_ROLE = "лидер";
   
   rolesData.forEach(entry => {
     if (!entry.participantName || !entry.roleName) return;
     
-    const participantNameParts = entry.participantName
-      .replace(/["']/g, '')
-      .trim()
+    const participantNameParts = normalizeText(entry.participantName)
       .split(/\s+/)
       .map(part => part.toLowerCase());
     
@@ -36,46 +40,45 @@ export const findRolesWithFTEForEmployee = (
                              participantNameParts.some(part => part === normalizedFirstName);
     
     if (lastNameMatches && firstNameMatches) {
-      // Check if the role is a leader role and normalize it to "Лидер"
-      let roleName = entry.roleName.toLowerCase();
-      const isLeaderRole = roleName === GENERIC_LEADER_ROLE.toLowerCase() || 
-                          roleName.includes(OPERATIONAL_CIRCLE_LEADER.toLowerCase()) || 
-                          roleName.includes(STRATEGIC_CIRCLE_LEADER.toLowerCase());
+      // Normalize role name
+      const normalizedRoleName = entry.roleName.toLowerCase();
+      let roleName;
       
-      if (isLeaderRole) {
-        roleName = "Лидер"; // Normalize all leader roles to "Лидер" with capital letter
+      // Check if the role is a leader role and normalize it
+      if (
+        normalizedRoleName === LEADER_ROLES.GENERIC.toLowerCase() || 
+        normalizedRoleName.includes(LEADER_ROLES.OPERATIONAL.toLowerCase()) || 
+        normalizedRoleName.includes(LEADER_ROLES.STRATEGIC.toLowerCase())
+      ) {
+        roleName = LEADER_ROLES.NORMALIZED; // Normalize all leader roles
       } else {
         roleName = cleanRoleName(entry.roleName);
       }
       
-      if (rolesWithFTE.has(roleName)) {
-        const currentFTE = rolesWithFTE.get(roleName) || 0;
-        if (entry.fte !== undefined && !isNaN(entry.fte)) {
-          rolesWithFTE.set(roleName, currentFTE + entry.fte);
-        }
-      } else {
-        if (entry.fte !== undefined && !isNaN(entry.fte)) {
-          rolesWithFTE.set(roleName, entry.fte);
-        } else {
-          rolesWithFTE.set(roleName, 0);
-        }
-      }
+      // Add or update FTE for this role
+      const currentFTE = rolesWithFTE.get(roleName) || 0;
+      const entryFTE = entry.fte !== undefined && !isNaN(entry.fte) ? entry.fte : 0;
+      rolesWithFTE.set(roleName, currentFTE + entryFTE);
     }
   });
   
   return rolesWithFTE;
 };
 
+/**
+ * Calculates total FTE for all roles
+ */
 export const calculateTotalFTE = (rolesMap: Map<string, number>): number => {
-  let total = 0;
-  for (const fte of rolesMap.values()) {
-    total += fte;
-  }
-  return total;
+  if (!rolesMap || rolesMap.size === 0) return 0;
+  
+  return Array.from(rolesMap.values()).reduce((sum, fte) => sum + (fte || 0), 0);
 };
 
+/**
+ * Normalizes role FTEs to be proportional to the total FTE
+ */
 export const normalizeRolesFTE = (rolesMap: Map<string, number>, totalFTE: number): Map<string, number> => {
-  if (totalFTE === 0) return rolesMap;
+  if (!rolesMap || rolesMap.size === 0 || !totalFTE || totalFTE <= 0) return rolesMap;
   if (totalFTE === 1) return rolesMap;
   
   const normalizedMap = new Map<string, number>();
