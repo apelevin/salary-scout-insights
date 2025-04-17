@@ -13,7 +13,6 @@ import { RoleData, Employee } from "@/types";
 import { cleanRoleName, formatName, formatFTE, formatSalary } from "@/utils/formatUtils";
 import { useRolesData } from "@/hooks/useRolesData";
 import { useMemo } from "react";
-import { findEmployeeByName } from "@/utils/employeeUtils";
 
 interface CircleRolesSidebarProps {
   isOpen: boolean;
@@ -29,7 +28,6 @@ interface RoleWithParticipants {
     name: string;
     fte: number;
     standardIncome?: number;
-    currentIncome?: number;
   }>;
   standardSalary: number;
 }
@@ -100,17 +98,6 @@ const CircleRolesSidebar = ({
       // Calculate standard income based on FTE and standard salary
       const standardIncome = fte * standardSalary;
       
-      // Calculate current income based on employee's actual salary and salary difference percentage
-      const employee = findEmployeeByName(employees, participantName);
-      let currentIncome = 0;
-      
-      if (employee && employee.salary > 0 && standardSalary > 0) {
-        // Calculate percentage difference between standard and actual salary
-        const percentageDiff = (standardSalary - employee.salary) / employee.salary;
-        // Calculate current income: employee salary * FTE * (1 + percentage difference)
-        currentIncome = employee.salary * fte * (1 + percentageDiff);
-      }
-      
       if (!acc.has(cleanedRoleName)) {
         acc.set(cleanedRoleName, {
           participants: [],
@@ -128,25 +115,17 @@ const CircleRolesSidebar = ({
         roleData.participants[existingParticipantIndex].fte += fte;
         roleData.participants[existingParticipantIndex].standardIncome = 
           roleData.participants[existingParticipantIndex].fte * standardSalary;
-          
-        // Also update current income if the employee exists
-        if (employee && employee.salary > 0 && standardSalary > 0) {
-          const percentageDiff = (standardSalary - employee.salary) / employee.salary;
-          roleData.participants[existingParticipantIndex].currentIncome = 
-            employee.salary * roleData.participants[existingParticipantIndex].fte * (1 + percentageDiff);
-        }
       } else {
         // Add new participant
         roleData.participants.push({
           name: participantName,
           fte,
-          standardIncome,
-          currentIncome
+          standardIncome
         });
       }
       
       return acc;
-    }, new Map<string, { participants: Array<{name: string; fte: number; standardIncome?: number; currentIncome?: number}>; standardSalary: number }>());
+    }, new Map<string, { participants: Array<{name: string; fte: number; standardIncome?: number}>; standardSalary: number }>());
 
     // Convert map to array and sort by role name
     const rolesWithParticipants: RoleWithParticipants[] = Array.from(roleMap.entries())
@@ -161,7 +140,7 @@ const CircleRolesSidebar = ({
       circleLeader,
       rolesWithParticipants
     };
-  }, [circleName, rolesData, rolesWithSalaries, LEADER_ROLES, employees]);
+  }, [circleName, rolesData, rolesWithSalaries, LEADER_ROLES]);
 
   // Get leader name and FTE if available
   const leaderName = circleLeader ? formatName(circleLeader.participantName) : null;
@@ -179,11 +158,6 @@ const CircleRolesSidebar = ({
       {participant.standardIncome && participant.standardIncome > 0 && (
         <div className="text-xs text-gray-500 mt-1">
           Стандартный доход: {formatSalary(participant.standardIncome)}
-        </div>
-      )}
-      {participant.currentIncome && participant.currentIncome > 0 && (
-        <div className="text-xs text-gray-600 mt-1">
-          Текущий доход: {formatSalary(participant.currentIncome)}
         </div>
       )}
     </li>
