@@ -30,17 +30,38 @@ const CircleDetailSidebar = ({
   employees = [],
   rolesData = []
 }: CircleDetailSidebarProps) => {
-  // Find employees in this circle by matching roles with the circle name
+  // Find employees in this circle by matching circle name
   const employeesInCircle = employees.filter(employee => {
+    // Проверяем наличие связанных ролей у сотрудника
     if (!employee.roles) return false;
-    return employee.roles.some(role => 
-      rolesData.some(r => 
-        r.id === role.roleId && 
-        r.circle && 
-        r.circle.toLowerCase() === circleName.toLowerCase()
-      )
+    
+    // Проверяем каждую роль сотрудника
+    return employee.roles.some(employeeRole => 
+      // Ищем соответствующую роль в данных о ролях
+      rolesData.some(roleData => {
+        // Проверяем совпадение ID роли и круга
+        return roleData.id === employeeRole.roleId && 
+               roleData.circle && 
+               roleData.circle.toLowerCase() === circleName.toLowerCase();
+      })
     );
   });
+
+  // Если сотрудники не найдены через роли, пробуем альтернативный метод
+  // через поле circleName в данных о ролях
+  const alternativeEmployeesInCircle = employees.filter(employee => {
+    return rolesData.some(role => 
+      role.participantName === employee.name && 
+      role.circleName && 
+      role.circleName.toLowerCase() === circleName.toLowerCase()
+    );
+  });
+
+  // Объединяем результаты двух методов поиска и удаляем дубликаты
+  const allEmployeesInCircle = [...employeesInCircle, ...alternativeEmployeesInCircle]
+    .filter((employee, index, self) => 
+      index === self.findIndex((e) => e.id === employee.id)
+    );
 
   return (
     <Sheet open={open} onOpenChange={(isOpen) => {
@@ -63,12 +84,12 @@ const CircleDetailSidebar = ({
           <div>
             <h3 className="text-lg font-medium flex items-center gap-2">
               <Users className="h-4 w-4" /> 
-              Сотрудники в этом круге ({employeesInCircle.length})
+              Сотрудники в этом круге ({allEmployeesInCircle.length})
             </h3>
             
-            {employeesInCircle.length > 0 ? (
+            {allEmployeesInCircle.length > 0 ? (
               <div className="mt-2 space-y-1">
-                {employeesInCircle.map((employee, index) => (
+                {allEmployeesInCircle.map((employee, index) => (
                   <div key={employee.id || index} className="p-2 rounded-md hover:bg-muted">
                     {employee.name || employee.fullName || "Сотрудник " + (index + 1)}
                   </div>
