@@ -8,7 +8,8 @@ import CircleRolesSidebar from "@/components/circles/CircleRolesSidebar";
 import LoadingState from "@/components/roles/LoadingState";
 import EmptyState from "@/components/roles/EmptyState";
 import CirclesTableActions from "@/components/circles/CirclesTableActions";
-import { useCircleRoles } from "@/hooks/useCircleRoles";
+import { useRolesData } from "@/hooks/useRolesData";
+import { calculateCircleBudget } from "@/hooks/useCircleRoles";
 
 interface CirclesTableProps {
   circlesData: CircleData[];
@@ -26,6 +27,9 @@ const CirclesTable = ({
   const [selectedCircle, setSelectedCircle] = useState<string | null>(null);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
+  // Get roles with standard salaries - this call is at component level
+  const { roles: rolesWithSalaries } = useRolesData(rolesData, employees);
+
   // Remove duplicates and sort circles by name
   const uniqueCircles = useMemo(() => {
     return Array.from(
@@ -37,15 +41,15 @@ const CirclesTable = ({
   const circleBudgets = useMemo(() => {
     const budgetsMap = new Map();
     
-    // Calculate budget summaries for all circles at once
     uniqueCircles.forEach(circle => {
       const circleName = circle.name.replace(/["']/g, '').trim();
-      const { budgetSummary } = useCircleRoles(circleName, rolesData, employees);
-      budgetsMap.set(circleName, budgetSummary);
+      // Use the pure function instead of the hook directly
+      const result = calculateCircleBudget(circleName, rolesData, employees, rolesWithSalaries);
+      budgetsMap.set(circleName, result.budgetSummary);
     });
     
     return budgetsMap;
-  }, [uniqueCircles, rolesData, employees]);
+  }, [uniqueCircles, rolesData, employees, rolesWithSalaries]);
 
   const handleCircleClick = (circleName: string) => {
     setSelectedCircle(circleName);
