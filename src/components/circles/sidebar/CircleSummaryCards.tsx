@@ -57,10 +57,10 @@ const CircleSummaryCards: React.FC<CircleSummaryCardsProps> = ({ roles }) => {
       <Card>
         <CardContent className="pt-4">
           <div className="text-center">
-            <h3 className="text-sm font-medium text-muted-foreground">
+            <h3 className="text-base font-medium text-muted-foreground">
               Стандартный доход
             </h3>
-            <p className="text-lg font-bold">
+            <p className="text-base font-bold">
               {formatSalary(totalStandardIncome)}
             </p>
           </div>
@@ -70,10 +70,10 @@ const CircleSummaryCards: React.FC<CircleSummaryCardsProps> = ({ roles }) => {
       <Card>
         <CardContent className="pt-4">
           <div className="text-center">
-            <h3 className="text-sm font-medium text-muted-foreground">
+            <h3 className="text-base font-medium text-muted-foreground">
               Текущий доход
             </h3>
-            <p className="text-lg font-bold">
+            <p className="text-base font-bold">
               {formatSalary(totalActualIncome)}
             </p>
           </div>
@@ -83,10 +83,10 @@ const CircleSummaryCards: React.FC<CircleSummaryCardsProps> = ({ roles }) => {
       <Card>
         <CardContent className="pt-4">
           <div className="text-center">
-            <h3 className="text-sm font-medium text-muted-foreground">
+            <h3 className="text-base font-medium text-muted-foreground">
               Разница
             </h3>
-            <p className={`text-lg font-bold ${isPositive ? 'text-green-600' : 'text-red-600'}`}>
+            <p className={`text-base font-bold ${isPositive ? 'text-green-600' : 'text-red-600'}`}>
               {isPositive ? '+' : ''}{percentageDifference}%
             </p>
           </div>

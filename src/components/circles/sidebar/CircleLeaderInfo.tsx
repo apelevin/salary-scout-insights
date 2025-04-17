@@ -13,7 +13,7 @@ const CircleLeaderInfo: React.FC<CircleLeaderInfoProps> = ({ leaderName, leaderF
   }
 
   return (
-    <div className="text-sm text-gray-600">
+    <div className="text-base text-gray-600">
       Лидер: {leaderName}
       <span className="ml-2 text-gray-500 font-mono">
         FTE: {formatFTE(leaderFte)}

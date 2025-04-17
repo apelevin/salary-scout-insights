@@ -25,15 +25,15 @@ const CircleRole: React.FC<CircleRoleProps> = ({
 }) => {
   return (
     <li key={index} className="px-2 py-2 rounded-md border border-gray-100">
-      <div className="font-medium">
+      <div className="font-medium text-base">
         {roleName}
         {standardSalary > 0 && (
-          <div className="text-xs text-gray-500 mt-1">
+          <div className="text-base text-gray-500 mt-1">
             Стандартный оклад: {formatSalary(standardSalary)}
           </div>
         )}
       </div>
-      <ul className="pl-4 mt-2 text-sm text-gray-600 space-y-2">
+      <ul className="pl-4 mt-2 text-base text-gray-600 space-y-2">
         {participants.map((participant, idx) => (
           <CircleParticipant
             key={idx}
