@@ -12,14 +12,13 @@ import { useEmployeeFilter } from "./useEmployeeFilter";
 import { useSortableEmployees } from "./useSortableEmployees";
 
 interface EmployeeTableProps {
-  employees: Employee[] | EmployeeWithRoles[];
+  employees: Employee[];
   rolesData?: RoleData[];
   circlesData?: CircleData[];
   leadershipData?: LeadershipData[];
   isLoading?: boolean;
   customStandardSalaries?: Map<string, number>;
   incognitoMode?: boolean;
-  onEmployeeClick?: (employee: Employee | EmployeeWithRoles) => void;
 }
 
 const EmployeeTable = ({ 
@@ -29,15 +28,14 @@ const EmployeeTable = ({
   leadershipData = [], 
   isLoading = false,
   customStandardSalaries = new Map(),
-  incognitoMode = false,
-  onEmployeeClick
+  incognitoMode = false
 }: EmployeeTableProps) => {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedEmployee, setSelectedEmployee] = useState<Employee | EmployeeWithRoles | null>(null);
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   const { filteredEmployees } = useEmployeeFilter(
-    employees as Employee[],
+    employees,
     rolesData,
     circlesData,
     customStandardSalaries,
@@ -49,12 +47,8 @@ const EmployeeTable = ({
     useSortableEmployees(filteredEmployees as (Employee | EmployeeWithRoles)[]);
 
   const handleEmployeeClick = (employee: Employee | EmployeeWithRoles) => {
-    if (onEmployeeClick) {
-      onEmployeeClick(employee);
-    } else {
-      setSelectedEmployee(employee);
-      setSidebarOpen(true);
-    }
+    setSelectedEmployee(employee);
+    setSidebarOpen(true);
   };
 
   const closeSidebar = () => {
@@ -93,17 +87,13 @@ const EmployeeTable = ({
         Всего сотрудников: {sortedEmployees.length}
       </div>
 
-      {/* Only render the sidebar if we're not using an external handler */}
-      {!onEmployeeClick && (
-        <EmployeeInfoSidebar 
-          employee={selectedEmployee} 
-          open={sidebarOpen} 
-          onClose={closeSidebar}
-          leadershipData={leadershipData}
-          rolesData={rolesData}
-          incognitoMode={incognitoMode}
-        />
-      )}
+      <EmployeeInfoSidebar 
+        employee={selectedEmployee} 
+        open={sidebarOpen} 
+        onClose={closeSidebar}
+        leadershipData={leadershipData}
+        incognitoMode={incognitoMode}
+      />
     </div>
   );
 };

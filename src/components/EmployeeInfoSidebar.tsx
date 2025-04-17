@@ -5,20 +5,18 @@ import {
   SheetClose
 } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
-import { Employee, EmployeeWithRoles, LeadershipData, RoleData } from "@/types";
+import { Employee, EmployeeWithRoles, LeadershipData } from "@/types";
 import { EmployeeHeader } from "./employee-info/EmployeeHeader";
 import { FinancialInfo } from "./employee-info/FinancialInfo";
 import { SalaryCalculation } from "./employee-info/SalaryCalculation";
 import { RolesAndWorkload } from "./employee-info/RolesAndWorkload";
 import { OperationalCircleInfo } from "./employee-info/OperationalCircleInfo";
-import { EmployeeCircles } from "./employee-info/EmployeeCircles";
 
 interface EmployeeInfoSidebarProps {
   employee: Employee | EmployeeWithRoles | null;
   open: boolean;
   onClose: () => void;
   leadershipData: LeadershipData[];
-  rolesData?: RoleData[];
   incognitoMode?: boolean;
 }
 
@@ -27,7 +25,6 @@ const EmployeeInfoSidebar = ({
   open, 
   onClose, 
   leadershipData,
-  rolesData = [],
   incognitoMode = false
 }: EmployeeInfoSidebarProps) => {
   if (!employee) {
@@ -54,13 +51,6 @@ const EmployeeInfoSidebar = ({
             <OperationalCircleInfo 
               employee={employee as EmployeeWithRoles} 
               leadershipData={leadershipData}
-            />
-          )}
-          
-          {hasRoles && rolesData.length > 0 && (
-            <EmployeeCircles 
-              employee={employee as EmployeeWithRoles}
-              rolesData={rolesData}
             />
           )}
           
