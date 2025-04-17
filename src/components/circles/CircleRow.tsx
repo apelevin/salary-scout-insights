@@ -26,6 +26,17 @@ const CircleRow = ({
   // Очищаем название круга и функционального типа от кавычек
   const cleanCircleName = circleName.replace(/["']/g, '').trim();
 
+  // Prefilter employees with this circle to check if we have any
+  const hasEmployees = employees?.some(emp => 
+    rolesData?.some(role => 
+      ((role.circleName && role.circleName.toLowerCase() === cleanCircleName.toLowerCase()) ||
+       (role.circle && role.circle.toLowerCase() === cleanCircleName.toLowerCase())) &&
+      (role.participantName && emp.name && 
+        (role.participantName.toLowerCase().includes(emp.name.toLowerCase()) || 
+         emp.name.toLowerCase().includes(role.participantName.toLowerCase().split(' ')[0])))
+    )
+  );
+
   return (
     <>
       <TableRow>
@@ -36,6 +47,7 @@ const CircleRow = ({
             className="text-left hover:text-blue-600 hover:underline transition-colors"
           >
             {cleanCircleName}
+            {hasEmployees && <span className="ml-2 text-xs text-green-600">(есть сотрудники)</span>}
           </button>
         </TableCell>
         <TableCell>{cleanFunctionalType(functionalType)}</TableCell>

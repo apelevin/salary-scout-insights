@@ -30,36 +30,71 @@ const CircleDetailSidebar = ({
   employees = [],
   rolesData = []
 }: CircleDetailSidebarProps) => {
-  // Improved employee filtering logic
+  
+  // More robust employee filtering logic
   const employeesInCircle = employees.filter(employee => {
-    const employeeName = employee.name || '';
+    if (!employee || !employee.name) return false;
     
-    // Find if this employee is mentioned in any role with this circle
+    const normalizedEmployeeName = employee.name.toLowerCase().trim();
+    const normalizedCircleName = circleName.toLowerCase().trim();
+    
     return rolesData.some(role => {
-      // Check if the role has a participant name and circle name that match
-      const participantMatchesEmployee = role.participantName && 
-        employeeName.includes(role.participantName.split(' ')[0]) ||
-        role.participantName === employee.name;
-        
-      const roleCircleMatchesCurrentCircle = role.circleName && 
-        role.circleName.toLowerCase() === circleName.toLowerCase();
+      if (!role) return false;
       
-      // Also check if role has a 'circle' field that matches
-      const roleCircleFieldMatchesCurrentCircle = role.circle && 
-        role.circle.toLowerCase() === circleName.toLowerCase();
+      // Match employee by name
+      const roleParticipant = role.participantName || '';
+      const participantMatches = 
+        normalizedEmployeeName.includes(roleParticipant.toLowerCase().trim()) || 
+        roleParticipant.toLowerCase().includes(normalizedEmployeeName);
         
-      return participantMatchesEmployee && 
-        (roleCircleMatchesCurrentCircle || roleCircleFieldMatchesCurrentCircle);
+      // Check if circle name matches in any of the circle fields
+      const circleMatches = 
+        (role.circleName && role.circleName.toLowerCase().trim() === normalizedCircleName) ||
+        (role.circle && role.circle.toLowerCase().trim() === normalizedCircleName);
+        
+      return participantMatches && circleMatches;
     });
   });
   
-  // Log for debugging
-  console.log(`Found ${employeesInCircle.length} employees for circle: ${circleName}`);
-  if (employeesInCircle.length > 0) {
-    console.log("Example employee:", employeesInCircle[0].name);
+  // Additional direct lookup by role - fallback method
+  const employeesByDirectMatch = employees.filter(employee => {
+    if (!employee || !employee.name) return false;
+    
+    // Direct name lookup in roles with matching circle
+    return rolesData.some(role => {
+      return (
+        // Check if this role belongs to this circle
+        ((role.circleName && role.circleName.toLowerCase().trim() === circleName.toLowerCase().trim()) ||
+         (role.circle && role.circle.toLowerCase().trim() === circleName.toLowerCase().trim())) &&
+        
+        // Check if employee name appears in the role participant name
+        (role.participantName && 
+          (role.participantName.toLowerCase().includes(employee.name.toLowerCase()) ||
+           employee.name.toLowerCase().includes(role.participantName.toLowerCase().split(' ')[0])))
+      );
+    });
+  });
+  
+  // Combine and deduplicate results
+  const combinedEmployees = [...employeesInCircle, ...employeesByDirectMatch];
+  const uniqueEmployees = Array.from(new Map(combinedEmployees.map(emp => [emp.id || emp.name, emp])).values());
+  
+  // Extensive logging for debugging
+  console.log(`Circle: "${circleName}" - Found ${uniqueEmployees.length} unique employees`);
+  console.log(`- Primary method found: ${employeesInCircle.length}`);
+  console.log(`- Secondary method found: ${employeesByDirectMatch.length}`);
+  
+  if (uniqueEmployees.length > 0) {
+    console.log("First few employees:", uniqueEmployees.slice(0, 3).map(e => e.name));
+  } else {
+    // Debug info for troubleshooting
+    console.log(`- Total employees available: ${employees.length}`);
+    console.log(`- Total roles available: ${rolesData.length}`);
+    console.log(`- Roles mentioning this circle:`, rolesData.filter(r => 
+      (r.circleName && r.circleName.toLowerCase().includes(circleName.toLowerCase())) || 
+      (r.circle && r.circle.toLowerCase().includes(circleName.toLowerCase()))
+    ).length);
   }
-
-  console.log(`Total employees: ${employees.length}, Total roles: ${rolesData.length}`);
 
   return (
     <Sheet open={open} onOpenChange={(isOpen) => {
@@ -82,12 +117,12 @@ const CircleDetailSidebar = ({
           <div>
             <h3 className="text-lg font-medium flex items-center gap-2">
               <Users className="h-4 w-4" /> 
-              Сотрудники в этом круге ({employeesInCircle.length})
+              Сотрудники в этом круге ({uniqueEmployees.length})
             </h3>
             
-            {employeesInCircle.length > 0 ? (
+            {uniqueEmployees.length > 0 ? (
               <div className="mt-2 space-y-1">
-                {employeesInCircle.map((employee, index) => (
+                {uniqueEmployees.map((employee, index) => (
                   <div key={employee.id || index} className="p-2 rounded-md hover:bg-muted">
                     {employee.name || employee.fullName || "Сотрудник " + (index + 1)}
                   </div>
