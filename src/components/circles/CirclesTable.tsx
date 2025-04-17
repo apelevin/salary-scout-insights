@@ -1,7 +1,7 @@
 
 import { useState } from "react";
 import { Table, TableBody } from "@/components/ui/table";
-import { CircleData, RoleData } from "@/types";
+import { CircleData, RoleData, Employee } from "@/types";
 import CirclesTableHeader from "@/components/circles/CirclesTableHeader";
 import CircleRow from "@/components/circles/CircleRow";
 import CircleRolesSidebar from "@/components/circles/CircleRolesSidebar";
@@ -13,12 +13,14 @@ interface CirclesTableProps {
   circlesData: CircleData[];
   rolesData: RoleData[];
   isLoading?: boolean;
+  employees?: Employee[];
 }
 
 const CirclesTable = ({ 
   circlesData = [], 
   rolesData = [],
-  isLoading = false
+  isLoading = false,
+  employees = []
 }: CirclesTableProps) => {
   const [selectedCircle, setSelectedCircle] = useState<string | null>(null);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
@@ -75,6 +77,7 @@ const CirclesTable = ({
         onClose={handleCloseSidebar}
         circleName={selectedCircle}
         rolesData={rolesData}
+        employees={employees}
       />
     </div>
   );

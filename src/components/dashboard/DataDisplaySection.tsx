@@ -80,6 +80,7 @@ const DataDisplaySection = ({
             <CirclesTable
               circlesData={circlesData}
               rolesData={rolesData}
+              employees={employees}
               isLoading={isProcessing}
             />
           </TabsContent>
