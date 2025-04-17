@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { Table, TableBody } from "@/components/ui/table";
 import { CircleData, RoleData, Employee } from "@/types";
 import CirclesTableHeader from "@/components/circles/CirclesTableHeader";
@@ -26,6 +26,27 @@ const CirclesTable = ({
   const [selectedCircle, setSelectedCircle] = useState<string | null>(null);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
+  // Remove duplicates and sort circles by name
+  const uniqueCircles = useMemo(() => {
+    return Array.from(
+      new Map(circlesData.map(circle => [circle.name, circle])).values()
+    ).sort((a, b) => a.name.localeCompare(b.name, "ru"));
+  }, [circlesData]);
+  
+  // Pre-calculate all budgets in a single useMemo to avoid recalculations
+  const circleBudgets = useMemo(() => {
+    const budgetsMap = new Map();
+    
+    // Calculate budget summaries for all circles at once
+    uniqueCircles.forEach(circle => {
+      const circleName = circle.name.replace(/["']/g, '').trim();
+      const { budgetSummary } = useCircleRoles(circleName, rolesData, employees);
+      budgetsMap.set(circleName, budgetSummary);
+    });
+    
+    return budgetsMap;
+  }, [uniqueCircles, rolesData, employees]);
+
   const handleCircleClick = (circleName: string) => {
     setSelectedCircle(circleName);
     setIsSidebarOpen(true);
@@ -48,11 +69,6 @@ const CirclesTable = ({
     />;
   }
 
-  // Remove duplicates and sort circles by name
-  const uniqueCircles = Array.from(
-    new Map(circlesData.map(circle => [circle.name, circle])).values()
-  ).sort((a, b) => a.name.localeCompare(b.name, "ru"));
-
   return (
     <div className="w-full">
       <CirclesTableActions circlesCount={uniqueCircles.length} />
@@ -61,12 +77,8 @@ const CirclesTable = ({
           <CirclesTableHeader />
           <TableBody>
             {uniqueCircles.map((circle, index) => {
-              // Pre-calculate budget summary for each circle
-              const { budgetSummary } = useCircleRoles(
-                circle.name.replace(/["']/g, '').trim(),
-                rolesData,
-                employees
-              );
+              const circleName = circle.name.replace(/["']/g, '').trim();
+              const budgetSummary = circleBudgets.get(circleName);
               
               return (
                 <CircleRow
