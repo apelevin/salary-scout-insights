@@ -187,14 +187,3 @@ export const useCircleRoles = (
     };
   }, [circleName, rolesData, rolesWithSalaries, LEADER_ROLES, employees]);
 };
-
-// Helper function from employeeIncomeUtils.ts
-const parseActualIncome = (formattedIncome: string): number => {
-  if (!formattedIncome) {
-    return 0;
-  }
-  
-  // Remove currency symbol, spaces, and other non-numeric characters
-  const numericValue = parseFloat(formattedIncome.replace(/[^0-9.-]+/g, ""));
-  return isNaN(numericValue) ? 0 : numericValue;
-};
