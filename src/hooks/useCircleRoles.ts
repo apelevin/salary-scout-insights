@@ -79,7 +79,9 @@ export const calculateCircleBudget = (
   // Create a map for looking up role standard salaries faster
   const standardSalaryByRole = new Map();
   rolesWithSalaries.forEach(role => {
-    standardSalaryByRole.set(role.roleName.toLowerCase(), role.standardSalary);
+    if (role.roleName) { // Add null check for roleName
+      standardSalaryByRole.set(role.roleName.toLowerCase(), role.standardSalary);
+    }
   });
 
   // Filter roles that belong to the selected circle
@@ -213,6 +215,6 @@ export const useCircleRoles = (
 
   // Use the pure calculation function in a useMemo
   return useMemo(() => {
-    return calculateCircleBudget(circleName, rolesData, rolesWithSalaries, employees);
+    return calculateCircleBudget(circleName, rolesData, employees, rolesWithSalaries);
   }, [circleName, rolesData, rolesWithSalaries, employees]);
 };
