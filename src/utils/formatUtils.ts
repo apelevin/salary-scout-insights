@@ -1,6 +1,19 @@
+export const cleanFunctionalType = (type: string): string => {
+  // Удаляем кавычки и трим
+  const normalizedType = type.replace(/["']/g, '').trim().toLowerCase();
+  
+  // Handle "ft" prefix common in functional type notation
+  if (normalizedType.startsWith('ft')) {
+    return normalizedType.charAt(2).toUpperCase() + normalizedType.slice(3);
+  }
+  
+  // For other notations, just capitalize first letter
+  return normalizedType.charAt(0).toUpperCase() + normalizedType.slice(1);
+};
 
-import { Employee } from "@/types";
-
+/**
+ * Formats a salary number into a readable string with currency symbol
+ */
 export const formatSalary = (salary: number): string => {
   return new Intl.NumberFormat("ru-RU", {
     style: "currency",
@@ -9,40 +22,44 @@ export const formatSalary = (salary: number): string => {
   }).format(salary);
 };
 
+/**
+ * Formats a person's name to last name and first name format
+ */
 export const formatName = (name: string): string => {
+  if (!name) return '';
+  
+  // Remove quotes and trim whitespace
   const cleanName = name.replace(/["']/g, '').trim();
   
-  if (cleanName === "") {
-    return "Без имени";
-  }
-  
+  // Split by whitespace
   const nameParts = cleanName.split(/\s+/);
   
-  if (nameParts.length >= 2) {
-    return `${nameParts[0]} ${nameParts[1]}`;
-  }
+  // Return name in "LastName FirstName" format
+  // If there's only one part, return it as is
+  if (nameParts.length === 1) return nameParts[0];
   
-  return cleanName;
+  // Otherwise, return "LastName FirstName"
+  return nameParts.join(' ');
 };
 
+/**
+ * Formats an FTE (Full Time Equivalent) value to a string representation
+ */
 export const formatFTE = (fte: number): string => {
-  return fte.toLocaleString('ru-RU', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  return fte.toFixed(2);
 };
 
+/**
+ * Cleans and formats role names
+ */
 export const cleanRoleName = (roleName: string): string => {
-  return roleName.replace(/["']/g, '').trim();
-};
-
-// New utility function to clean functional type
-export const cleanFunctionalType = (type: string | undefined): string => {
-  if (!type) return '';
-  return type.replace(/["']/g, '').trim();
-};
-
-// New utility function for incognito mode name display
-export const formatNameIncognito = (name: string, incognitoMode: boolean): string => {
-  if (incognitoMode) {
-    return '░░░░░ ░░░░░';
-  }
-  return formatName(name);
+  if (!roleName) return '';
+  
+  // Remove quotes, trim whitespace
+  let cleanedName = roleName.replace(/["']/g, '').trim();
+  
+  // Capitalize first letter
+  cleanedName = cleanedName.charAt(0).toUpperCase() + cleanedName.slice(1).toLowerCase();
+  
+  return cleanedName;
 };

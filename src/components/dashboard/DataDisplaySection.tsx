@@ -3,8 +3,9 @@ import { BarChart } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import EmployeeTable from "@/components/employee-table/EmployeeTable";
-import RolesTable from "@/components/RolesTable";
+import RolesTable from "@/components/roles/RolesTable";
 import LeadershipTable from "@/components/leadership/LeadershipTable";
+import CirclesTable from "@/components/circles/CirclesTable";
 import { Employee, RoleData, CircleData, LeadershipData } from "@/types";
 
 interface DataDisplaySectionProps {
@@ -17,7 +18,9 @@ interface DataDisplaySectionProps {
   isProcessing: boolean;
   customStandardSalaries: Map<string, number>;
   onStandardSalaryChange: (roleName: string, newStandardSalary: number) => void;
+  onLeadershipDataChange?: (updatedData: LeadershipData[]) => void;
   incognitoMode?: boolean;
+  fullWidth?: boolean;
 }
 
 const DataDisplaySection = ({
@@ -30,10 +33,12 @@ const DataDisplaySection = ({
   isProcessing,
   customStandardSalaries,
   onStandardSalaryChange,
-  incognitoMode = false
+  onLeadershipDataChange,
+  incognitoMode = false,
+  fullWidth = false
 }: DataDisplaySectionProps) => {
   return (
-    <Card>
+    <Card className={fullWidth ? "w-full" : ""}>
       <CardContent className="p-6">
         <div className="flex items-center space-x-2 mb-4">
           <BarChart className="h-5 w-5 text-blue-500" />
@@ -44,12 +49,13 @@ const DataDisplaySection = ({
           onValueChange={setActiveTab}
           className="w-full"
         >
-          <TabsList className="w-full grid grid-cols-3 mb-4">
+          <TabsList className="w-full grid grid-cols-4 mb-4">
             <TabsTrigger value="employees">Сотрудники</TabsTrigger>
             <TabsTrigger value="roles">Роли</TabsTrigger>
+            <TabsTrigger value="circles">Круги</TabsTrigger>
             <TabsTrigger value="leadership">Лидерство</TabsTrigger>
           </TabsList>
-          <TabsContent value="employees">
+          <TabsContent value="employees" className="w-full">
             <EmployeeTable 
               employees={employees} 
               rolesData={rolesData}
@@ -60,19 +66,27 @@ const DataDisplaySection = ({
               incognitoMode={incognitoMode}
             />
           </TabsContent>
-          <TabsContent value="roles">
+          <TabsContent value="roles" className="w-full">
             <RolesTable
               rolesData={rolesData}
               employees={employees}
               isLoading={isProcessing}
               onStandardSalaryChange={onStandardSalaryChange}
+              customStandardSalaries={customStandardSalaries}
               incognitoMode={incognitoMode}
             />
           </TabsContent>
-          <TabsContent value="leadership">
+          <TabsContent value="circles" className="w-full">
+            <CirclesTable
+              circlesData={circlesData}
+              isLoading={isProcessing}
+            />
+          </TabsContent>
+          <TabsContent value="leadership" className="w-full">
             <LeadershipTable 
               leadershipData={leadershipData}
               isLoading={isProcessing}
+              onLeadershipDataChange={onLeadershipDataChange}
             />
           </TabsContent>
         </Tabs>

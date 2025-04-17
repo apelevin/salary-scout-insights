@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import DashboardHeader from "@/components/dashboard/DashboardHeader";
 import FileUploadSection from "@/components/dashboard/FileUploadSection";
@@ -10,6 +9,7 @@ import { EyeOff } from "lucide-react";
 const Index = () => {
   const [activeTab, setActiveTab] = useState("employees");
   const [incognitoMode, setIncognitoMode] = useState(false);
+  const [filesUploaded, setFilesUploaded] = useState(false);
   
   const {
     uploadedFiles,
@@ -22,8 +22,21 @@ const Index = () => {
     handleFilesUploaded,
     handleStandardSalaryChange,
     handleLeadershipFileUpload,
+    handleLeadershipDataChange,
     processFiles
   } = useFileProcessing();
+
+  const handleProcessFiles = () => {
+    processFiles();
+    setFilesUploaded(true);
+  };
+
+  const handleUploadFiles = (files) => {
+    handleFilesUploaded(files);
+    if (files.length > 0) {
+      setFilesUploaded(false);
+    }
+  };
 
   return (
     <div className="min-h-screen bg-background py-8">
@@ -39,19 +52,19 @@ const Index = () => {
           />
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-          <div className="lg:col-span-4">
+        <div className="grid grid-cols-1 gap-6">
+          {!filesUploaded && (
             <FileUploadSection 
               uploadedFiles={uploadedFiles}
               isProcessing={isProcessing}
-              onFilesUploaded={handleFilesUploaded}
-              onProcessFiles={processFiles}
+              onFilesUploaded={handleUploadFiles}
+              onProcessFiles={handleProcessFiles}
               onLeadershipFileUpload={handleLeadershipFileUpload}
               maxFiles={4}
             />
-          </div>
+          )}
 
-          <div className="lg:col-span-8">
+          {(filesUploaded || uploadedFiles.length > 0) && (
             <DataDisplaySection 
               activeTab={activeTab}
               setActiveTab={setActiveTab}
@@ -62,9 +75,11 @@ const Index = () => {
               isProcessing={isProcessing}
               customStandardSalaries={customStandardSalaries}
               onStandardSalaryChange={handleStandardSalaryChange}
+              onLeadershipDataChange={handleLeadershipDataChange}
               incognitoMode={incognitoMode}
+              fullWidth={filesUploaded}
             />
-          </div>
+          )}
         </div>
       </div>
     </div>
