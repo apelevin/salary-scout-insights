@@ -73,10 +73,8 @@ export function EmployeeDataProvider({
   const getEmployeeCircles = (employee: Employee | EmployeeWithRoles): string[] => {
     const circles: string[] = [];
     
-    if (!('roles' in employee)) return circles;
+    if (!rolesData || !rolesData.length) return circles;
     
-    // Find all circles for the employee based on roles data
-    const empWithRoles = employee as EmployeeWithRoles;
     const nameParts = employee.name.toLowerCase().split(' ');
     
     rolesData.forEach(roleData => {
