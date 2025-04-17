@@ -1,62 +1,63 @@
-import { Employee, EmployeeWithRoles } from "@/types";
-import { useMemo, useState } from "react";
 
-export function useEmployeeFilter(employees: Employee[]) {
-  const [searchTerm, setSearchTerm] = useState("");
-  const [departmentFilter, setDepartmentFilter] = useState("");
-  const [roleFilter, setRoleFilter] = useState("");
+import { useState, useEffect, useMemo } from "react";
+import { Employee, RoleData, CircleData, LeadershipData } from "@/types";
+import { processEmployeesWithRoles } from "@/utils/employeeUtils";
 
-  // Extract unique departments for filter dropdown
-  const departments = useMemo(() => {
-    const deptSet = new Set<string>();
-    employees.forEach((employee) => {
-      if (employee.department) {
-        deptSet.add(employee.department);
-      }
-    });
-    return Array.from(deptSet).sort();
-  }, [employees]);
-
-  // Extract unique roles for filter dropdown
-  const roles = useMemo(() => {
-    const roleSet = new Set<string>();
-    employees.forEach((employee) => {
-      if ('roles' in employee && Array.isArray(employee.roles)) {
-        (employee as EmployeeWithRoles).roles.forEach((role) => {
-          roleSet.add(role);
-        });
-      }
-    });
-    return Array.from(roleSet).sort();
-  }, [employees]);
-
-  // Filter employees based on search term and department
-  const filteredEmployees = useMemo(() => {
-    return employees.filter((employee) => {
-      const matchesSearch = !searchTerm || 
-        employee.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        (employee.position && employee.position.toLowerCase().includes(searchTerm.toLowerCase()));
-      
-      const matchesDepartment = !departmentFilter || 
-        employee.department === departmentFilter;
-      
-      const matchesRole = !roleFilter || 
-        ('roles' in employee && Array.isArray((employee as EmployeeWithRoles).roles) && 
-          (employee as EmployeeWithRoles).roles.includes(roleFilter));
-      
-      return matchesSearch && matchesDepartment && matchesRole;
-    });
-  }, [employees, searchTerm, departmentFilter, roleFilter]);
-
-  return {
-    searchTerm,
-    setSearchTerm,
-    departments,
-    departmentFilter,
-    setDepartmentFilter,
-    roles,
-    roleFilter,
-    setRoleFilter,
-    filteredEmployees,
-  };
+export interface UseEmployeeFilterParams {
+  employees: Employee[];
+  rolesData: RoleData[];
+  circlesData: CircleData[];
+  leadershipData: LeadershipData[];
+  customStandardSalaries: Map<string, number>;
+  searchTerm: string;
 }
+
+export const useEmployeeFilter = (
+  employees: Employee[],
+  rolesData: RoleData[] = [],
+  circlesData: CircleData[] = [],
+  customStandardSalaries: Map<string, number> = new Map(),
+  searchTerm: string = "",
+  leadershipData: LeadershipData[] = []
+) => {
+  const [filteredEmployees, setFilteredEmployees] = useState(employees);
+
+  // Process employees with roles and calculate derived data
+  const processedEmployees = useMemo(() => {
+    if (!employees.length) return [];
+    
+    // First, exclude "Пелевин Алексей" from the employees list
+    const filteredEmployeeList = employees.filter(employee => 
+      !employee.name.toLowerCase().includes("пелевин алексей")
+    );
+    
+    return processEmployeesWithRoles(
+      filteredEmployeeList, 
+      rolesData, 
+      customStandardSalaries, 
+      circlesData,
+      leadershipData
+    );
+  }, [employees, rolesData, customStandardSalaries, circlesData, leadershipData]);
+
+  // Apply search filter
+  useEffect(() => {
+    if (!searchTerm) {
+      setFilteredEmployees(processedEmployees);
+      return;
+    }
+
+    const lowerSearchTerm = searchTerm.toLowerCase();
+    const filtered = processedEmployees.filter(employee =>
+      employee.name.toLowerCase().includes(lowerSearchTerm) ||
+      (employee.position && employee.position.toLowerCase().includes(lowerSearchTerm)) ||
+      (employee.roles && employee.roles.some(role => 
+        role.toLowerCase().includes(lowerSearchTerm)
+      ))
+    );
+    
+    setFilteredEmployees(filtered);
+  }, [processedEmployees, searchTerm]);
+
+  return { filteredEmployees };
+};

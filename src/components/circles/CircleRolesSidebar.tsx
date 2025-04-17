@@ -10,11 +10,9 @@ import {
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { X } from "lucide-react";
 import { RoleData, Employee } from "@/types";
-import { cleanRoleName, formatName, formatFTE } from "@/utils/formatUtils";
-import { formatSalary } from "@/utils/employeeUtils";
+import { cleanRoleName, formatName, formatFTE, formatSalary } from "@/utils/formatUtils";
 import { useRolesData } from "@/hooks/useRolesData";
 import { useMemo } from "react";
-import { findEmployeeByName } from "@/utils/employeeUtils";
 
 interface CircleRolesSidebarProps {
   isOpen: boolean;
@@ -30,7 +28,6 @@ interface RoleWithParticipants {
     name: string;
     fte: number;
     standardIncome?: number;
-    actualIncome?: number;
   }>;
   standardSalary: number;
 }
@@ -101,10 +98,6 @@ const CircleRolesSidebar = ({
       // Calculate standard income based on FTE and standard salary
       const standardIncome = fte * standardSalary;
       
-      // Find the employee and calculate actual income based on their salary * FTE
-      const employee = findEmployeeByName(employees, participantName);
-      const actualIncome = employee ? employee.salary * fte : 0;
-      
       if (!acc.has(cleanedRoleName)) {
         acc.set(cleanedRoleName, {
           participants: [],
@@ -122,24 +115,17 @@ const CircleRolesSidebar = ({
         roleData.participants[existingParticipantIndex].fte += fte;
         roleData.participants[existingParticipantIndex].standardIncome = 
           roleData.participants[existingParticipantIndex].fte * standardSalary;
-        
-        // Update actual income
-        if (employee) {
-          roleData.participants[existingParticipantIndex].actualIncome = 
-            employee.salary * roleData.participants[existingParticipantIndex].fte;
-        }
       } else {
         // Add new participant
         roleData.participants.push({
           name: participantName,
           fte,
-          standardIncome,
-          actualIncome
+          standardIncome
         });
       }
       
       return acc;
-    }, new Map<string, { participants: Array<{name: string; fte: number; standardIncome?: number; actualIncome?: number}>; standardSalary: number }>());
+    }, new Map<string, { participants: Array<{name: string; fte: number; standardIncome?: number}>; standardSalary: number }>());
 
     // Convert map to array and sort by role name
     const rolesWithParticipants: RoleWithParticipants[] = Array.from(roleMap.entries())
@@ -154,7 +140,7 @@ const CircleRolesSidebar = ({
       circleLeader,
       rolesWithParticipants
     };
-  }, [circleName, rolesData, rolesWithSalaries, LEADER_ROLES, employees]);
+  }, [circleName, rolesData, rolesWithSalaries, LEADER_ROLES]);
 
   // Get leader name and FTE if available
   const leaderName = circleLeader ? formatName(circleLeader.participantName) : null;
@@ -172,11 +158,6 @@ const CircleRolesSidebar = ({
       {participant.standardIncome && participant.standardIncome > 0 && (
         <div className="text-xs text-gray-500 mt-1">
           Стандартный доход: {formatSalary(participant.standardIncome)}
-        </div>
-      )}
-      {participant.actualIncome && participant.actualIncome > 0 && (
-        <div className="text-xs text-gray-600 mt-1">
-          Текущий доход: {formatSalary(participant.actualIncome)}
         </div>
       )}
     </li>
