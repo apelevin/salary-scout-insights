@@ -1,6 +1,6 @@
 
 import { Table, TableBody } from "@/components/ui/table";
-import { CircleData, RoleData } from "@/types";
+import { CircleData } from "@/types";
 import CirclesTableHeader from "@/components/circles/CirclesTableHeader";
 import CircleRow from "@/components/circles/CircleRow";
 import LoadingState from "@/components/roles/LoadingState";
@@ -9,13 +9,11 @@ import CirclesTableActions from "@/components/circles/CirclesTableActions";
 
 interface CirclesTableProps {
   circlesData: CircleData[];
-  rolesData: RoleData[];
   isLoading?: boolean;
 }
 
 const CirclesTable = ({ 
   circlesData = [], 
-  rolesData = [],
   isLoading = false
 }: CirclesTableProps) => {
   
@@ -49,7 +47,6 @@ const CirclesTable = ({
                 index={index}
                 circleName={circle.name}
                 functionalType={circle.functionalType}
-                rolesData={rolesData}
               />
             ))}
           </TableBody>
@@ -60,3 +57,4 @@ const CirclesTable = ({
 };
 
 export default CirclesTable;
+

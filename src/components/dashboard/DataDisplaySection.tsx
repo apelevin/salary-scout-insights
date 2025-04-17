@@ -1,12 +1,11 @@
 
-import { BarChart, Code } from "lucide-react";
+import { BarChart } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import EmployeeTable from "@/components/employee-table/EmployeeTable";
 import RolesTable from "@/components/roles/RolesTable";
 import LeadershipTable from "@/components/leadership/LeadershipTable";
 import CirclesTable from "@/components/circles/CirclesTable";
-import VariablesTable from "@/components/variables/VariablesTable";
 import { Employee, RoleData, CircleData, LeadershipData } from "@/types";
 
 interface DataDisplaySectionProps {
@@ -50,12 +49,11 @@ const DataDisplaySection = ({
           onValueChange={setActiveTab}
           className="w-full"
         >
-          <TabsList className="w-full grid grid-cols-5 mb-4">
+          <TabsList className="w-full grid grid-cols-4 mb-4">
             <TabsTrigger value="employees">Сотрудники</TabsTrigger>
             <TabsTrigger value="roles">Роли</TabsTrigger>
             <TabsTrigger value="circles">Круги</TabsTrigger>
             <TabsTrigger value="leadership">Лидерство</TabsTrigger>
-            <TabsTrigger value="variables"><Code className="h-4 w-4 mr-2" />Переменные</TabsTrigger>
           </TabsList>
           <TabsContent value="employees" className="w-full">
             <EmployeeTable 
@@ -81,7 +79,6 @@ const DataDisplaySection = ({
           <TabsContent value="circles" className="w-full">
             <CirclesTable
               circlesData={circlesData}
-              rolesData={rolesData}
               isLoading={isProcessing}
             />
           </TabsContent>
@@ -91,9 +88,6 @@ const DataDisplaySection = ({
               isLoading={isProcessing}
               onLeadershipDataChange={onLeadershipDataChange}
             />
-          </TabsContent>
-          <TabsContent value="variables" className="w-full">
-            <VariablesTable />
           </TabsContent>
         </Tabs>
       </CardContent>
