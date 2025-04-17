@@ -43,7 +43,7 @@ const CircleRolesSidebar = ({
         <SheetHeader className="pr-8">
           <SheetTitle className="text-xl">{circleName || ""}</SheetTitle>
           <CircleLeaderInfo leaderName={leaderName} leaderFte={leaderFte} />
-          <SheetDescription className="text-base">
+          <SheetDescription>
             Роли в этом круге ({rolesWithParticipants.length})
           </SheetDescription>
         </SheetHeader>
@@ -72,7 +72,7 @@ const CircleRolesSidebar = ({
                 ))}
               </ul>
             ) : (
-              <p className="text-base text-gray-500">В этом круге нет определенных ролей</p>
+              <p className="text-sm text-gray-500">В этом круге нет определенных ролей</p>
             )}
           </div>
         </ScrollArea>
