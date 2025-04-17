@@ -5,7 +5,7 @@ import {
   Collapsible,
   CollapsibleContent,
   CollapsibleTrigger 
-} from "@/components/ui/accordion";
+} from "@/components/ui/collapsible";
 import { formatName } from "@/utils/formatUtils";
 import { RoleData } from "@/types";
 
