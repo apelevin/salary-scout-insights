@@ -34,14 +34,14 @@ const EmployeeTable = ({
   const [selectedEmployee, setSelectedEmployee] = useState<Employee | EmployeeWithRoles | null>(null);
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
-  const { filteredEmployees } = useEmployeeFilter(
+  const { filteredEmployees } = useEmployeeFilter({
     employees,
     rolesData,
     circlesData,
     customStandardSalaries,
     searchTerm,
     leadershipData
-  );
+  });
 
   const { sortedEmployees, sortDirection, sortField, toggleSort } = 
     useSortableEmployees(filteredEmployees as (Employee | EmployeeWithRoles)[]);

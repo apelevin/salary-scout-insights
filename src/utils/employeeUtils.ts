@@ -1,3 +1,4 @@
+
 import { Employee, RoleData, EmployeeWithRoles, CircleData, LeadershipData } from "@/types";
 import { formatName, cleanRoleName, cleanFunctionalType } from "./formatUtils";
 import { calculateStandardSalary } from "./salaryUtils";
@@ -187,6 +188,30 @@ export const findCircleLeadershipInfo = (
     circleType, 
     circleCount
   };
+};
+
+// Function to find employee by name in the employees list
+export const findEmployeeByName = (employees: Employee[], formattedName: string): Employee | undefined => {
+  if (!employees?.length || !formattedName) return undefined;
+  
+  // First try exact match
+  let employee = employees.find(emp => {
+    const empFormattedName = formatName(emp.name);
+    return empFormattedName === formattedName;
+  });
+  
+  // If no exact match, try matching just the last name
+  if (!employee) {
+    const lastName = formattedName.split(' ')[0]?.toLowerCase();
+    if (lastName) {
+      employee = employees.find(emp => {
+        const empNameParts = formatName(emp.name).toLowerCase().split(' ');
+        return empNameParts[0] === lastName;
+      });
+    }
+  }
+  
+  return employee;
 };
 
 // These functions are kept for backwards compatibility but are no longer used directly

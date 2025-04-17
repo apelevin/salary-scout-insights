@@ -12,14 +12,14 @@ export interface UseEmployeeFilterParams {
   searchTerm: string;
 }
 
-export const useEmployeeFilter = (
-  employees: Employee[],
-  rolesData: RoleData[] = [],
-  circlesData: CircleData[] = [],
-  customStandardSalaries: Map<string, number> = new Map(),
-  searchTerm: string = "",
-  leadershipData: LeadershipData[] = []
-) => {
+export const useEmployeeFilter = ({
+  employees,
+  rolesData = [],
+  circlesData = [],
+  leadershipData = [],
+  customStandardSalaries = new Map(),
+  searchTerm = "",
+}: UseEmployeeFilterParams) => {
   const [filteredEmployees, setFilteredEmployees] = useState(employees);
 
   // Process employees with roles and calculate derived data
