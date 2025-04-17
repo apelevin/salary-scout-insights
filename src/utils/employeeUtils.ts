@@ -27,3 +27,28 @@ export const findEmployeeByName = (employees: Employee[], formattedName: string)
   
   return employee;
 };
+
+/**
+ * Re-export formatName and formatSalary from formatUtils for backward compatibility
+ */
+export { formatName, formatSalary } from './formatUtils';
+
+/**
+ * Process employees with roles and calculate derived data
+ * This is a stub function that should be implemented or imported from another file
+ */
+export const processEmployeesWithRoles = (
+  employees: Employee[], 
+  rolesData: any[], 
+  customStandardSalaries: Map<string, number>,
+  circlesData: any[],
+  leadershipData: any[]
+) => {
+  // This is a placeholder implementation - you should replace it with the actual implementation
+  // Since this function is used in useEmployeeFilter.ts but wasn't defined in employeeUtils.ts
+  return employees.map(employee => ({
+    ...employee,
+    // Add any additional properties that might be needed
+    standardSalary: customStandardSalaries.get(employee.name) || employee.salary
+  }));
+};
