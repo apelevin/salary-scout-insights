@@ -1,5 +1,5 @@
 
-import { TooltipProvider, Tooltip, TooltipTrigger, TooltipContent } from "@/components/ui/tooltip";
+import { Tooltip, TooltipTrigger, TooltipContent } from "@/components/ui/tooltip";
 import { AlertTriangle } from "lucide-react";
 
 interface SalaryDisplayProps {
@@ -25,16 +25,14 @@ const SalaryDisplay = ({
     <div className="flex items-center gap-2">
       {formattedValue}
       {needsWarning && (
-        <TooltipProvider>
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <AlertTriangle size={16} className="text-[#F97316]" />
-            </TooltipTrigger>
-            <TooltipContent>
-              <p>{warningMessage}</p>
-            </TooltipContent>
-          </Tooltip>
-        </TooltipProvider>
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <AlertTriangle size={16} className="text-[#F97316]" />
+          </TooltipTrigger>
+          <TooltipContent>
+            <p>{warningMessage}</p>
+          </TooltipContent>
+        </Tooltip>
       )}
     </div>
   );
