@@ -79,8 +79,6 @@ const DataDisplaySection = ({
           <TabsContent value="circles" className="w-full">
             <CirclesTable
               circlesData={circlesData}
-              rolesData={rolesData}
-              employees={employees}
               isLoading={isProcessing}
             />
           </TabsContent>
