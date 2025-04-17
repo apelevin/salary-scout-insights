@@ -9,56 +9,101 @@ import {
 } from "@/components/ui/sheet";
 import { X } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { RoleData } from "@/types";
-import { cleanRoleName, formatName } from "@/utils/formatUtils";
+import { RoleData, Employee } from "@/types";
+import { cleanRoleName, formatName, formatFTE, formatSalary } from "@/utils/formatUtils";
+import { useRolesData } from "@/hooks/useRolesData";
 
 interface CircleRolesSidebarProps {
   isOpen: boolean;
   onClose: () => void;
   circleName: string | null;
   rolesData: RoleData[];
+  employees: Employee[];
 }
 
-interface RoleWithParticipant {
+interface RoleWithParticipants {
   roleName: string;
-  participants: string[];
+  participants: Array<{
+    name: string;
+    fte: number;
+    standardIncome?: number;
+  }>;
+  standardSalary: number;
 }
 
 const CircleRolesSidebar = ({
   isOpen,
   onClose,
   circleName,
-  rolesData
+  rolesData,
+  employees
 }: CircleRolesSidebarProps) => {
+  // Get roles data with standard salaries
+  const { roles: rolesWithSalaries } = useRolesData(rolesData, employees);
+
   // Filter roles that belong to the selected circle
   const circleRoles = rolesData.filter(role => {
     return role.circleName && 
            role.circleName.replace(/["']/g, '').trim() === circleName;
   });
 
-  // Group roles by name and collect participants for each role
-  const roleMap = new Map<string, string[]>();
+  // Group roles by name and collect participants with FTE for each role
+  const roleMap = new Map<string, Array<{name: string; fte: number; standardIncome?: number}>>();
+  const roleStandardSalaries = new Map<string, number>();
   
   circleRoles.forEach(role => {
     const cleanedRoleName = cleanRoleName(role.roleName);
     const participantName = formatName(role.participantName);
+    const fte = role.fte || 0;
+    
+    // Find standard salary for this role
+    const roleSalaryInfo = rolesWithSalaries.find(r => 
+      r.roleName.toLowerCase() === cleanedRoleName.toLowerCase()
+    );
+    const standardSalary = roleSalaryInfo?.standardSalary || 0;
+    
+    // Store standard salary for this role
+    roleStandardSalaries.set(cleanedRoleName, standardSalary);
+    
+    // Calculate standard income based on FTE and standard salary
+    const standardIncome = fte * standardSalary;
     
     if (roleMap.has(cleanedRoleName)) {
       const participants = roleMap.get(cleanedRoleName) || [];
-      if (!participants.includes(participantName)) {
-        participants.push(participantName);
+      
+      // Check if participant already exists
+      const existingParticipant = participants.findIndex(p => p.name === participantName);
+      
+      if (existingParticipant >= 0) {
+        // Update existing participant's FTE
+        participants[existingParticipant].fte += fte;
+        participants[existingParticipant].standardIncome = 
+          (participants[existingParticipant].fte * standardSalary);
+      } else {
+        // Add new participant
+        participants.push({
+          name: participantName,
+          fte,
+          standardIncome
+        });
       }
+      
       roleMap.set(cleanedRoleName, participants);
     } else {
-      roleMap.set(cleanedRoleName, [participantName]);
+      roleMap.set(cleanedRoleName, [{
+        name: participantName,
+        fte,
+        standardIncome
+      }]);
     }
   });
 
   // Convert map to array and sort by role name
-  const rolesWithParticipants: RoleWithParticipant[] = Array.from(roleMap.entries())
+  const rolesWithParticipants: RoleWithParticipants[] = Array.from(roleMap.entries())
     .map(([roleName, participants]) => ({
       roleName,
-      participants: participants.sort((a, b) => a.localeCompare(b, "ru"))
+      participants: participants.sort((a, b) => a.name.localeCompare(b.name, "ru")),
+      standardSalary: roleStandardSalaries.get(roleName) || 0
     }))
     .sort((a, b) => a.roleName.localeCompare(b.roleName, "ru"));
 
@@ -78,14 +123,31 @@ const CircleRolesSidebar = ({
         
         <div className="mt-6 space-y-1">
           {rolesWithParticipants.length > 0 ? (
-            <ul className="space-y-4">
+            <ul className="space-y-6">
               {rolesWithParticipants.map((role, index) => (
-                <li key={index} className="px-2 py-1 rounded-md">
-                  <div className="font-medium">{role.roleName}</div>
-                  <ul className="pl-4 mt-1 text-sm text-gray-600 space-y-1">
+                <li key={index} className="px-2 py-2 rounded-md border border-gray-100">
+                  <div className="font-medium">
+                    {role.roleName}
+                    {role.standardSalary > 0 && (
+                      <div className="text-xs text-gray-500 mt-1">
+                        Стандартный оклад: {formatSalary(role.standardSalary)}
+                      </div>
+                    )}
+                  </div>
+                  <ul className="pl-4 mt-2 text-sm text-gray-600 space-y-2">
                     {role.participants.map((participant, idx) => (
-                      <li key={idx} className="hover:bg-gray-100 rounded-sm px-1">
-                        {participant}
+                      <li key={idx} className="hover:bg-gray-100 rounded-sm px-1 py-1">
+                        <div className="flex justify-between items-center">
+                          <span>{participant.name}</span>
+                          <span className="text-gray-500 font-mono">
+                            FTE: {formatFTE(participant.fte)}
+                          </span>
+                        </div>
+                        {participant.standardIncome && participant.standardIncome > 0 && (
+                          <div className="text-xs text-gray-500 mt-1">
+                            Стандартный доход: {formatSalary(participant.standardIncome)}
+                          </div>
+                        )}
                       </li>
                     ))}
                   </ul>

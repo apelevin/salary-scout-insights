@@ -1,3 +1,4 @@
+
 export const cleanFunctionalType = (type: string): string => {
   // Удаляем кавычки и трим
   const normalizedType = type.replace(/["']/g, '').trim().toLowerCase();
@@ -38,8 +39,8 @@ export const formatName = (name: string): string => {
   // If there's only one part, return it as is
   if (nameParts.length === 1) return nameParts[0];
   
-  // Otherwise, return "LastName FirstName"
-  return nameParts.join(' ');
+  // Get only first two parts (last name and first name) to exclude middle name/patronymic
+  return nameParts.slice(0, 2).join(' ');
 };
 
 /**
