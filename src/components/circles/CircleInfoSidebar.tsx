@@ -9,6 +9,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { CircleData, Employee } from "@/types";
 import { Circle, Users } from "lucide-react";
+import { formatName } from "@/utils/formatUtils";
 
 interface CircleInfoSidebarProps {
   circleName: string | null;
@@ -75,7 +76,7 @@ const CircleInfoSidebar = ({
               <ul className="mt-2 space-y-2">
                 {circleEmployees.map((employee) => (
                   <li key={employee.id} className="flex items-center gap-2 p-2 rounded-md bg-muted">
-                    <span>{employee.name}</span>
+                    <span>{formatName(employee.name)}</span>
                   </li>
                 ))}
               </ul>
