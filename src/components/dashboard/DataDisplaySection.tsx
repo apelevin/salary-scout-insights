@@ -1,12 +1,14 @@
 
-import { BarChart } from "lucide-react";
-import { Card, CardContent } from "@/components/ui/card";
+import React, { useState } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Employee, LeadershipData, RoleData, CircleData } from "@/types";
 import EmployeeTable from "@/components/employee-table/EmployeeTable";
 import RolesTable from "@/components/roles/RolesTable";
+import CirclesTable from "@/components/circles/CirclesTable"; 
 import LeadershipTable from "@/components/leadership/LeadershipTable";
-import CirclesTable from "@/components/circles/CirclesTable";
-import { Employee, RoleData, CircleData, LeadershipData } from "@/types";
+import EmployeeInfoSidebar from "@/components/EmployeeInfoSidebar";
+import { filterEmployeesWithRoles } from "@/utils/employeeUtils";
+import { useRolesData } from "@/hooks/useRolesData";
 
 interface DataDisplaySectionProps {
   activeTab: string;
@@ -16,9 +18,9 @@ interface DataDisplaySectionProps {
   circlesData: CircleData[];
   leadershipData: LeadershipData[];
   isProcessing: boolean;
-  customStandardSalaries: Map<string, number>;
-  onStandardSalaryChange: (roleName: string, newStandardSalary: number) => void;
-  onLeadershipDataChange?: (updatedData: LeadershipData[]) => void;
+  customStandardSalaries?: Map<string, number>;
+  onStandardSalaryChange: (roleName: string, value: number) => void;
+  onLeadershipDataChange: (data: LeadershipData[]) => void;
   incognitoMode?: boolean;
   fullWidth?: boolean;
 }
@@ -37,61 +39,92 @@ const DataDisplaySection = ({
   incognitoMode = false,
   fullWidth = false
 }: DataDisplaySectionProps) => {
+  const [selectedEmployee, setSelectedEmployee] = useState<Employee | null>(null);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  
+  const employeesWithRoles = filterEmployeesWithRoles(employees, rolesData);
+  const { roles } = useRolesData(rolesData, employees, customStandardSalaries);
+
+  const handleOpenSidebar = (employee: Employee) => {
+    setSelectedEmployee(employee);
+    setIsSidebarOpen(true);
+  };
+
+  const handleCloseSidebar = () => {
+    setIsSidebarOpen(false);
+  };
+
   return (
-    <Card className={fullWidth ? "w-full" : ""}>
-      <CardContent className="p-6">
-        <div className="flex items-center space-x-2 mb-4">
-          <BarChart className="h-5 w-5 text-blue-500" />
-          <h2 className="text-xl font-semibold text-foreground">Данные</h2>
-        </div>
-        <Tabs 
-          value={activeTab} 
-          onValueChange={setActiveTab}
-          className="w-full"
-        >
-          <TabsList className="w-full grid grid-cols-4 mb-4">
-            <TabsTrigger value="employees">Сотрудники</TabsTrigger>
-            <TabsTrigger value="roles">Роли</TabsTrigger>
-            <TabsTrigger value="circles">Круги</TabsTrigger>
-            <TabsTrigger value="leadership">Лидерство</TabsTrigger>
-          </TabsList>
-          <TabsContent value="employees" className="w-full">
-            <EmployeeTable 
-              employees={employees} 
-              rolesData={rolesData}
-              circlesData={circlesData}
-              leadershipData={leadershipData}
-              isLoading={isProcessing} 
-              customStandardSalaries={customStandardSalaries}
-              incognitoMode={incognitoMode}
-            />
-          </TabsContent>
-          <TabsContent value="roles" className="w-full">
-            <RolesTable
-              rolesData={rolesData}
-              employees={employees}
-              isLoading={isProcessing}
-              onStandardSalaryChange={onStandardSalaryChange}
-              customStandardSalaries={customStandardSalaries}
-              incognitoMode={incognitoMode}
-            />
-          </TabsContent>
-          <TabsContent value="circles" className="w-full">
-            <CirclesTable
-              circlesData={circlesData}
-              isLoading={isProcessing}
-            />
-          </TabsContent>
-          <TabsContent value="leadership" className="w-full">
-            <LeadershipTable 
-              leadershipData={leadershipData}
-              isLoading={isProcessing}
-              onLeadershipDataChange={onLeadershipDataChange}
-            />
-          </TabsContent>
-        </Tabs>
-      </CardContent>
-    </Card>
+    <div className={`bg-white rounded-lg border ${fullWidth ? 'w-full' : ''}`}>
+      <Tabs value={activeTab} onValueChange={setActiveTab}>
+        <TabsList className="border-b w-full justify-start rounded-none p-0">
+          <TabsTrigger 
+            value="employees" 
+            className="rounded-none data-[state=active]:border-b-2 data-[state=active]:border-blue-500 data-[state=active]:shadow-none px-6 py-3"
+          >
+            Сотрудники
+          </TabsTrigger>
+          <TabsTrigger 
+            value="roles" 
+            className="rounded-none data-[state=active]:border-b-2 data-[state=active]:border-blue-500 data-[state=active]:shadow-none px-6 py-3"
+          >
+            Роли
+          </TabsTrigger>
+          <TabsTrigger 
+            value="circles" 
+            className="rounded-none data-[state=active]:border-b-2 data-[state=active]:border-blue-500 data-[state=active]:shadow-none px-6 py-3"
+          >
+            Круги
+          </TabsTrigger>
+          <TabsTrigger 
+            value="leadership" 
+            className="rounded-none data-[state=active]:border-b-2 data-[state=active]:border-blue-500 data-[state=active]:shadow-none px-6 py-3"
+          >
+            Лидерство
+          </TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="employees" className="p-4">
+          <EmployeeTable 
+            employees={employeesWithRoles} 
+            isLoading={isProcessing}
+            onSelectEmployee={handleOpenSidebar}
+            incognitoMode={incognitoMode}
+          />
+        </TabsContent>
+
+        <TabsContent value="roles" className="p-4">
+          <RolesTable 
+            roles={roles}
+            isLoading={isProcessing}
+            onStandardSalaryChange={onStandardSalaryChange}
+          />
+        </TabsContent>
+
+        <TabsContent value="circles" className="p-4">
+          <CirclesTable 
+            circlesData={circlesData}
+            isLoading={isProcessing}
+          />
+        </TabsContent>
+
+        <TabsContent value="leadership" className="p-4">
+          <LeadershipTable 
+            leadershipData={leadershipData}
+            onLeadershipDataChange={onLeadershipDataChange}
+          />
+        </TabsContent>
+      </Tabs>
+
+      <EmployeeInfoSidebar 
+        employee={selectedEmployee} 
+        open={isSidebarOpen} 
+        onClose={handleCloseSidebar}
+        leadershipData={leadershipData}
+        rolesData={rolesData}
+        incognitoMode={incognitoMode}
+      />
+    </div>
   );
 };
 
