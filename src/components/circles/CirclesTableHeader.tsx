@@ -8,6 +8,9 @@ const CirclesTableHeader = () => {
         <TableHead className="w-[60px]">№</TableHead>
         <TableHead>Название круга</TableHead>
         <TableHead>Функциональная принадлежность</TableHead>
+        <TableHead>Стандартный бюджет</TableHead>
+        <TableHead>Текущий бюджет</TableHead>
+        <TableHead>Разница</TableHead>
       </TableRow>
     </TableHeader>
   );

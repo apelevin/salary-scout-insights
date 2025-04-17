@@ -1,3 +1,4 @@
+
 import { useMemo } from "react";
 import { RoleData, Employee } from "@/types";
 import { cleanRoleName, formatName } from "@/utils/formatUtils";
@@ -18,6 +19,12 @@ export interface RoleWithParticipants {
   standardSalary: number;
 }
 
+export interface CircleBudgetSummary {
+  totalStandardIncome: number;
+  totalActualIncome: number;
+  percentageDifference: number;
+}
+
 export const useCircleRoles = (
   circleName: string | null,
   rolesData: RoleData[],
@@ -36,7 +43,13 @@ export const useCircleRoles = (
   // Process circle data using useMemo to avoid recalculations
   return useMemo(() => {
     if (!circleName) {
-      return { circleLeader: undefined, rolesWithParticipants: [], leaderName: null, leaderFte: 0 };
+      return { 
+        circleLeader: undefined, 
+        rolesWithParticipants: [], 
+        leaderName: null, 
+        leaderFte: 0,
+        budgetSummary: { totalStandardIncome: 0, totalActualIncome: 0, percentageDifference: 0 }
+      };
     }
     
     // Find leader for this circle
@@ -135,6 +148,33 @@ export const useCircleRoles = (
       }))
       .sort((a, b) => a.roleName.localeCompare(b.roleName, "ru"));
 
+    // Calculate totals for both standard and actual income
+    let totalStandardIncome = 0;
+    let totalActualIncome = 0;
+
+    // Iterate through all roles and their participants
+    rolesWithParticipants.forEach(role => {
+      role.participants.forEach(participant => {
+        // Add standard income if available
+        if (participant.standardIncome) {
+          totalStandardIncome += participant.standardIncome;
+        }
+        
+        // Add actual income if available (need to convert from currency string to number)
+        if (participant.actualIncome) {
+          // Extract numeric value from currency string (removing currency symbol and spaces)
+          const numericValue = parseActualIncome(participant.actualIncome);
+          if (!isNaN(numericValue)) {
+            totalActualIncome += numericValue;
+          }
+        }
+      });
+    });
+
+    // Calculate percentage difference
+    const percentageDifference = totalStandardIncome === 0 ? 0 : 
+      Math.round(((totalActualIncome - totalStandardIncome) / totalStandardIncome) * 10000) / 100;
+
     // Get leader name and FTE if available
     const leaderName = circleLeader ? formatName(circleLeader.participantName) : null;
     const leaderFte = circleLeader ? circleLeader.fte || 0 : 0;
@@ -143,7 +183,19 @@ export const useCircleRoles = (
       circleLeader,
       rolesWithParticipants,
       leaderName,
-      leaderFte
+      leaderFte,
+      budgetSummary: { totalStandardIncome, totalActualIncome, percentageDifference }
     };
   }, [circleName, rolesData, rolesWithSalaries, LEADER_ROLES, employees]);
+};
+
+// Helper function from employeeIncomeUtils.ts
+const parseActualIncome = (formattedIncome: string): number => {
+  if (!formattedIncome) {
+    return 0;
+  }
+  
+  // Remove currency symbol, spaces, and other non-numeric characters
+  const numericValue = parseFloat(formattedIncome.replace(/[^0-9.-]+/g, ""));
+  return isNaN(numericValue) ? 0 : numericValue;
 };

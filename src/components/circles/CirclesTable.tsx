@@ -8,6 +8,7 @@ import CircleRolesSidebar from "@/components/circles/CircleRolesSidebar";
 import LoadingState from "@/components/roles/LoadingState";
 import EmptyState from "@/components/roles/EmptyState";
 import CirclesTableActions from "@/components/circles/CirclesTableActions";
+import { useCircleRoles } from "@/hooks/useCircleRoles";
 
 interface CirclesTableProps {
   circlesData: CircleData[];
@@ -59,15 +60,25 @@ const CirclesTable = ({
         <Table>
           <CirclesTableHeader />
           <TableBody>
-            {uniqueCircles.map((circle, index) => (
-              <CircleRow
-                key={circle.name}
-                index={index}
-                circleName={circle.name}
-                functionalType={circle.functionalType}
-                onCircleClick={handleCircleClick}
-              />
-            ))}
+            {uniqueCircles.map((circle, index) => {
+              // Pre-calculate budget summary for each circle
+              const { budgetSummary } = useCircleRoles(
+                circle.name.replace(/["']/g, '').trim(),
+                rolesData,
+                employees
+              );
+              
+              return (
+                <CircleRow
+                  key={circle.name}
+                  index={index}
+                  circleName={circle.name}
+                  functionalType={circle.functionalType}
+                  onCircleClick={handleCircleClick}
+                  budgetSummary={budgetSummary}
+                />
+              );
+            })}
           </TableBody>
         </Table>
       </div>
