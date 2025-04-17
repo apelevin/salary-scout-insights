@@ -4,7 +4,6 @@ import { Badge } from "@/components/ui/badge";
 import { DollarSign } from "lucide-react";
 import { Employee, EmployeeWithRoles } from "@/types";
 import { formatSalary } from "@/utils/formatUtils";
-import { calculateSalaryDifference, calculateSalaryPercentage } from "@/utils/salaryDifferenceUtils";
 
 interface FinancialInfoProps {
   employee: Employee | EmployeeWithRoles;
@@ -13,16 +12,14 @@ interface FinancialInfoProps {
 export const FinancialInfo = ({ employee }: FinancialInfoProps) => {
   // Check if employee has standardSalary (specific to EmployeeWithRoles)
   const hasStandardSalary = 'standardSalary' in employee && employee.standardSalary && employee.standardSalary > 0;
-  
-  // Calculate difference and percentage using utility functions
-  const difference = hasStandardSalary ? 
-    calculateSalaryDifference(employee.salary, (employee as EmployeeWithRoles).standardSalary!) : 
-    0;
-  
-  const percentageDiff = hasStandardSalary ? 
-    calculateSalaryPercentage(employee.salary, (employee as EmployeeWithRoles).standardSalary!) : 
-    0;
-  
+
+  // Calculate the difference as standardSalary - salary
+  const calculateDifference = () => {
+    if (!hasStandardSalary) return 0;
+    return (employee as EmployeeWithRoles).standardSalary! - employee.salary;
+  };
+
+  const difference = calculateDifference();
   const isPositive = difference > 0;
 
   return (
@@ -50,16 +47,10 @@ export const FinancialInfo = ({ employee }: FinancialInfoProps) => {
         {hasStandardSalary && (
           <div className="flex justify-between items-center pt-1">
             <span className="text-sm text-gray-500">Разница:</span>
-            <div className="flex items-center gap-2">
-              <Badge className={isPositive ? "bg-green-500" : "bg-red-500"}>
-                {isPositive ? "+" : ""}
-                {formatSalary(difference)}
-              </Badge>
-              <Badge variant="outline" className={`${isPositive ? "text-green-500 border-green-500" : "text-red-500 border-red-500"}`}>
-                {isPositive ? "+" : ""}
-                {Math.abs(percentageDiff).toFixed(1)}%
-              </Badge>
-            </div>
+            <Badge className={isPositive ? "bg-green-500" : "bg-red-500"}>
+              {isPositive ? "+" : ""}
+              {formatSalary(difference)}
+            </Badge>
           </div>
         )}
       </CardContent>
