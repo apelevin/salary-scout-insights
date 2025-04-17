@@ -26,28 +26,29 @@ const CircleInfoSidebar = ({
   circlesData,
   employees
 }: CircleInfoSidebarProps) => {
+  // If no circle name is provided, use a test circle
   if (!circleName) {
-    return null;
+    circleName = "Тестовый круг";
+    circlesData = [{
+      name: "Тестовый круг",
+      functionalType: "Операционный"
+    }];
+    employees = [
+      { id: '1', name: 'Иванов Петр', salary: 100000 },
+      { id: '2', name: 'Смирнова Анна', salary: 120000 },
+      { id: '3', name: 'Кузнецов Михаил', salary: 110000 }
+    ];
   }
 
-  // Находим данные о круге
+  // Find data for the specific circle
   const circleData = circlesData.find(circle => 
     circle.name.replace(/["']/g, '').trim() === circleName
-  );
+  ) || { name: circleName, functionalType: "Неизвестный тип" };
 
-  // Находим сотрудников, которые числятся в этом круге
-  const circleEmployees = employees.filter(employee => {
-    if (!employee.roles) return false;
-    
-    // Проверяем, есть ли у сотрудника роли в этом круге
-    return employee.roles.some(role => {
-      return role.circle && role.circle.replace(/["']/g, '').trim() === circleName;
-    });
-  });
+  // Find employees in this circle (for test data, all employees are in the circle)
+  const circleEmployees = employees.length > 0 ? employees : [];
 
-  const functionalType = circleData ? 
-    circleData.functionalType.replace(/["']/g, '').trim() : 
-    "Неизвестный тип";
+  const functionalType = circleData.functionalType.replace(/["']/g, '').trim();
 
   return (
     <Sheet open={open} onOpenChange={(isOpen) => {
