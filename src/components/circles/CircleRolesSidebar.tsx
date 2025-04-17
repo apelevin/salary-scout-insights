@@ -12,6 +12,7 @@ import { X } from "lucide-react";
 import { RoleData, Employee } from "@/types";
 import CircleLeaderInfo from "./sidebar/CircleLeaderInfo";
 import CircleRole from "./sidebar/CircleRole";
+import CircleSummaryCards from "./sidebar/CircleSummaryCards";
 import { useCircleRoles } from "@/hooks/useCircleRoles";
 
 interface CircleRolesSidebarProps {
@@ -52,6 +53,11 @@ const CircleRolesSidebar = ({
         </SheetClose>
         
         <ScrollArea className="mt-6 h-[calc(100vh-180px)]">
+          {/* Add the dashboard cards at the top */}
+          {rolesWithParticipants.length > 0 && (
+            <CircleSummaryCards roles={rolesWithParticipants} />
+          )}
+          
           <div className="space-y-1 pr-4">
             {rolesWithParticipants.length > 0 ? (
               <ul className="space-y-6">

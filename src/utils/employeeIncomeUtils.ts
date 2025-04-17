@@ -36,3 +36,16 @@ export const formatActualIncome = (
     maximumFractionDigits: 0,
   }).format(actualIncome);
 };
+
+/**
+ * Parse numeric value from a formatted currency string
+ */
+export const parseActualIncome = (formattedIncome: string): number => {
+  if (!formattedIncome) {
+    return 0;
+  }
+  
+  // Remove currency symbol, spaces, and other non-numeric characters
+  const numericValue = parseFloat(formattedIncome.replace(/[^0-9.-]+/g, ""));
+  return isNaN(numericValue) ? 0 : numericValue;
+};
