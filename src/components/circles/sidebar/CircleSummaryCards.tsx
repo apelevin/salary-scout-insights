@@ -54,10 +54,10 @@ const CircleSummaryCards: React.FC<CircleSummaryCardsProps> = ({ roles }) => {
 
   return (
     <div className="grid grid-cols-3 gap-4 mb-6">
-      <Card className="shadow-sm">
-        <CardContent className="pt-6">
+      <Card>
+        <CardContent className="pt-4">
           <div className="text-center">
-            <h3 className="text-sm font-medium text-muted-foreground mb-2">
+            <h3 className="text-sm font-medium text-muted-foreground">
               Стандартный доход
             </h3>
             <p className="text-lg font-bold">
@@ -67,10 +67,10 @@ const CircleSummaryCards: React.FC<CircleSummaryCardsProps> = ({ roles }) => {
         </CardContent>
       </Card>
       
-      <Card className="shadow-sm">
-        <CardContent className="pt-6">
+      <Card>
+        <CardContent className="pt-4">
           <div className="text-center">
-            <h3 className="text-sm font-medium text-muted-foreground mb-2">
+            <h3 className="text-sm font-medium text-muted-foreground">
               Текущий доход
             </h3>
             <p className="text-lg font-bold">
@@ -80,10 +80,10 @@ const CircleSummaryCards: React.FC<CircleSummaryCardsProps> = ({ roles }) => {
         </CardContent>
       </Card>
       
-      <Card className="shadow-sm">
-        <CardContent className="pt-6">
+      <Card>
+        <CardContent className="pt-4">
           <div className="text-center">
-            <h3 className="text-sm font-medium text-muted-foreground mb-2">
+            <h3 className="text-sm font-medium text-muted-foreground">
               Разница
             </h3>
             <p className={`text-lg font-bold ${isPositive ? 'text-green-600' : 'text-red-600'}`}>

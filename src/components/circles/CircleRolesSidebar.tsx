@@ -40,10 +40,10 @@ const CircleRolesSidebar = ({
   return (
     <Sheet open={isOpen} onOpenChange={(open) => !open && onClose()}>
       <SheetContent className="sm:max-w-md">
-        <SheetHeader className="pr-8 pb-2 border-b">
-          <SheetTitle className="text-xl font-bold">{circleName || ""}</SheetTitle>
+        <SheetHeader className="pr-8">
+          <SheetTitle className="text-xl">{circleName || ""}</SheetTitle>
           <CircleLeaderInfo leaderName={leaderName} leaderFte={leaderFte} />
-          <SheetDescription className="mt-2">
+          <SheetDescription>
             Роли в этом круге ({rolesWithParticipants.length})
           </SheetDescription>
         </SheetHeader>
@@ -58,9 +58,9 @@ const CircleRolesSidebar = ({
             <CircleSummaryCards roles={rolesWithParticipants} />
           )}
           
-          <div className="pr-4">
+          <div className="space-y-1 pr-4">
             {rolesWithParticipants.length > 0 ? (
-              <ul className="space-y-4">
+              <ul className="space-y-6">
                 {rolesWithParticipants.map((role, index) => (
                   <CircleRole
                     key={index}
@@ -72,9 +72,7 @@ const CircleRolesSidebar = ({
                 ))}
               </ul>
             ) : (
-              <div className="text-sm text-gray-500 p-4 text-center bg-gray-50 rounded-md">
-                В этом круге нет определенных ролей
-              </div>
+              <p className="text-sm text-gray-500">В этом круге нет определенных ролей</p>
             )}
           </div>
         </ScrollArea>
